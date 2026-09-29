@@ -59,19 +59,6 @@ Before running the project, make sure you have installed:
 npm install
 ```
 
-## Environment Variables
-
-Create a `.env` file in the project root and add the following values:
-
-```env
-VITE_APPWRITE_URL=your_appwrite_url
-VITE_APPWRITE_PROJECT_ID=your_appwrite_project_id
-VITE_APPWRITE_DATABASE_ID=your_appwrite_database_id
-VITE_APPWRITE_TABLE_ID=your_appwrite_table_id
-VITE_APPWRITE_BUCKET_ID=your_appwrite_bucket_id
-```
-
-These values are read from `src/conf/config.js`.
 
 ## Available Scripts
 
