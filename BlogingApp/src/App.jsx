@@ -22,7 +22,7 @@ const App = () => {
   },[])
 
   return !loading?(
-    <div className='min-h-screen flex flex-col justify-between bg-gray-500'>
+    <div className='min-h-screen flex flex-col justify-between bg-gray-500 '>
       <div>
         <Header />
         <main>
