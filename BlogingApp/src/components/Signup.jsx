@@ -1,36 +1,35 @@
 import React,{useState} from 'react'
 import {Link,useNavigate} from 'react-router-dom'
-import { login as authLogin} from '../store/authSlice'
+import { login } from '../store/authSlice'
 import {Button,Input,Logo} from './index'
 import{useDispatch} from 'react-redux'
 import authService from '../appwrite/auth'
 import {useForm} from 'react-hook-form'
 
+const Signup = () => {
+    const [error,setError] = useState('')
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const {register, handleSubmit} = useForm()
 
-const Login = () => {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const [error, setError] = useState() 
-  const {register, handleSubmit} = useForm()
-
-  const login = async(data)=>{
-    setError('')
-    try {
-      const session = await authService.login(data)
-      if(session){
-        const userData = await authService.getCurrentUser()
-        if(userData){
-          dispatch(authLogin(userData))
+    const create = async(data)=>{
+        setError('')
+        try {
+            const userData = await authService.createAccount(data)
+            if(userData){
+                const userData = await authService.getCurrentUser()
+                if(userData){
+                    dispatch(login(userData))
+                }
+                navigate("/")
+            }
+        } catch (error) {
+            setError(error.message)
         }
-        navigate("/")
-      }
-    } catch (error) {
-      setError(error.message)
     }
-  }
   return (
     <div
-    className='flex items-center justify-center w-full'
+    className='flex items-center justify-center '
     >
       <div
       className={`mx-auto w-full max-w-lg bg-gray-100 rounded-xl p-10 border border-black/10`}
@@ -40,9 +39,9 @@ const Login = () => {
           <Logo width="100%" />
           </span>
         </div>
-        <h2 className='text-center text-2xl font-bold leading-tight'>Sign in to your account</h2>
+        <h2 className='text-center text-2xl font-bold leading-tight'>Sign up to create account</h2>
         <p className='mt-2 text-center text-base text-black/60'>
-          Dont have any account ? <Link to="/signup" className='font-medium text-primary transition duration-200 hover:underline'>Sign Up
+          Already have an account ? <Link to="/login" className='font-medium text-primary transition duration-200 hover:underline'>Sign In
           </Link>
           </p>
 
@@ -50,9 +49,17 @@ const Login = () => {
             {error}
           </p>}
 
-          <form onSubmit={handleSubmit(login)}
+          <form onSubmit={handleSubmit(create)}
           className='mt-8'>
             <div className='space-y-5'>
+              <Input
+              label="Full Name:"
+              placeholder="Enter your full name"
+              type="text"
+              {...register("name",{
+                required:true,
+              })}
+              />
               <Input
               label="Email :"
               placeholder="Enter your email"
@@ -75,7 +82,7 @@ const Login = () => {
               <Button
               type="submit"
               className="w-full"
-              >Sign In</Button>
+              >Create Account</Button>
             </div>
           </form>
         
@@ -84,4 +91,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default Signup

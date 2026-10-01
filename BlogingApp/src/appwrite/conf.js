@@ -1,4 +1,4 @@
-import config from 'conf/config.js'
+import config from '../conf/config'
 import { Client, Databases, Storage, Query , ID } from 'appwrite'
 
 export class Service{
@@ -19,7 +19,7 @@ export class Service{
         try{
            return await this.databases.createDocument(
             config.appwriteDatabaseId,
-            config.appwriteCollectionId,
+            config.appwriteTableId,
             slug,
             {
                 title,
@@ -40,7 +40,7 @@ export class Service{
         try{
             return await this.databases.updateDocument(
                 config.appwriteDatabaseId,
-                config.appwriteCollectionId,
+                config.appwriteTableId,
                 slug,
                 {
                     title,
@@ -60,7 +60,7 @@ export class Service{
         try{
              await this.databases.deleteDocument(
                 config.appwriteDatabaseId,
-                config.appwriteCollectionId,
+                config.appwriteTableId,
                 slug
             )
             return true
@@ -74,7 +74,7 @@ export class Service{
         try{
                 return await this.databases.getDocument(
                     config.appwriteDatabaseId,
-                    config.appwriteCollectionId,
+                    config.appwriteTableId,
                     slug
                 );
             
@@ -88,7 +88,7 @@ export class Service{
         try{
             return await this.databases.listDocuments(
                 config.appwriteDatabaseId,
-                config.appwriteCollectionId,
+                config.appwriteTableId,
                 queries
             );
         }catch(error){

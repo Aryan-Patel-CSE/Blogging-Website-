@@ -37,12 +37,10 @@ export class Auth {
     async getCurrentUser() {
         try {
             return await this.account.get();
-        }
+        } 
         catch (error) {
-            console.error('Error getting current user:', error);
-            throw error;
+            console.log("Appwrite service :: getCurrentUser ::", error);
         }
-
         return null;
     }
 
