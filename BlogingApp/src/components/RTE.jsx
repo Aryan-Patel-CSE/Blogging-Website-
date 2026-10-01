@@ -47,3 +47,5 @@ const RTE = ({ name, control, label, defaultValue = '' }) => {
         </div>
     )
 }
+
+export default RTE
