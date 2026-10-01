@@ -1,31 +1,28 @@
-import React,{useEffect,useState} from 'react'
-import {useSelector} from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-const Protected = ({children, authentication = true}) => {
-
-  const navigate = useNavigate()
-  const [loader, setLoader] = useState(true)
-  const authStatus = useSelector(state => state.auth.status)
+const Protected = ({ children, authentication = true }) => {
+  const navigate = useNavigate();
+  const authStatus = useSelector((state) => state.auth.status);
 
   useEffect(() => {
-
-    // if(authStatus === true) {
-    //   navigate('/')
-    // } else if(authStatus === false) {
-    //   navigate('/login')
-    // }
-
-    if(authentication && authStatus !== authentication){
-      navigate('/login')
-    } else if(!authentication && authStatus !== authentication){
-      navigate('/')
+    if (authentication && authStatus !== authentication) {
+      navigate('/login');
+    } else if (!authentication && authStatus !== authentication) {
+      navigate('/');
     }
+  }, [authStatus, navigate, authentication]);
 
-    setLoader(false)
-  }, [authStatus, navigate, authentication])
+  const isUnauthorized = (authentication && authStatus !== authentication) || (!authentication && authStatus !== authentication);
 
-  return loader ? <h1>Loading...</h1> : <> {children} </>
-}
+  if (isUnauthorized) {
+    return null;
+  }
 
-export default Protected
+  return <>{children}</>;
+};
+
+export default Protected;
+
+
