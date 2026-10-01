@@ -3,21 +3,34 @@ import { useState } from 'react';
 import appwriteService from '../appwrite/conf';
 import { Link } from 'react-router-dom';
 
-const PostCard = ({ $id, title, featuredImage, status }) => {
-
+const PostCard = ({ $id, title, featuredImage, featuredimage, status }) => {
+  const imageId = featuredimage || featuredImage;
+  const initialUrl = imageId ? appwriteService.getFilePreview(imageId) : null;
+  const [imgSrc, setImgSrc] = useState(initialUrl);
   const [imageError, setImageError] = useState(false);
-  const previewUrl = featuredImage ? appwriteService.getFilePreview(featuredImage) : null;
+
+  const handleImageError = () => {
+    // If preview failed, try raw getFileView as fallback
+    if (imageId && imgSrc && imgSrc.includes('/preview?')) {
+      const viewUrl = appwriteService.getFileView(imageId);
+      if (viewUrl && viewUrl !== imgSrc) {
+        setImgSrc(viewUrl);
+        return;
+      }
+    }
+    setImageError(true);
+  };
 
   return (
     <Link to={`/post/${$id}`} className="group block h-full">
       <div className='h-full flex flex-col bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 hover:border-indigo-300 transition-all duration-300'>
         {/* Thumbnail Container */}
         <div className='relative w-full aspect-[16/10] bg-gradient-to-br from-indigo-100 via-slate-100 to-indigo-50 overflow-hidden flex items-center justify-center'>
-          {previewUrl && !imageError ? (
+          {imgSrc && !imageError ? (
             <img 
-              src={previewUrl} 
+              src={imgSrc} 
               alt={title || "Blog post cover"} 
-              onError={() => setImageError(true)}
+              onError={handleImageError}
               className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out' 
             />
           ) : (

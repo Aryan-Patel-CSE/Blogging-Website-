@@ -14,8 +14,10 @@ export class Service {
         this.bucket = new Storage(this.client);
     }
 
-    async createPost({ title, slug, content, featuredImage, status, userId }) {
+    async createPost({ title, slug, content, featuredImage, featuredimage, status, userId, userid }) {
         try {
+            const imageId = featuredimage || featuredImage;
+            const uid = userid || userId;
             return await this.databases.createDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
@@ -23,9 +25,9 @@ export class Service {
                 {
                     title,
                     content,
-                    featuredImage,
+                    featuredimage: imageId,
                     status,
-                    userId,
+                    userid: uid,
                 }
             );
         } catch (error) {
@@ -34,8 +36,9 @@ export class Service {
         }
     }
 
-    async updatePost(slug, { title, content, featuredImage, status }) {
+    async updatePost(slug, { title, content, featuredImage, featuredimage, status }) {
         try {
+            const imageId = featuredimage || featuredImage;
             return await this.databases.updateDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
@@ -43,7 +46,7 @@ export class Service {
                 {
                     title,
                     content,
-                    featuredImage,
+                    featuredimage: imageId,
                     status
                 }
             );
@@ -69,11 +72,20 @@ export class Service {
 
     async getPost(slug) {
         try {
-            return await this.databases.getDocument(
+            const post = await this.databases.getDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
                 slug
             );
+            if (post) {
+                const img = post.featuredimage || post.featuredImage;
+                const uid = post.userid || post.userId;
+                post.featuredImage = img;
+                post.featuredimage = img;
+                post.userId = uid;
+                post.userid = uid;
+            }
+            return post;
         } catch (error) {
             console.error('Appwrite service :: getPost :: error', error);
             return null;
@@ -82,16 +94,29 @@ export class Service {
 
     async getPosts(queries = [Query.equal('status', 'active')]) {
         try {
-            return await this.databases.listDocuments(
+            const res = await this.databases.listDocuments(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
                 queries
             );
+            if (res && res.documents) {
+                res.documents = res.documents.map((post) => {
+                    const img = post.featuredimage || post.featuredImage;
+                    const uid = post.userid || post.userId;
+                    post.featuredImage = img;
+                    post.featuredimage = img;
+                    post.userId = uid;
+                    post.userid = uid;
+                    return post;
+                });
+            }
+            return res;
         } catch (error) {
             console.error('Appwrite service :: getPosts :: error', error);
             return { documents: [], total: 0 };
         }
     }
+
 
     // File upload service
     async uploadFile(file) {
@@ -123,13 +148,39 @@ export class Service {
 
     getFilePreview(fileId) {
         if (!fileId) return null;
+        if (typeof fileId === 'string' && (fileId.startsWith('http://') || fileId.startsWith('https://') || fileId.startsWith('blob:'))) {
+            return fileId;
+        }
         try {
-            return this.bucket.getFilePreview(
+            const preview = this.bucket.getFilePreview(
                 config.appwriteBucketId,
                 fileId
             );
+            return preview ? preview.toString() : null;
         } catch (error) {
             console.error('Appwrite service :: getFilePreview :: error', error);
+            try {
+                const view = this.bucket.getFileView(config.appwriteBucketId, fileId);
+                return view ? view.toString() : null;
+            } catch {
+                return null;
+            }
+        }
+    }
+
+    getFileView(fileId) {
+        if (!fileId) return null;
+        if (typeof fileId === 'string' && (fileId.startsWith('http://') || fileId.startsWith('https://') || fileId.startsWith('blob:'))) {
+            return fileId;
+        }
+        try {
+            const view = this.bucket.getFileView(
+                config.appwriteBucketId,
+                fileId
+            );
+            return view ? view.toString() : null;
+        } catch (error) {
+            console.error('Appwrite service :: getFileView :: error', error);
             return null;
         }
     }

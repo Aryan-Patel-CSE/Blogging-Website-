@@ -15,13 +15,13 @@ export default function Post() {
 
     const userData = useSelector((state) => state.auth.userData);
     const currentUserId = userData?.$id || userData?.userData?.$id;
-    const isAuthor = post && currentUserId ? post.userId === currentUserId : false;
+    const authorId = post?.userid || post?.userId;
+    const isAuthor = post && currentUserId ? authorId === currentUserId : false;
 
     useEffect(() => {
         if (slug) {
             appwriteService.getPost(slug)
                 .then((fetchedPost) => {
-
                     if (fetchedPost) {
                         setPost(fetchedPost);
                     } else {
@@ -46,8 +46,9 @@ export default function Post() {
         try {
             const status = await appwriteService.deletePost(post.$id);
             if (status) {
-                if (post.featuredImage) {
-                    await appwriteService.deleteFile(post.featuredImage);
+                const imageId = post.featuredimage || post.featuredImage;
+                if (imageId) {
+                    await appwriteService.deleteFile(imageId);
                 }
                 navigate("/all-posts");
             }
@@ -70,7 +71,40 @@ export default function Post() {
 
     if (!post) return null;
 
-    const previewUrl = post.featuredImage ? appwriteService.getFilePreview(post.featuredImage) : null;
+    const imageId = post.featuredimage || post.featuredImage;
+    const initialUrl = imageId ? appwriteService.getFilePreview(imageId) : null;
+
+    return (
+        <PostContent 
+            post={post} 
+            imageId={imageId} 
+            initialUrl={initialUrl} 
+            isAuthor={isAuthor} 
+            handleDeletePost={handleDeletePost} 
+            deleting={deleting} 
+        />
+    );
+}
+
+function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, deleting }) {
+    const [imgSrc, setImgSrc] = useState(initialUrl);
+    const [imageError, setImageError] = useState(false);
+
+    useEffect(() => {
+        setImgSrc(initialUrl);
+        setImageError(false);
+    }, [initialUrl]);
+
+    const handleImageError = () => {
+        if (imageId && imgSrc && imgSrc.includes('/preview?')) {
+            const viewUrl = appwriteService.getFileView(imageId);
+            if (viewUrl && viewUrl !== imgSrc) {
+                setImgSrc(viewUrl);
+                return;
+            }
+        }
+        setImageError(true);
+    };
 
     return (
         <div className="py-8 md:py-12">
@@ -124,12 +158,12 @@ export default function Post() {
                     </header>
 
                     {/* Featured Image */}
-                    {previewUrl && !imageError && (
+                    {imgSrc && !imageError && (
                         <div className="w-full aspect-[21/9] rounded-3xl overflow-hidden shadow-lg border border-slate-200/80 bg-slate-100">
                             <img
-                                src={previewUrl}
+                                src={imgSrc}
                                 alt={post.title}
-                                onError={() => setImageError(true)}
+                                onError={handleImageError}
                                 className="w-full h-full object-cover"
                             />
                         </div>

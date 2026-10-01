@@ -20,13 +20,16 @@ const PostForm = ({ post }) => {
     const userData = useSelector((state) => state.auth.userData);
     const [loading, setLoading] = useState(false);
     const [formError, setFormError] = useState('');
+    const [selectedFile, setSelectedFile] = useState(null);
+    const existingImage = post?.featuredimage || post?.featuredImage;
     const [previewUrl, setPreviewUrl] = useState(
-        post?.featuredImage ? appwriteService.getFilePreview(post.featuredImage) : null
+        existingImage ? appwriteService.getFilePreview(existingImage) : null
     );
 
     const handleImageChange = (e) => {
         const file = e.target.files?.[0];
         if (file) {
+            setSelectedFile(file);
             setPreviewUrl(URL.createObjectURL(file));
         }
     };
@@ -35,16 +38,19 @@ const PostForm = ({ post }) => {
         setFormError('');
         setLoading(true);
         try {
+            const fileToUpload = (data.image && data.image[0]) || selectedFile;
+
             if (post) {
                 // Updating existing post
-                let fileId = post.featuredImage;
-                if (data.image && data.image[0]) {
-                    const uploadedFile = await appwriteService.uploadFile(data.image[0]);
+                let fileId = post.featuredimage || post.featuredImage;
+                if (fileToUpload) {
+                    const uploadedFile = await appwriteService.uploadFile(fileToUpload);
                     if (uploadedFile) {
                         fileId = uploadedFile.$id;
                         // Delete previous image if exists
-                        if (post.featuredImage) {
-                            await appwriteService.deleteFile(post.featuredImage);
+                        const oldImage = post.featuredimage || post.featuredImage;
+                        if (oldImage && oldImage !== fileId) {
+                            await appwriteService.deleteFile(oldImage);
                         }
                     }
                 }
@@ -52,7 +58,7 @@ const PostForm = ({ post }) => {
                 const dbPost = await appwriteService.updatePost(post.$id, {
                     title: data.title,
                     content: data.content,
-                    featuredImage: fileId,
+                    featuredimage: fileId,
                     status: data.status,
                 });
 
@@ -61,22 +67,22 @@ const PostForm = ({ post }) => {
                 }
             } else {
                 // Creating new post
-                if (!data.image || !data.image[0]) {
-                    setFormError('Please select a featured image for your post.');
+                if (!fileToUpload) {
+                    setFormError('Please select a featured image for your story.');
                     setLoading(false);
                     return;
                 }
 
-                const file = await appwriteService.uploadFile(data.image[0]);
+                const file = await appwriteService.uploadFile(fileToUpload);
                 if (file) {
                     const currentUserId = userData?.$id || userData?.userData?.$id;
                     const dbPost = await appwriteService.createPost({
                         title: data.title,
                         slug: data.slug,
                         content: data.content,
-                        featuredImage: file.$id,
+                        featuredimage: file.$id,
                         status: data.status,
-                        userId: currentUserId,
+                        userid: currentUserId,
                     });
 
                     if (dbPost) {
@@ -86,11 +92,17 @@ const PostForm = ({ post }) => {
             }
         } catch (error) {
             console.error('Error submitting post:', error);
-            setFormError(error?.message || 'Failed to save post. Please check your inputs and try again.');
+            const msg = error?.message || 'Failed to save post. Please check your inputs and try again.';
+            if (msg.toLowerCase().includes('permission') || error?.code === 401) {
+                setFormError('Storage Permission Error: In Appwrite Console under Storage -> Bucket -> Settings -> Permissions, ensure "Users" and "Any" have Read & Create permissions.');
+            } else {
+                setFormError(msg);
+            }
         } finally {
             setLoading(false);
         }
     };
+
 
     const slugTransform = useCallback((value) => {
         if (value && typeof value === 'string') {
@@ -170,13 +182,21 @@ const PostForm = ({ post }) => {
                         />
 
                         <div>
-                            <Input
-                                label="Featured Image"
-                                type="file"
-                                accept="image/png, image/jpg, image/jpeg, image/gif, image/webp"
-                                {...register("image", { required: !post })}
-                                onChange={handleImageChange}
-                            />
+                            {(() => {
+                                const imageRegister = register("image", { required: !post && !existingImage && !selectedFile });
+                                return (
+                                    <Input
+                                        label="Featured Image"
+                                        type="file"
+                                        accept="image/png, image/jpg, image/jpeg, image/gif, image/webp"
+                                        {...imageRegister}
+                                        onChange={(e) => {
+                                            imageRegister.onChange(e);
+                                            handleImageChange(e);
+                                        }}
+                                    />
+                                );
+                            })()}
                             {previewUrl && (
                                 <div className="mt-3 relative rounded-xl overflow-hidden border border-slate-200 aspect-video bg-slate-50 flex items-center justify-center">
                                     <img
