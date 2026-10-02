@@ -23,6 +23,13 @@ export default function Post() {
     const currentUserId = userData?.$id || userData?.userData?.$id;
     const authorId = post?.userid || post?.userId;
     const isAuthor = post && currentUserId ? authorId === currentUserId : false;
+    const storedAuthorName = typeof post?.author === "string" ? post.author : post?.author?.name;
+    const authorName =
+        post?.authorName ||
+        storedAuthorName ||
+        post?.username ||
+        (authorId === currentUserId ? userData?.name || userData?.userData?.name : null) ||
+        "InkSpace author";
 
     useEffect(() => {
         if (slug) {
@@ -107,13 +114,14 @@ export default function Post() {
             imageId={imageId}
             initialUrl={initialUrl}
             isAuthor={isAuthor}
+            authorName={authorName}
             handleDeletePost={handleDeletePost}
             deleting={deleting}
         />
     );
 }
 
-function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, deleting }) {
+function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDeletePost, deleting }) {
     const [imgSrc, setImgSrc] = useState(initialUrl);
     const [imageError, setImageError] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -317,6 +325,20 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                             </div>
                         </section>
                     )}
+
+                    <footer className="flex items-center gap-3 rounded-2xl border border-slate-200/80 dark:border-[#7A1CAC]/40 bg-white dark:bg-[#2E073F] p-5 shadow-xs">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#EBD3F8] text-lg font-bold text-[#7A1CAC] dark:bg-[#7A1CAC]/40 dark:text-[#EBD3F8]" aria-hidden="true">
+                            {authorName.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#EBD3F8]/65">
+                                Written by
+                            </p>
+                            <p className="mt-0.5 text-sm font-bold text-slate-900 dark:text-white">
+                                {authorName}
+                            </p>
+                        </div>
+                    </footer>
                 </article>
             </Container>
 
