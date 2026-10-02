@@ -12,6 +12,7 @@ import Signup from './Signup'
 import RTE from './RTE'
 import PostForm from'./post-form/PostForm'
 import AuthLayout from './AuthLayout'
+import ThemeToggle from './ThemeToggle'
 
 export {
   Header,
@@ -27,5 +28,6 @@ export {
   Signup,
   RTE,
   PostForm,
-  AuthLayout
+  AuthLayout,
+  ThemeToggle
 }

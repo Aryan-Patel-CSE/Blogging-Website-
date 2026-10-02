@@ -402,7 +402,7 @@ const PostForm = ({ post }) => {
     return (
         <form onSubmit={handleSubmit(submit)} className="max-w-5xl mx-auto space-y-6">
             {formError && (
-                <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2">
+                <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-sm flex items-center gap-2">
                     <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -413,7 +413,7 @@ const PostForm = ({ post }) => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Content Area */}
                 <div className="lg:col-span-2 space-y-5">
-                    <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+                    <div className="bg-white dark:bg-[#2E073F] rounded-2xl p-6 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs space-y-4">
                         <Input
                             label="Post Title"
                             placeholder="Enter a compelling title..."
@@ -431,7 +431,7 @@ const PostForm = ({ post }) => {
                         />
                     </div>
 
-                    <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+                    <div className="bg-white dark:bg-[#2E073F] rounded-2xl p-6 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs">
                         <RTE
                             label="Article Content"
                             name="content"
@@ -441,11 +441,11 @@ const PostForm = ({ post }) => {
                     </div>
 
                     {/* Additional Media & Attachments Section */}
-                    <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div className="bg-white dark:bg-[#2E073F] rounded-2xl p-6 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-[#7A1CAC]/30 pb-3">
                             <div>
-                                <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-[#7A1CAC] dark:text-[#AD49E1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
@@ -455,18 +455,18 @@ const PostForm = ({ post }) => {
                                     </svg>
                                     Additional Media & Documents
                                 </h3>
-                                <p className="text-xs text-slate-500 mt-0.5">
+                                <p className="text-xs text-slate-500 dark:text-[#EBD3F8]/70 mt-0.5">
                                     Upload extra images or PDF attachments (optional, up to {MAX_MEDIA_FILES} files, max {MAX_FILE_SIZE_MB}MB each)
                                 </p>
                             </div>
-                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 self-start sm:self-auto">
+                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#EBD3F8]/40 dark:bg-[#240632] text-slate-700 dark:text-[#EBD3F8] self-start sm:self-auto border border-slate-200/60 dark:border-[#7A1CAC]/30">
                                 {totalAttachedMediaCount} / {MAX_MEDIA_FILES} files
                             </span>
                         </div>
 
                         {mediaError && (
-                            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-2">
-                                <svg className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-800 dark:text-amber-300 text-xs flex items-start gap-2">
+                                <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -480,7 +480,7 @@ const PostForm = ({ post }) => {
                                 <button
                                     type="button"
                                     onClick={() => setMediaError('')}
-                                    className="text-amber-600 hover:text-amber-800 font-bold text-sm ml-2 cursor-pointer"
+                                    className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 font-bold text-sm ml-2 cursor-pointer"
                                 >
                                     &times;
                                 </button>
@@ -489,8 +489,8 @@ const PostForm = ({ post }) => {
 
                         {/* File Picker / Dropzone */}
                         {totalAttachedMediaCount < MAX_MEDIA_FILES && (
-                            <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl cursor-pointer bg-slate-50/60 hover:bg-indigo-50/20 transition-all duration-200 group">
-                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 group-hover:bg-indigo-100 flex items-center justify-center text-indigo-600 mb-2 transition-colors">
+                            <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 dark:border-[#7A1CAC]/40 hover:border-[#7A1CAC] dark:hover:border-[#AD49E1] rounded-2xl cursor-pointer bg-slate-50/60 dark:bg-[#240632]/60 hover:bg-[#EBD3F8]/20 dark:hover:bg-[#360a4a]/40 transition-all duration-200 group">
+                                <div className="w-12 h-12 rounded-2xl bg-[#EBD3F8]/50 dark:bg-[#240632] group-hover:bg-[#EBD3F8] dark:group-hover:bg-[#360a4a] flex items-center justify-center text-[#7A1CAC] dark:text-[#AD49E1] mb-2 transition-colors">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path
                                             strokeLinecap="round"
@@ -500,10 +500,10 @@ const PostForm = ({ post }) => {
                                         />
                                     </svg>
                                 </div>
-                                <p className="text-sm font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors">
+                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-[#7A1CAC] dark:group-hover:text-[#AD49E1] transition-colors">
                                     Click to select multiple images or PDFs
                                 </p>
-                                <p className="text-xs text-slate-400 mt-1">
+                                <p className="text-xs text-slate-400 dark:text-[#EBD3F8]/60 mt-1">
                                     Supports PNG, JPG, JPEG, GIF, WEBP, and PDF (Max {MAX_FILE_SIZE_MB}MB each)
                                 </p>
                                 <input
@@ -519,7 +519,7 @@ const PostForm = ({ post }) => {
                         {/* Attached Media List */}
                         {totalAttachedMediaCount > 0 && (
                             <div className="space-y-3 pt-2">
-                                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#EBD3F8]/60">
                                     Attached Media ({totalAttachedMediaCount})
                                 </h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -548,8 +548,8 @@ const PostForm = ({ post }) => {
 
                 {/* Sidebar Settings Area */}
                 <div className="space-y-5">
-                    <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-5">
-                        <h3 className="text-base font-bold text-slate-800 border-b border-slate-100 pb-3">
+                    <div className="bg-white dark:bg-[#2E073F] rounded-2xl p-6 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs space-y-5">
+                        <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-[#7A1CAC]/30 pb-3">
                             Publication Settings
                         </h3>
 
@@ -579,7 +579,7 @@ const PostForm = ({ post }) => {
                                 );
                             })()}
                             {previewUrl && (
-                                <div className="mt-3 relative rounded-xl overflow-hidden border border-slate-200 aspect-video bg-slate-50 flex items-center justify-center">
+                                <div className="mt-3 relative rounded-xl overflow-hidden border border-slate-200 dark:border-[#7A1CAC]/40 aspect-video bg-slate-50 dark:bg-[#240632] flex items-center justify-center">
                                     <img
                                         src={previewUrl}
                                         alt="Preview"
@@ -597,7 +597,7 @@ const PostForm = ({ post }) => {
                                 bgColor={
                                     post
                                         ? 'bg-emerald-600 hover:bg-emerald-700'
-                                        : 'bg-indigo-600 hover:bg-indigo-700'
+                                        : 'bg-[#7A1CAC] hover:bg-[#AD49E1]'
                                 }
                             >
                                 {post
@@ -629,10 +629,10 @@ function SavedMediaItem({ item, onRemove }) {
     };
 
     return (
-        <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-xs gap-3">
+        <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-[#7A1CAC]/30 bg-white dark:bg-[#240632] hover:border-slate-300 dark:hover:border-[#AD49E1] transition-all shadow-xs gap-3">
             <div className="flex items-center gap-3 min-w-0">
                 {item.type === 'image' ? (
-                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-[#190325] border border-slate-200 dark:border-[#7A1CAC]/40 flex-shrink-0 flex items-center justify-center">
                         {imgSrc ? (
                             <img
                                 src={imgSrc}
@@ -641,24 +641,24 @@ function SavedMediaItem({ item, onRemove }) {
                                 className="w-full h-full object-cover"
                             />
                         ) : (
-                            <span className="text-[10px] text-slate-400">IMG</span>
+                            <span className="text-[10px] text-slate-400 dark:text-[#EBD3F8]/60">IMG</span>
                         )}
                     </div>
                 ) : (
-                    <div className="w-12 h-12 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 flex flex-col items-center justify-center flex-shrink-0 font-bold text-xs">
+                    <div className="w-12 h-12 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 flex flex-col items-center justify-center flex-shrink-0 font-bold text-xs">
                         <span>PDF</span>
                     </div>
                 )}
                 <div className="min-w-0">
-                    <p className="text-xs font-semibold text-slate-800 truncate" title={item.name}>
+                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate" title={item.name}>
                         {item.name}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
                             Saved
                         </span>
                         {item.size && (
-                            <span className="text-[11px] text-slate-400">
+                            <span className="text-[11px] text-slate-400 dark:text-[#EBD3F8]/60">
                                 {formatFileSize(item.size)}
                             </span>
                         )}
@@ -670,7 +670,7 @@ function SavedMediaItem({ item, onRemove }) {
                 onClick={onRemove}
                 title="Remove attached file"
                 aria-label={`Remove ${item.name}`}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex-shrink-0"
+                className="p-1.5 rounded-lg text-slate-400 dark:text-[#EBD3F8]/60 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer flex-shrink-0"
             >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -687,10 +687,10 @@ function SavedMediaItem({ item, onRemove }) {
 
 function PendingMediaItem({ item, onRemove }) {
     return (
-        <div className="flex items-center justify-between p-3 rounded-xl border border-indigo-100 bg-indigo-50/30 hover:border-indigo-200 transition-all shadow-xs gap-3">
+        <div className="flex items-center justify-between p-3 rounded-xl border border-[#7A1CAC]/30 dark:border-[#7A1CAC]/40 bg-[#EBD3F8]/20 dark:bg-[#240632] hover:border-[#AD49E1] transition-all shadow-xs gap-3">
             <div className="flex items-center gap-3 min-w-0">
                 {item.type === 'image' && item.previewUrl ? (
-                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 border border-indigo-200 flex-shrink-0">
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-[#190325] border border-[#7A1CAC]/40 flex-shrink-0">
                         <img
                             src={item.previewUrl}
                             alt={item.name}
@@ -698,19 +698,19 @@ function PendingMediaItem({ item, onRemove }) {
                         />
                     </div>
                 ) : (
-                    <div className="w-12 h-12 rounded-lg bg-rose-100 border border-rose-300 text-rose-700 flex flex-col items-center justify-center flex-shrink-0 font-bold text-xs">
+                    <div className="w-12 h-12 rounded-lg bg-rose-100 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 flex flex-col items-center justify-center flex-shrink-0 font-bold text-xs">
                         <span>PDF</span>
                     </div>
                 )}
                 <div className="min-w-0">
-                    <p className="text-xs font-semibold text-slate-800 truncate" title={item.name}>
+                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate" title={item.name}>
                         {item.name}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#EBD3F8] dark:bg-[#7A1CAC]/40 text-[#7A1CAC] dark:text-[#EBD3F8]">
                             New Upload
                         </span>
-                        <span className="text-[11px] text-slate-500">
+                        <span className="text-[11px] text-slate-500 dark:text-[#EBD3F8]/60">
                             {formatFileSize(item.size)}
                         </span>
                     </div>
@@ -721,7 +721,7 @@ function PendingMediaItem({ item, onRemove }) {
                 onClick={onRemove}
                 title="Remove pending file"
                 aria-label={`Remove ${item.name}`}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex-shrink-0"
+                className="p-1.5 rounded-lg text-slate-400 dark:text-[#EBD3F8]/60 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer flex-shrink-0"
             >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />

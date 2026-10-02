@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Container, Logo, LogoutBtn } from '../index';
+import { Container, Logo, LogoutBtn, ThemeToggle } from '../index';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
@@ -42,7 +42,7 @@ const Header = () => {
   ];
 
   return (
-    <header className='sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/80 transition-all'>
+    <header className='sticky top-0 z-50 bg-white/85 dark:bg-[#190325]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-[#7A1CAC]/30 transition-colors duration-200'>
       <Container>
         <nav className='flex items-center justify-between py-3.5'>
           {/* Logo */}
@@ -61,7 +61,7 @@ const Header = () => {
                     {item.isPrimary ? (
                       <button
                         onClick={() => navigate(item.slug)}
-                        className='inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl shadow-xs transition-all duration-200 cursor-pointer'
+                        className='inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-[#7A1CAC] hover:bg-[#AD49E1] active:bg-[#2E073F] rounded-xl shadow-xs transition-all duration-200 cursor-pointer shadow-sm shadow-[#7A1CAC]/20'
                       >
                         {item.slug === "/add-post" && (
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,8 +75,8 @@ const Header = () => {
                         onClick={() => navigate(item.slug)}
                         className={`inline-block px-3.5 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer ${
                           location.pathname === item.slug
-                            ? 'text-indigo-600 bg-indigo-50/80 font-semibold'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                            ? 'text-[#7A1CAC] bg-[#EBD3F8]/60 dark:text-[#EBD3F8] dark:bg-[#7A1CAC]/40 font-semibold'
+                            : 'text-slate-600 dark:text-slate-300 hover:text-[#7A1CAC] dark:hover:text-[#EBD3F8] hover:bg-[#EBD3F8]/30 dark:hover:bg-[#2E073F]/70'
                         }`}
                       >
                         {item.name}
@@ -87,25 +87,30 @@ const Header = () => {
               )}
             </ul>
 
-            {authStatus && (
-              <div className="flex items-center gap-3 pl-2 ml-2 border-l border-slate-200">
-                {userData?.name && (
-                  <div className="hidden lg:flex items-center gap-2 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span className="truncate max-w-[120px]">{userData.name}</span>
-                  </div>
-                )}
-                <LogoutBtn />
-              </div>
-            )}
+            <div className="flex items-center gap-2.5 pl-2 ml-2 border-l border-slate-200 dark:border-[#7A1CAC]/40">
+              <ThemeToggle />
+
+              {authStatus && (
+                <>
+                  {userData?.name && (
+                    <div className="hidden lg:flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-[#EBD3F8] bg-slate-100 dark:bg-[#2E073F] px-3 py-1.5 rounded-full border border-transparent dark:border-[#7A1CAC]/40">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span className="truncate max-w-[120px]">{userData.name}</span>
+                    </div>
+                  )}
+                  <LogoutBtn />
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button & Theme Toggle */}
           <div className='flex items-center gap-2 md:hidden'>
+            <ThemeToggle />
             {authStatus && <LogoutBtn />}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className='p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer'
+              className='p-2 rounded-xl text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#2E073F] transition-colors cursor-pointer'
               aria-label="Toggle menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,10 +126,10 @@ const Header = () => {
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className='md:hidden py-3 border-t border-slate-200 space-y-1.5 animate-fadeIn'>
+          <div className='md:hidden py-3 border-t border-slate-200 dark:border-[#7A1CAC]/30 space-y-1.5 animate-fadeIn bg-white/95 dark:bg-[#190325]/95'>
             {userData?.name && (
-              <div className="px-3 py-1.5 text-xs font-medium text-slate-500">
-                Signed in as <strong className="text-slate-800">{userData.name}</strong>
+              <div className="px-3 py-1.5 text-xs font-medium text-slate-500 dark:text-[#EBD3F8]/70">
+                Signed in as <strong className="text-slate-800 dark:text-white">{userData.name}</strong>
               </div>
             )}
             {navItems.map((item) =>
@@ -137,8 +142,8 @@ const Header = () => {
                   }}
                   className={`w-full text-left px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
                     location.pathname === item.slug
-                      ? 'text-indigo-600 bg-indigo-50 font-semibold'
-                      : 'text-slate-700 hover:bg-slate-100'
+                      ? 'text-[#7A1CAC] bg-[#EBD3F8]/60 dark:text-[#EBD3F8] dark:bg-[#7A1CAC]/40 font-semibold'
+                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#2E073F]'
                   }`}
                 >
                   {item.name}

@@ -5,7 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="InkSpace is a modern blogging platform to share ideas, discover inspiring stories, and publish articles effortlessly." />
-    <meta name="theme-color" content="#4f46e5" />
+    <meta name="theme-color" content="#2E073F" />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('inkspace_theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (saved === 'dark' || (!saved && prefersDark)) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +29,7 @@
     
     <title>InkSpace — Stories, Perspectives & Ideas</title>
   </head>
-  <body class="bg-slate-50 antialiased">
+  <body class="bg-[#fbf9fe] dark:bg-[#190325] text-slate-900 dark:text-slate-100 antialiased transition-colors duration-200">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

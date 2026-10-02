@@ -1,5 +1,7 @@
+
 import config from '../conf/config'
 import { Client, Databases, Storage, Query, ID } from 'appwrite'
+
 
 /**
  * Safely normalizes media data from the database into an array of media objects.
@@ -43,6 +45,51 @@ export function parseMedia(rawMedia) {
         });
 }
 
+const MEDIA_COMMENT_PREFIX = '<!--INKSPACE_MEDIA:';
+const MEDIA_COMMENT_SUFFIX = '-->';
+
+/**
+ * Encodes additional media array into an HTML comment block appended to content.
+ * Used as a zero-configuration fallback when the Appwrite database collection
+ * schema does not have a dedicated 'media' string attribute.
+ */
+export function embedMediaInContent(content = '', mediaList = []) {
+    const cleanContent = stripMediaFromContent(content);
+    const validMedia = parseMedia(mediaList);
+    if (!validMedia || validMedia.length === 0) {
+        return cleanContent;
+    }
+    const encoded = encodeURIComponent(JSON.stringify(validMedia));
+    return `${cleanContent}\n${MEDIA_COMMENT_PREFIX}${encoded}${MEDIA_COMMENT_SUFFIX}`;
+}
+
+/**
+ * Removes any INKSPACE_MEDIA comment blocks from content.
+ */
+export function stripMediaFromContent(content = '') {
+    if (!content || typeof content !== 'string') return '';
+    return content.replace(/<!--INKSPACE_MEDIA:[\s\S]*?-->/g, '').trimEnd();
+}
+
+/**
+ * Extracts and decodes media array from content comment blocks if present.
+ */
+export function extractMediaFromContent(content = '') {
+    if (!content || typeof content !== 'string') return { content: '', media: [] };
+    const match = content.match(/<!--INKSPACE_MEDIA:([\s\S]*?)-->/);
+    if (match && match[1]) {
+        try {
+            const decoded = decodeURIComponent(match[1].trim());
+            const parsed = parseMedia(decoded);
+            const cleanContent = content.replace(/<!--INKSPACE_MEDIA:[\s\S]*?-->/g, '').trimEnd();
+            return { content: cleanContent, media: parsed };
+        } catch (e) {
+            console.warn('Appwrite service :: extractMediaFromContent :: Failed to parse embedded media', e);
+        }
+    }
+    return { content, media: [] };
+}
+
 export class Service {
     client = new Client();
     databases;
@@ -61,11 +108,13 @@ export class Service {
     }
 
     async createPost({ title, slug, content, featuredImage, featuredimage, status, userId, userid, media = [] }) {
-        try {
-            const imageId = featuredimage || featuredImage;
-            const uid = userid || userId;
-            const serializedMedia = typeof media === 'string' ? media : JSON.stringify(parseMedia(media));
+        const imageId = featuredimage || featuredImage;
+        const uid = userid || userId;
+        const validMedia = parseMedia(media);
+        const serializedMedia = JSON.stringify(validMedia);
 
+        // 1. First attempt: create document with native 'media' attribute
+        try {
             return await this.databases.createDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
@@ -80,32 +129,54 @@ export class Service {
                 }
             );
         } catch (error) {
-            console.error('Appwrite service :: createPost :: error', error);
-            if (error?.message && error.message.toLowerCase().includes('media') && error.message.toLowerCase().includes('attribute')) {
-                const customErr = new Error(
-                    "Appwrite Database Schema Error: The 'media' attribute is missing in your Posts collection. In Appwrite Console, go to Databases -> [Your Database] -> Posts Collection -> Attributes -> Create Attribute -> String (Key: 'media', Size: 65535, Required: false)."
+            const isUnknownMediaAttr =
+                error?.message &&
+                error.message.toLowerCase().includes('unknown attribute') &&
+                error.message.toLowerCase().includes('media');
+
+            // 2. Schema Fallback: If Appwrite collection doesn't have the 'media' attribute,
+            // embed media metadata seamlessly into post content so post creation succeeds!
+            if (isUnknownMediaAttr) {
+                console.info(
+                    "Appwrite schema missing 'media' attribute. Seamlessly storing attachments in post content."
                 );
-                customErr.code = error.code;
-                throw customErr;
+                const contentWithMedia =
+                    validMedia.length > 0 ? embedMediaInContent(content, validMedia) : content;
+
+                return await this.databases.createDocument(
+                    config.appwriteDatabaseId,
+                    config.appwriteTableId,
+                    slug,
+                    {
+                        title,
+                        content: contentWithMedia,
+                        featuredimage: imageId,
+                        status,
+                        userid: uid,
+                    }
+                );
             }
+
+            console.error('Appwrite service :: createPost :: error', error);
             throw error;
         }
     }
 
     async updatePost(slug, { title, content, featuredImage, featuredimage, status, media }) {
+        const imageId = featuredimage || featuredImage;
+        const validMedia = media !== undefined ? parseMedia(media) : undefined;
+        const payload = {
+            title,
+            content,
+            featuredimage: imageId,
+            status,
+        };
+
+        if (validMedia !== undefined) {
+            payload.media = JSON.stringify(validMedia);
+        }
+
         try {
-            const imageId = featuredimage || featuredImage;
-            const payload = {
-                title,
-                content,
-                featuredimage: imageId,
-                status,
-            };
-
-            if (media !== undefined) {
-                payload.media = typeof media === 'string' ? media : JSON.stringify(parseMedia(media));
-            }
-
             return await this.databases.updateDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
@@ -113,14 +184,33 @@ export class Service {
                 payload
             );
         } catch (error) {
-            console.error('Appwrite service :: updatePost :: error', error);
-            if (error?.message && error.message.toLowerCase().includes('media') && error.message.toLowerCase().includes('attribute')) {
-                const customErr = new Error(
-                    "Appwrite Database Schema Error: The 'media' attribute is missing in your Posts collection. In Appwrite Console, go to Databases -> [Your Database] -> Posts Collection -> Attributes -> Create Attribute -> String (Key: 'media', Size: 65535, Required: false)."
+            const isUnknownMediaAttr =
+                error?.message &&
+                error.message.toLowerCase().includes('unknown attribute') &&
+                error.message.toLowerCase().includes('media');
+
+            // Schema Fallback on update
+            if (isUnknownMediaAttr) {
+                console.info(
+                    "Appwrite schema missing 'media' attribute on update. Embedding attachments in content."
                 );
-                customErr.code = error.code;
-                throw customErr;
+                delete payload.media;
+                if (validMedia !== undefined) {
+                    payload.content =
+                        validMedia.length > 0
+                            ? embedMediaInContent(content, validMedia)
+                            : stripMediaFromContent(content);
+                }
+
+                return await this.databases.updateDocument(
+                    config.appwriteDatabaseId,
+                    config.appwriteTableId,
+                    slug,
+                    payload
+                );
             }
+
+            console.error('Appwrite service :: updatePost :: error', error);
             throw error;
         }
     }
@@ -153,7 +243,12 @@ export class Service {
                 post.featuredimage = img;
                 post.userId = uid;
                 post.userid = uid;
-                post.media = parseMedia(post.media);
+
+                // Check native media attribute first, then fallback to embedded content
+                const directMedia = parseMedia(post.media);
+                const { content: cleanContent, media: embeddedMedia } = extractMediaFromContent(post.content);
+                post.content = cleanContent;
+                post.media = directMedia.length > 0 ? directMedia : embeddedMedia;
             }
             return post;
         } catch (error) {
@@ -177,7 +272,11 @@ export class Service {
                     post.featuredimage = img;
                     post.userId = uid;
                     post.userid = uid;
-                    post.media = parseMedia(post.media);
+
+                    const directMedia = parseMedia(post.media);
+                    const { content: cleanContent, media: embeddedMedia } = extractMediaFromContent(post.content);
+                    post.content = cleanContent;
+                    post.media = directMedia.length > 0 ? directMedia : embeddedMedia;
                     return post;
                 });
             }
@@ -276,4 +375,4 @@ export class Service {
 
 const service = new Service();
 
-export default service;
+export default service;
