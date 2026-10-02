@@ -47,7 +47,7 @@ const PostCard = ({ $id, title, featuredImage, featuredimage, status }) => {
           {status && (
             <span className={`absolute top-3 right-3 px-2.5 py-1 text-[11px] font-bold rounded-full uppercase tracking-wider shadow-xs ${
               status === 'active'
-                ? 'bg-emerald-500 text-white' 
+                ? 'bg-emerald-500 text-white'
                 : 'bg-slate-700 text-white'
             }`}>
               {status}

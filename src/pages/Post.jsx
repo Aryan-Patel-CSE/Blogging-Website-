@@ -80,7 +80,6 @@ export default function Post() {
                         Array.from(filesToDelete).map((id) => appwriteService.deleteFile(id))
                     );
                 }
-
                 navigate("/all-posts");
             } else {
                 alert("Failed to delete post record.");
