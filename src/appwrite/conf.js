@@ -1,6 +1,48 @@
 import config from '../conf/config'
 import { Client, Databases, Storage, Query, ID } from 'appwrite'
 
+/**
+ * Safely normalizes media data from the database into an array of media objects.
+ * Handles missing, null, undefined, JSON string, or malformed media data.
+ *
+ * @param {string|Array|null|undefined} rawMedia
+ * @returns {Array<{fileId: string, name: string, mimeType: string, type: 'image'|'pdf', size?: number}>}
+ */
+export function parseMedia(rawMedia) {
+    if (!rawMedia) return [];
+    let parsed = rawMedia;
+    if (typeof rawMedia === 'string') {
+        const trimmed = rawMedia.trim();
+        if (!trimmed || trimmed === '[]') return [];
+        try {
+            parsed = JSON.parse(trimmed);
+        } catch (e) {
+            console.warn('Appwrite service :: parseMedia :: Failed to parse media string', e);
+            return [];
+        }
+    }
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+        .filter((item) => item && typeof item === 'object' && item.fileId)
+        .map((item) => {
+            const fileName = item.name ? String(item.name) : 'Attachment';
+            const mimeType = item.mimeType ? String(item.mimeType) : '';
+            const isPdf =
+                item.type === 'pdf' ||
+                mimeType === 'application/pdf' ||
+                fileName.toLowerCase().endsWith('.pdf');
+
+            return {
+                fileId: String(item.fileId),
+                name: fileName,
+                mimeType: mimeType || (isPdf ? 'application/pdf' : 'image/jpeg'),
+                type: isPdf ? 'pdf' : 'image',
+                ...(typeof item.size === 'number' ? { size: item.size } : {}),
+            };
+        });
+}
+
 export class Service {
     client = new Client();
     databases;
@@ -14,10 +56,16 @@ export class Service {
         this.bucket = new Storage(this.client);
     }
 
-    async createPost({ title, slug, content, featuredImage, featuredimage, status, userId, userid }) {
+    parseMedia(rawMedia) {
+        return parseMedia(rawMedia);
+    }
+
+    async createPost({ title, slug, content, featuredImage, featuredimage, status, userId, userid, media = [] }) {
         try {
             const imageId = featuredimage || featuredImage;
             const uid = userid || userId;
+            const serializedMedia = typeof media === 'string' ? media : JSON.stringify(parseMedia(media));
+
             return await this.databases.createDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
@@ -28,30 +76,51 @@ export class Service {
                     featuredimage: imageId,
                     status,
                     userid: uid,
+                    media: serializedMedia,
                 }
             );
         } catch (error) {
             console.error('Appwrite service :: createPost :: error', error);
+            if (error?.message && error.message.toLowerCase().includes('media') && error.message.toLowerCase().includes('attribute')) {
+                const customErr = new Error(
+                    "Appwrite Database Schema Error: The 'media' attribute is missing in your Posts collection. In Appwrite Console, go to Databases -> [Your Database] -> Posts Collection -> Attributes -> Create Attribute -> String (Key: 'media', Size: 65535, Required: false)."
+                );
+                customErr.code = error.code;
+                throw customErr;
+            }
             throw error;
         }
     }
 
-    async updatePost(slug, { title, content, featuredImage, featuredimage, status }) {
+    async updatePost(slug, { title, content, featuredImage, featuredimage, status, media }) {
         try {
             const imageId = featuredimage || featuredImage;
+            const payload = {
+                title,
+                content,
+                featuredimage: imageId,
+                status,
+            };
+
+            if (media !== undefined) {
+                payload.media = typeof media === 'string' ? media : JSON.stringify(parseMedia(media));
+            }
+
             return await this.databases.updateDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
                 slug,
-                {
-                    title,
-                    content,
-                    featuredimage: imageId,
-                    status
-                }
+                payload
             );
         } catch (error) {
             console.error('Appwrite service :: updatePost :: error', error);
+            if (error?.message && error.message.toLowerCase().includes('media') && error.message.toLowerCase().includes('attribute')) {
+                const customErr = new Error(
+                    "Appwrite Database Schema Error: The 'media' attribute is missing in your Posts collection. In Appwrite Console, go to Databases -> [Your Database] -> Posts Collection -> Attributes -> Create Attribute -> String (Key: 'media', Size: 65535, Required: false)."
+                );
+                customErr.code = error.code;
+                throw customErr;
+            }
             throw error;
         }
     }
@@ -84,6 +153,7 @@ export class Service {
                 post.featuredimage = img;
                 post.userId = uid;
                 post.userid = uid;
+                post.media = parseMedia(post.media);
             }
             return post;
         } catch (error) {
@@ -107,6 +177,7 @@ export class Service {
                     post.featuredimage = img;
                     post.userId = uid;
                     post.userid = uid;
+                    post.media = parseMedia(post.media);
                     return post;
                 });
             }
@@ -182,6 +253,23 @@ export class Service {
         } catch (error) {
             console.error('Appwrite service :: getFileView :: error', error);
             return null;
+        }
+    }
+
+    getFileDownload(fileId) {
+        if (!fileId) return null;
+        if (typeof fileId === 'string' && (fileId.startsWith('http://') || fileId.startsWith('https://') || fileId.startsWith('blob:'))) {
+            return fileId;
+        }
+        try {
+            const download = this.bucket.getFileDownload(
+                config.appwriteBucketId,
+                fileId
+            );
+            return download ? download.toString() : null;
+        } catch (error) {
+            console.error('Appwrite service :: getFileDownload :: error', error);
+            return this.getFileView(fileId);
         }
     }
 }

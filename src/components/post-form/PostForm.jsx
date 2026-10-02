@@ -1,10 +1,49 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { RTE, Button, Input, Select } from '../index';
 import appwriteService from '../../appwrite/conf';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
+// Configurable constants for media attachments
+export const ALLOWED_IMAGE_TYPES = [
+    'image/png',
+    'image/jpeg',
+    'image/jpg',
+    'image/gif',
+    'image/webp',
+];
+export const ALLOWED_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
+
+export const ALLOWED_DOCUMENT_TYPES = ['application/pdf'];
+export const ALLOWED_DOCUMENT_EXTENSIONS = ['.pdf'];
+
+export const MAX_MEDIA_FILES = 10;
+export const MAX_FILE_SIZE_MB = 10;
+export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+export const ACCEPTED_MEDIA_TYPES =
+    'image/png, image/jpg, image/jpeg, image/gif, image/webp, application/pdf';
+
+function formatFileSize(bytes) {
+    if (!bytes || typeof bytes !== 'number') return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function getMediaType(file) {
+    if (!file) return null;
+    const name = (file.name || '').toLowerCase();
+    const type = (file.type || '').toLowerCase();
+
+    if (ALLOWED_IMAGE_TYPES.includes(type) || ALLOWED_IMAGE_EXTENSIONS.some((ext) => name.endsWith(ext))) {
+        return 'image';
+    }
+    if (ALLOWED_DOCUMENT_TYPES.includes(type) || ALLOWED_DOCUMENT_EXTENSIONS.some((ext) => name.endsWith(ext))) {
+        return 'pdf';
+    }
+    return null;
+}
 
 const PostForm = ({ post }) => {
     const { register, handleSubmit, watch, setValue, control, getValues } = useForm({
@@ -13,88 +52,322 @@ const PostForm = ({ post }) => {
             slug: post?.$id || post?.slug || '',
             content: post?.content || '',
             status: post?.status || 'active',
-        }
+        },
     });
 
     const navigate = useNavigate();
     const userData = useSelector((state) => state.auth.userData);
     const [loading, setLoading] = useState(false);
     const [formError, setFormError] = useState('');
+    const [mediaError, setMediaError] = useState('');
+
+    // Featured Cover Image State
     const [selectedFile, setSelectedFile] = useState(null);
     const existingImage = post?.featuredimage || post?.featuredImage;
     const [previewUrl, setPreviewUrl] = useState(
         existingImage ? appwriteService.getFilePreview(existingImage) : null
     );
 
+    // Additional Media State: saved existing items & new pending items
+    const [savedMedia, setSavedMedia] = useState(
+        Array.isArray(post?.media) ? post.media : []
+    );
+    const [pendingFiles, setPendingFiles] = useState([]);
+
+    // Keep ref to pending files and cover preview to revoke blob URLs on unmount
+    const pendingFilesRef = useRef(pendingFiles);
+    pendingFilesRef.current = pendingFiles;
+    const previewUrlRef = useRef(previewUrl);
+    previewUrlRef.current = previewUrl;
+
+    useEffect(() => {
+        return () => {
+            pendingFilesRef.current.forEach((item) => {
+                if (item.previewUrl && item.previewUrl.startsWith('blob:')) {
+                    URL.revokeObjectURL(item.previewUrl);
+                }
+            });
+            if (previewUrlRef.current && previewUrlRef.current.startsWith('blob:')) {
+                URL.revokeObjectURL(previewUrlRef.current);
+            }
+        };
+    }, []);
+
     const handleImageChange = (e) => {
         const file = e.target.files?.[0];
         if (file) {
+            const mediaType = getMediaType(file);
+            if (mediaType !== 'image') {
+                setFormError(`Cover image "${file.name}" has an unsupported format. Allowed formats: PNG, JPG, JPEG, GIF, WEBP.`);
+                e.target.value = '';
+                return;
+            }
+            if (file.size > MAX_FILE_SIZE_BYTES) {
+                setFormError(`Cover image "${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB size limit (${formatFileSize(file.size)}).`);
+                e.target.value = '';
+                return;
+            }
+
+            if (previewUrl && previewUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(previewUrl);
+            }
             setSelectedFile(file);
             setPreviewUrl(URL.createObjectURL(file));
+            setFormError('');
         }
+    };
+
+    const handleAdditionalMediaChange = (e) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+
+        // Reset the input value so the same file could be selected again if removed
+        e.target.value = '';
+
+        const errors = [];
+        const newItems = [];
+        const currentCount = savedMedia.length + pendingFiles.length;
+        const availableSlots = MAX_MEDIA_FILES - currentCount;
+
+        if (availableSlots <= 0) {
+            setMediaError(`Maximum limit of ${MAX_MEDIA_FILES} additional files reached. Remove existing items before adding more.`);
+            return;
+        }
+
+        for (const file of files) {
+            if (newItems.length >= availableSlots) {
+                errors.push(`Reached maximum limit of ${MAX_MEDIA_FILES} additional files.`);
+                break;
+            }
+
+            const mediaType = getMediaType(file);
+            if (!mediaType) {
+                errors.push(`"${file.name}" is not supported. Only PNG, JPG, JPEG, GIF, WEBP, and PDF files are allowed.`);
+                continue;
+            }
+
+            if (file.size > MAX_FILE_SIZE_BYTES) {
+                errors.push(`"${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB limit (${formatFileSize(file.size)}).`);
+                continue;
+            }
+
+            // Check for duplicates
+            const isDuplicatePending = pendingFiles.some(
+                (p) => p.name === file.name && p.size === file.size
+            );
+            const isDuplicateSaved = savedMedia.some((s) => s.name === file.name);
+            if (isDuplicatePending || isDuplicateSaved) {
+                errors.push(`"${file.name}" is already attached or selected.`);
+                continue;
+            }
+
+            const objectUrl = mediaType === 'image' ? URL.createObjectURL(file) : null;
+            newItems.push({
+                id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                file,
+                previewUrl: objectUrl,
+                type: mediaType,
+                name: file.name,
+                size: file.size,
+                mimeType: file.type || (mediaType === 'pdf' ? 'application/pdf' : 'image/jpeg'),
+            });
+        }
+
+        if (errors.length > 0) {
+            setMediaError(errors.join(' '));
+        } else {
+            setMediaError('');
+        }
+
+        if (newItems.length > 0) {
+            setPendingFiles((prev) => [...prev, ...newItems]);
+        }
+    };
+
+    const handleRemoveSavedMedia = (fileId) => {
+        setSavedMedia((prev) => prev.filter((item) => item.fileId !== fileId));
+        setMediaError('');
+    };
+
+    const handleRemovePendingFile = (id) => {
+        setPendingFiles((prev) => {
+            const item = prev.find((p) => p.id === id);
+            if (item?.previewUrl && item.previewUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(item.previewUrl);
+            }
+            return prev.filter((p) => p.id !== id);
+        });
+        setMediaError('');
     };
 
     const submit = async (data) => {
         setFormError('');
+        setMediaError('');
         setLoading(true);
+
+        const newlyUploadedFileIds = [];
+        let postRecordSaved = false;
+
         try {
             const fileToUpload = (data.image && data.image[0]) || selectedFile;
 
             if (post) {
-                // Updating existing post
-                let fileId = post.featuredimage || post.featuredImage;
+                // EDITING EXISTING STORY
+                let finalCoverId = post.featuredimage || post.featuredImage;
+
+                // 1. Upload new cover image if one was selected
                 if (fileToUpload) {
-                    const uploadedFile = await appwriteService.uploadFile(fileToUpload);
-                    if (uploadedFile) {
-                        fileId = uploadedFile.$id;
-                        // Delete previous image if exists
-                        const oldImage = post.featuredimage || post.featuredImage;
-                        if (oldImage && oldImage !== fileId) {
-                            await appwriteService.deleteFile(oldImage);
-                        }
+                    const uploadedCover = await appwriteService.uploadFile(fileToUpload);
+                    if (uploadedCover?.$id) {
+                        finalCoverId = uploadedCover.$id;
+                        newlyUploadedFileIds.push(uploadedCover.$id);
                     }
                 }
 
+                // 2. Upload any pending additional media files
+                const newlyUploadedMediaItems = [];
+                for (const item of pendingFiles) {
+                    const uploadedMedia = await appwriteService.uploadFile(item.file);
+                    if (uploadedMedia?.$id) {
+                        newlyUploadedFileIds.push(uploadedMedia.$id);
+                        newlyUploadedMediaItems.push({
+                            fileId: uploadedMedia.$id,
+                            name: item.name,
+                            mimeType: item.mimeType,
+                            type: item.type,
+                            ...(typeof item.size === 'number' ? { size: item.size } : {}),
+                        });
+                    }
+                }
+
+                // 3. Combine retained savedMedia + newly uploaded media
+                const finalMedia = [
+                    ...savedMedia.map((m) => ({
+                        fileId: m.fileId,
+                        name: m.name,
+                        mimeType: m.mimeType,
+                        type: m.type,
+                        ...(typeof m.size === 'number' ? { size: m.size } : {}),
+                    })),
+                    ...newlyUploadedMediaItems,
+                ];
+
+                // 4. Update the post record BEFORE deleting files that the user removed
                 const dbPost = await appwriteService.updatePost(post.$id, {
                     title: data.title,
                     content: data.content,
-                    featuredimage: fileId,
+                    featuredimage: finalCoverId,
                     status: data.status,
+                    media: finalMedia,
                 });
+
+                postRecordSaved = true;
+
+                // 5. Update succeeded! Now delete files that the user removed.
+                // Avoid deleting retained files or deleting the same file twice.
+                const retainedFileIds = new Set([
+                    finalCoverId,
+                    ...finalMedia.map((m) => m.fileId),
+                ]);
+
+                const filesToDelete = new Set();
+
+                // If cover was replaced, queue old cover for deletion (if not retained elsewhere)
+                const oldCover = post.featuredimage || post.featuredImage;
+                if (fileToUpload && oldCover && !retainedFileIds.has(oldCover)) {
+                    filesToDelete.add(oldCover);
+                }
+
+                // Check original post.media for items removed by author
+                const originalMedia = post.media || [];
+                for (const item of originalMedia) {
+                    if (item?.fileId && !retainedFileIds.has(item.fileId)) {
+                        filesToDelete.add(item.fileId);
+                    }
+                }
+
+                // Safely delete removed files without failing navigation
+                if (filesToDelete.size > 0) {
+                    await Promise.allSettled(
+                        Array.from(filesToDelete).map((id) => appwriteService.deleteFile(id))
+                    );
+                }
 
                 if (dbPost) {
                     navigate(`/post/${dbPost.$id}`);
                 }
             } else {
-                // Creating new post
+                // CREATING NEW STORY
                 if (!fileToUpload) {
-                    setFormError('Please select a featured image for your story.');
+                    setFormError('Please select a featured cover image for your story.');
                     setLoading(false);
                     return;
                 }
 
-                const file = await appwriteService.uploadFile(fileToUpload);
-                if (file) {
-                    const currentUserId = userData?.$id || userData?.userData?.$id;
-                    const dbPost = await appwriteService.createPost({
-                        title: data.title,
-                        slug: data.slug,
-                        content: data.content,
-                        featuredimage: file.$id,
-                        status: data.status,
-                        userid: currentUserId,
-                    });
+                // 1. Upload featured cover
+                const uploadedCover = await appwriteService.uploadFile(fileToUpload);
+                if (!uploadedCover?.$id) {
+                    throw new Error('Failed to upload featured cover image.');
+                }
+                newlyUploadedFileIds.push(uploadedCover.$id);
 
-                    if (dbPost) {
-                        navigate(`/post/${dbPost.$id}`);
+                // 2. Upload pending media files
+                const newlyUploadedMediaItems = [];
+                for (const item of pendingFiles) {
+                    const uploadedMedia = await appwriteService.uploadFile(item.file);
+                    if (uploadedMedia?.$id) {
+                        newlyUploadedFileIds.push(uploadedMedia.$id);
+                        newlyUploadedMediaItems.push({
+                            fileId: uploadedMedia.$id,
+                            name: item.name,
+                            mimeType: item.mimeType,
+                            type: item.type,
+                            ...(typeof item.size === 'number' ? { size: item.size } : {}),
+                        });
                     }
+                }
+
+                // 3. Create post record
+                const currentUserId = userData?.$id || userData?.userData?.$id;
+                const dbPost = await appwriteService.createPost({
+                    title: data.title,
+                    slug: data.slug,
+                    content: data.content,
+                    featuredimage: uploadedCover.$id,
+                    status: data.status,
+                    userid: currentUserId,
+                    media: newlyUploadedMediaItems,
+                });
+
+                postRecordSaved = true;
+
+                if (dbPost) {
+                    navigate(`/post/${dbPost.$id}`);
                 }
             }
         } catch (error) {
             console.error('Error submitting post:', error);
+
+            // If update/create failed after new uploads, attempt to clean up those new uploads
+            if (!postRecordSaved && newlyUploadedFileIds.length > 0) {
+                try {
+                    await Promise.allSettled(
+                        newlyUploadedFileIds.map((id) => appwriteService.deleteFile(id))
+                    );
+                } catch (cleanupErr) {
+                    console.warn('Failed to clean up newly uploaded files after error', cleanupErr);
+                }
+            }
+
             const msg = error?.message || 'Failed to save post. Please check your inputs and try again.';
             if (msg.toLowerCase().includes('permission') || error?.code === 401) {
-                setFormError('Storage Permission Error: In Appwrite Console under Storage -> Bucket -> Settings -> Permissions, ensure "Users" and "Any" have Read & Create permissions.');
+                setFormError(
+                    'Storage Permission Error: In Appwrite Console under Storage -> Bucket -> Settings -> Permissions, ensure "Users" and "Any" have Read & Create permissions.'
+                );
+            } else if (msg.toLowerCase().includes('media') && msg.toLowerCase().includes('attribute')) {
+                setFormError(
+                    "Appwrite Database Schema Error: The 'media' attribute is missing in your Posts collection. In Appwrite Console -> Databases -> Posts collection -> Attributes -> Add String attribute 'media' (Size: 65535, Required: false)."
+                );
             } else {
                 setFormError(msg);
             }
@@ -102,7 +375,6 @@ const PostForm = ({ post }) => {
             setLoading(false);
         }
     };
-
 
     const slugTransform = useCallback((value) => {
         if (value && typeof value === 'string') {
@@ -125,13 +397,14 @@ const PostForm = ({ post }) => {
         return () => subscription.unsubscribe();
     }, [watch, slugTransform, setValue]);
 
+    const totalAttachedMediaCount = savedMedia.length + pendingFiles.length;
 
     return (
         <form onSubmit={handleSubmit(submit)} className="max-w-5xl mx-auto space-y-6">
             {formError && (
                 <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2">
                     <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span>{formError}</span>
                 </div>
@@ -145,26 +418,131 @@ const PostForm = ({ post }) => {
                             label="Post Title"
                             placeholder="Enter a compelling title..."
                             className="text-base"
-                            {...register("title", { required: "Title is required" })}
+                            {...register('title', { required: 'Title is required' })}
                         />
 
                         <Input
                             label="URL Slug"
                             placeholder="post-url-slug"
-                            {...register("slug", { required: "Slug is required" })}
+                            {...register('slug', { required: 'Slug is required' })}
                             onInput={(e) => {
-                                setValue("slug", slugTransform(e.currentTarget.value), { shouldValidate: true });
+                                setValue('slug', slugTransform(e.currentTarget.value), { shouldValidate: true });
                             }}
                         />
                     </div>
 
                     <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
-                        <RTE 
-                            label="Article Content" 
-                            name="content" 
-                            control={control} 
-                            defaultValue={getValues("content")} 
+                        <RTE
+                            label="Article Content"
+                            name="content"
+                            control={control}
+                            defaultValue={getValues('content')}
                         />
+                    </div>
+
+                    {/* Additional Media & Attachments Section */}
+                    <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                            <div>
+                                <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                                        />
+                                    </svg>
+                                    Additional Media & Documents
+                                </h3>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                    Upload extra images or PDF attachments (optional, up to {MAX_MEDIA_FILES} files, max {MAX_FILE_SIZE_MB}MB each)
+                                </p>
+                            </div>
+                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 self-start sm:self-auto">
+                                {totalAttachedMediaCount} / {MAX_MEDIA_FILES} files
+                            </span>
+                        </div>
+
+                        {mediaError && (
+                            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-2">
+                                <svg className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                    />
+                                </svg>
+                                <div className="flex-1">
+                                    <span>{mediaError}</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setMediaError('')}
+                                    className="text-amber-600 hover:text-amber-800 font-bold text-sm ml-2 cursor-pointer"
+                                >
+                                    &times;
+                                </button>
+                            </div>
+                        )}
+
+                        {/* File Picker / Dropzone */}
+                        {totalAttachedMediaCount < MAX_MEDIA_FILES && (
+                            <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl cursor-pointer bg-slate-50/60 hover:bg-indigo-50/20 transition-all duration-200 group">
+                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 group-hover:bg-indigo-100 flex items-center justify-center text-indigo-600 mb-2 transition-colors">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                                        />
+                                    </svg>
+                                </div>
+                                <p className="text-sm font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors">
+                                    Click to select multiple images or PDFs
+                                </p>
+                                <p className="text-xs text-slate-400 mt-1">
+                                    Supports PNG, JPG, JPEG, GIF, WEBP, and PDF (Max {MAX_FILE_SIZE_MB}MB each)
+                                </p>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept={ACCEPTED_MEDIA_TYPES}
+                                    className="hidden"
+                                    onChange={handleAdditionalMediaChange}
+                                />
+                            </label>
+                        )}
+
+                        {/* Attached Media List */}
+                        {totalAttachedMediaCount > 0 && (
+                            <div className="space-y-3 pt-2">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                    Attached Media ({totalAttachedMediaCount})
+                                </h4>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {/* Saved Media Items */}
+                                    {savedMedia.map((item) => (
+                                        <SavedMediaItem
+                                            key={item.fileId}
+                                            item={item}
+                                            onRemove={() => handleRemoveSavedMedia(item.fileId)}
+                                        />
+                                    ))}
+
+                                    {/* Newly Selected Pending Media Items */}
+                                    {pendingFiles.map((item) => (
+                                        <PendingMediaItem
+                                            key={item.id}
+                                            item={item}
+                                            onRemove={() => handleRemovePendingFile(item.id)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -176,17 +554,20 @@ const PostForm = ({ post }) => {
                         </h3>
 
                         <Select
-                            options={["active", "inactive"]}
+                            options={['active', 'inactive']}
                             label="Status"
-                            {...register("status", { required: true })}
+                            {...register('status', { required: true })}
                         />
 
+                        {/* Required Featured Image Picker */}
                         <div>
                             {(() => {
-                                const imageRegister = register("image", { required: !post && !existingImage && !selectedFile });
+                                const imageRegister = register('image', {
+                                    required: !post && !existingImage && !selectedFile,
+                                });
                                 return (
                                     <Input
-                                        label="Featured Image"
+                                        label="Featured Cover Image *"
                                         type="file"
                                         accept="image/png, image/jpg, image/jpeg, image/gif, image/webp"
                                         {...imageRegister}
@@ -209,13 +590,23 @@ const PostForm = ({ post }) => {
                         </div>
 
                         <div className="pt-2">
-                            <Button 
-                                type="submit" 
+                            <Button
+                                type="submit"
                                 loading={loading}
                                 className="w-full py-3 text-base font-semibold shadow-md"
-                                bgColor={post ? "bg-emerald-600 hover:bg-emerald-700" : "bg-indigo-600 hover:bg-indigo-700"}
+                                bgColor={
+                                    post
+                                        ? 'bg-emerald-600 hover:bg-emerald-700'
+                                        : 'bg-indigo-600 hover:bg-indigo-700'
+                                }
                             >
-                                {post ? (loading ? "Updating Post..." : "Update Story") : (loading ? "Publishing..." : "Publish Story")}
+                                {post
+                                    ? loading
+                                        ? 'Updating Post...'
+                                        : 'Update Story'
+                                    : loading
+                                    ? 'Publishing...'
+                                    : 'Publish Story'}
                             </Button>
                         </div>
                     </div>
@@ -224,6 +615,121 @@ const PostForm = ({ post }) => {
         </form>
     );
 };
+
+function SavedMediaItem({ item, onRemove }) {
+    const [imgSrc, setImgSrc] = useState(
+        item.type === 'image' ? appwriteService.getFilePreview(item.fileId) : null
+    );
+
+    const handleImgError = () => {
+        const viewUrl = appwriteService.getFileView(item.fileId);
+        if (viewUrl && viewUrl !== imgSrc) {
+            setImgSrc(viewUrl);
+        }
+    };
+
+    return (
+        <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-xs gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+                {item.type === 'image' ? (
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center">
+                        {imgSrc ? (
+                            <img
+                                src={imgSrc}
+                                alt={item.name}
+                                onError={handleImgError}
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <span className="text-[10px] text-slate-400">IMG</span>
+                        )}
+                    </div>
+                ) : (
+                    <div className="w-12 h-12 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 flex flex-col items-center justify-center flex-shrink-0 font-bold text-xs">
+                        <span>PDF</span>
+                    </div>
+                )}
+                <div className="min-w-0">
+                    <p className="text-xs font-semibold text-slate-800 truncate" title={item.name}>
+                        {item.name}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Saved
+                        </span>
+                        {item.size && (
+                            <span className="text-[11px] text-slate-400">
+                                {formatFileSize(item.size)}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+            <button
+                type="button"
+                onClick={onRemove}
+                title="Remove attached file"
+                aria-label={`Remove ${item.name}`}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex-shrink-0"
+            >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                </svg>
+            </button>
+        </div>
+    );
+}
+
+function PendingMediaItem({ item, onRemove }) {
+    return (
+        <div className="flex items-center justify-between p-3 rounded-xl border border-indigo-100 bg-indigo-50/30 hover:border-indigo-200 transition-all shadow-xs gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+                {item.type === 'image' && item.previewUrl ? (
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 border border-indigo-200 flex-shrink-0">
+                        <img
+                            src={item.previewUrl}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                ) : (
+                    <div className="w-12 h-12 rounded-lg bg-rose-100 border border-rose-300 text-rose-700 flex flex-col items-center justify-center flex-shrink-0 font-bold text-xs">
+                        <span>PDF</span>
+                    </div>
+                )}
+                <div className="min-w-0">
+                    <p className="text-xs font-semibold text-slate-800 truncate" title={item.name}>
+                        {item.name}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">
+                            New Upload
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                            {formatFileSize(item.size)}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <button
+                type="button"
+                onClick={onRemove}
+                title="Remove pending file"
+                aria-label={`Remove ${item.name}`}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer flex-shrink-0"
+            >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    );
+}
 
 export default PostForm;
 
