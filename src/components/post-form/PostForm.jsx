@@ -6,22 +6,22 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 // Configurable constants for media attachments
-export const ALLOWED_IMAGE_TYPES = [
+const ALLOWED_IMAGE_TYPES = [
     'image/png',
     'image/jpeg',
     'image/jpg',
     'image/gif',
     'image/webp',
 ];
-export const ALLOWED_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
+const ALLOWED_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
 
-export const ALLOWED_DOCUMENT_TYPES = ['application/pdf'];
-export const ALLOWED_DOCUMENT_EXTENSIONS = ['.pdf'];
+const ALLOWED_DOCUMENT_TYPES = ['application/pdf'];
+const ALLOWED_DOCUMENT_EXTENSIONS = ['.pdf'];
 
-export const MAX_MEDIA_FILES = 10;
-export const MAX_FILE_SIZE_MB = 10;
-export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-export const ACCEPTED_MEDIA_TYPES =
+const MAX_MEDIA_FILES = 10;
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const ACCEPTED_MEDIA_TYPES =
     'image/png, image/jpg, image/jpeg, image/gif, image/webp, application/pdf';
 
 function formatFileSize(bytes) {
