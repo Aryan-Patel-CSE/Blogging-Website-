@@ -17,35 +17,12 @@
   }
 }
 
-@keyframes welcome-neon-flicker {
-  0%, 100% {
-    opacity: 1;
-    text-shadow: 0 0 3px currentColor, 0 0 12px currentColor, 0 0 30px currentColor;
-  }
-  18% {
-    opacity: 0.65;
-    text-shadow: 0 0 2px currentColor, 0 0 5px currentColor;
-  }
-  28% {
-    opacity: 1;
-    text-shadow: 0 0 4px currentColor, 0 0 18px currentColor, 0 0 42px currentColor;
-  }
-  44% {
-    opacity: 0.78;
-    text-shadow: 0 0 2px currentColor, 0 0 8px currentColor;
-  }
-  58% {
-    opacity: 1;
-    text-shadow: 0 0 4px currentColor, 0 0 18px currentColor, 0 0 42px currentColor;
-  }
-}
-
 @keyframes welcome-glow {
   0%, 100% {
-    text-shadow: 0 0 3px currentColor, 0 0 12px currentColor, 0 0 28px currentColor;
+    text-shadow: 0 0 3px currentColor, 0 0 10px currentColor, 0 0 22px currentColor;
   }
   50% {
-    text-shadow: 0 0 5px currentColor, 0 0 18px currentColor, 0 0 40px currentColor;
+    text-shadow: 0 0 5px currentColor, 0 0 15px currentColor, 0 0 30px currentColor;
   }
 }
 
@@ -95,8 +72,92 @@
   }
 }
 
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes story-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .auth-card {
   animation: auth-card-enter 650ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+main > div {
+  animation: page-enter 550ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+main .grid > div > a.group {
+  animation: story-card-enter 550ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+main .grid > div:nth-child(2) > a.group { animation-delay: 60ms; }
+main .grid > div:nth-child(3) > a.group { animation-delay: 120ms; }
+main .grid > div:nth-child(4) > a.group { animation-delay: 180ms; }
+main .grid > div:nth-child(5) > a.group { animation-delay: 240ms; }
+main .grid > div:nth-child(6) > a.group { animation-delay: 300ms; }
+
+main button:not(:disabled),
+header button:not(:disabled),
+.auth-card button:not(:disabled) {
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 220ms ease,
+    transform 220ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+main button:not(:disabled):hover,
+header button:not(:disabled):hover,
+.auth-card button:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgb(122 28 172 / 0.16);
+}
+
+main button:not(:disabled):active,
+header button:not(:disabled):active,
+.auth-card button:not(:disabled):active {
+  transform: translateY(0) scale(0.98);
+}
+
+main button:focus-visible,
+header button:focus-visible,
+.auth-card button:focus-visible,
+main a[class*="rounded-xl"]:focus-visible,
+main a[class*="rounded-2xl"]:focus-visible {
+  outline: 3px solid rgb(173 73 225 / 0.55);
+  outline-offset: 3px;
+}
+
+main a[class*="rounded-xl"],
+main a[class*="rounded-2xl"] {
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 220ms ease,
+    transform 220ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+main a[class*="rounded-xl"]:hover,
+main a[class*="rounded-2xl"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgb(122 28 172 / 0.16);
 }
 
 .auth-card > * {
@@ -150,7 +211,7 @@
   border: 1px solid rgb(173 73 225 / 0.15);
   border-radius: 50%;
   content: '';
-  animation: welcome-aura 7s ease-in-out infinite;
+  animation: welcome-aura 9s ease-in-out infinite;
 }
 
 .dark .welcome-splash::before,
@@ -193,34 +254,33 @@
   flex: 0 0 auto;
   opacity: 0;
   animation:
-    welcome-letter-in 800ms cubic-bezier(0.2, 0.75, 0.25, 1) both,
-    welcome-neon-flicker 900ms linear both,
-    welcome-glow 1.8s ease-in-out 1s infinite;
+    welcome-letter-in 750ms cubic-bezier(0.2, 0.75, 0.25, 1) both,
+    welcome-glow 3.6s ease-in-out 1.6s infinite;
 }
 
 .welcome-splash__hello span:nth-child(1) {
   color: #7A1CAC;
-  animation-delay: 120ms, 700ms, 1.2s;
+  animation-delay: 100ms, 1.5s;
 }
 
 .welcome-splash__hello span:nth-child(2) {
   color: #AD49E1;
-  animation-delay: 260ms, 840ms, 1.34s;
+  animation-delay: 220ms, 1.62s;
 }
 
 .welcome-splash__hello span:nth-child(3) {
   color: #7A1CAC;
-  animation-delay: 400ms, 980ms, 1.48s;
+  animation-delay: 340ms, 1.74s;
 }
 
 .welcome-splash__hello span:nth-child(4) {
   color: #AD49E1;
-  animation-delay: 540ms, 1.12s, 1.62s;
+  animation-delay: 460ms, 1.86s;
 }
 
 .welcome-splash__hello span:nth-child(5) {
   color: #7A1CAC;
-  animation-delay: 680ms, 1.26s, 1.76s;
+  animation-delay: 580ms, 1.98s;
 }
 
 .welcome-splash__title {
@@ -312,12 +372,30 @@
   .auth-card,
   .auth-card > *,
   .auth-card form > *,
+  main > div,
+  main .grid > div > a.group,
   .welcome-splash__content,
   .welcome-splash::before,
   .welcome-splash::after,
   .welcome-splash__hello span,
   .welcome-splash__dots i {
     animation: none;
+  }
+
+  main button:not(:disabled),
+  header button:not(:disabled),
+  .auth-card button:not(:disabled),
+  main a[class*="rounded-xl"],
+  main a[class*="rounded-2xl"] {
+    transition: none;
+  }
+
+  main button:not(:disabled):hover,
+  header button:not(:disabled):hover,
+  .auth-card button:not(:disabled):hover,
+  main a[class*="rounded-xl"]:hover,
+  main a[class*="rounded-2xl"]:hover {
+    transform: none;
   }
 
   .welcome-splash__hello span {
