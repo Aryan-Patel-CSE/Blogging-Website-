@@ -36,7 +36,7 @@ const Signup = () => {
 
     return (
         <div className='flex items-center justify-center w-full py-8'>
-            <div className='w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-xl shadow-slate-200/50'>
+            <div className='auth-card w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-xl shadow-slate-200/50'>
                 <div className='mb-6 flex justify-center'>
                     <Logo width="160px" />
                 </div>
