@@ -445,7 +445,7 @@ const PostForm = ({ post }) => {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-[#7A1CAC]/30 pb-3">
                             <div>
                                 <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-[#7A1CAC] dark:text-[#AD49E1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-5 h-5 text-[#1D4ED8] dark:text-[#AD49E1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
@@ -459,7 +459,7 @@ const PostForm = ({ post }) => {
                                     Upload extra images or PDF attachments (optional, up to {MAX_MEDIA_FILES} files, max {MAX_FILE_SIZE_MB}MB each)
                                 </p>
                             </div>
-                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#EBD3F8]/40 dark:bg-[#240632] text-slate-700 dark:text-[#EBD3F8] self-start sm:self-auto border border-slate-200/60 dark:border-[#7A1CAC]/30">
+                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#DBEAFE]/40 dark:bg-[#240632] text-slate-700 dark:text-[#EBD3F8] self-start sm:self-auto border border-slate-200/60 dark:border-[#7A1CAC]/30">
                                 {totalAttachedMediaCount} / {MAX_MEDIA_FILES} files
                             </span>
                         </div>
@@ -489,8 +489,8 @@ const PostForm = ({ post }) => {
 
                         {/* File Picker / Dropzone */}
                         {totalAttachedMediaCount < MAX_MEDIA_FILES && (
-                            <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 dark:border-[#7A1CAC]/40 hover:border-[#7A1CAC] dark:hover:border-[#AD49E1] rounded-2xl cursor-pointer bg-slate-50/60 dark:bg-[#240632]/60 hover:bg-[#EBD3F8]/20 dark:hover:bg-[#360a4a]/40 transition-all duration-200 group">
-                                <div className="w-12 h-12 rounded-2xl bg-[#EBD3F8]/50 dark:bg-[#240632] group-hover:bg-[#EBD3F8] dark:group-hover:bg-[#360a4a] flex items-center justify-center text-[#7A1CAC] dark:text-[#AD49E1] mb-2 transition-colors">
+                            <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 dark:border-[#7A1CAC]/40 hover:border-[#1D4ED8] dark:hover:border-[#AD49E1] rounded-2xl cursor-pointer bg-slate-50/60 dark:bg-[#240632]/60 hover:bg-[#DBEAFE]/20 dark:hover:bg-[#360a4a]/40 transition-all duration-200 group">
+                                <div className="w-12 h-12 rounded-2xl bg-[#DBEAFE]/50 dark:bg-[#240632] group-hover:bg-[#DBEAFE] dark:group-hover:bg-[#360a4a] flex items-center justify-center text-[#1D4ED8] dark:text-[#AD49E1] mb-2 transition-colors">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path
                                             strokeLinecap="round"
@@ -500,7 +500,7 @@ const PostForm = ({ post }) => {
                                         />
                                     </svg>
                                 </div>
-                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-[#7A1CAC] dark:group-hover:text-[#AD49E1] transition-colors">
+                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-[#1D4ED8] dark:group-hover:text-[#AD49E1] transition-colors">
                                     Click to select multiple images or PDFs
                                 </p>
                                 <p className="text-xs text-slate-400 dark:text-[#EBD3F8]/60 mt-1">
@@ -597,7 +597,7 @@ const PostForm = ({ post }) => {
                                 bgColor={
                                     post
                                         ? 'bg-emerald-600 hover:bg-emerald-700'
-                                        : 'bg-[#7A1CAC] hover:bg-[#AD49E1]'
+                                        : 'bg-[#1D4ED8] hover:bg-[#3B82F6] dark:bg-[#7A1CAC] dark:hover:bg-[#AD49E1]'
                                 }
                             >
                                 {post
@@ -687,10 +687,10 @@ function SavedMediaItem({ item, onRemove }) {
 
 function PendingMediaItem({ item, onRemove }) {
     return (
-        <div className="flex items-center justify-between p-3 rounded-xl border border-[#7A1CAC]/30 dark:border-[#7A1CAC]/40 bg-[#EBD3F8]/20 dark:bg-[#240632] hover:border-[#AD49E1] transition-all shadow-xs gap-3">
+        <div className="flex items-center justify-between p-3 rounded-xl border border-[#1D4ED8]/30 dark:border-[#7A1CAC]/40 bg-[#DBEAFE]/20 dark:bg-[#240632] hover:border-[#3B82F6] dark:hover:border-[#AD49E1] transition-all shadow-xs gap-3">
             <div className="flex items-center gap-3 min-w-0">
                 {item.type === 'image' && item.previewUrl ? (
-                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-[#190325] border border-[#7A1CAC]/40 flex-shrink-0">
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-[#190325] border border-[#1D4ED8]/40 flex-shrink-0">
                         <img
                             src={item.previewUrl}
                             alt={item.name}
@@ -707,7 +707,7 @@ function PendingMediaItem({ item, onRemove }) {
                         {item.name}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#EBD3F8] dark:bg-[#7A1CAC]/40 text-[#7A1CAC] dark:text-[#EBD3F8]">
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#DBEAFE] dark:bg-[#7A1CAC]/40 text-[#1D4ED8] dark:text-[#EBD3F8]">
                             New Upload
                         </span>
                         <span className="text-[11px] text-slate-500 dark:text-[#EBD3F8]/60">
@@ -732,4 +732,3 @@ function PendingMediaItem({ item, onRemove }) {
 }
 
 export default PostForm;
-

@@ -127,6 +127,12 @@ main button:not(:disabled):hover,
 header button:not(:disabled):hover,
 .auth-card button:not(:disabled):hover {
   transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgb(29 78 216 / 0.16);
+}
+
+.dark main button:not(:disabled):hover,
+.dark header button:not(:disabled):hover,
+.dark .auth-card button:not(:disabled):hover {
   box-shadow: 0 8px 18px rgb(122 28 172 / 0.16);
 }
 
@@ -141,8 +147,16 @@ header button:focus-visible,
 .auth-card button:focus-visible,
 main a[class*="rounded-xl"]:focus-visible,
 main a[class*="rounded-2xl"]:focus-visible {
-  outline: 3px solid rgb(173 73 225 / 0.55);
+  outline: 3px solid rgb(59 130 246 / 0.55);
   outline-offset: 3px;
+}
+
+.dark main button:focus-visible,
+.dark header button:focus-visible,
+.dark .auth-card button:focus-visible,
+.dark main a[class*="rounded-xl"]:focus-visible,
+.dark main a[class*="rounded-2xl"]:focus-visible {
+  outline-color: rgb(173 73 225 / 0.55);
 }
 
 main a[class*="rounded-xl"],
@@ -157,6 +171,11 @@ main a[class*="rounded-2xl"] {
 main a[class*="rounded-xl"]:hover,
 main a[class*="rounded-2xl"]:hover {
   transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgb(29 78 216 / 0.16);
+}
+
+.dark main a[class*="rounded-xl"]:hover,
+.dark main a[class*="rounded-2xl"]:hover {
   box-shadow: 0 8px 18px rgb(122 28 172 / 0.16);
 }
 
@@ -188,10 +207,10 @@ main a[class*="rounded-2xl"]:hover {
   place-items: center;
   isolation: isolate;
   background:
-    radial-gradient(ellipse at 50% 46%, rgb(173 73 225 / 0.12), transparent 45%),
-    radial-gradient(ellipse at 50% 100%, rgb(122 28 172 / 0.08), transparent 55%),
-    #fbf7fd;
-  color: #2E073F;
+    radial-gradient(ellipse at 50% 46%, rgb(59 130 246 / 0.12), transparent 45%),
+    radial-gradient(ellipse at 50% 100%, rgb(29 78 216 / 0.08), transparent 55%),
+    #f8fbff;
+  color: #1e3a8a;
 }
 
 .dark .welcome-splash {
@@ -208,7 +227,7 @@ main a[class*="rounded-2xl"]:hover {
   z-index: -1;
   width: min(70vw, 44rem);
   aspect-ratio: 1;
-  border: 1px solid rgb(173 73 225 / 0.15);
+  border: 1px solid rgb(59 130 246 / 0.15);
   border-radius: 50%;
   content: '';
   animation: welcome-aura 9s ease-in-out infinite;
@@ -221,7 +240,7 @@ main a[class*="rounded-2xl"]:hover {
 
 .welcome-splash::after {
   width: min(56vw, 35rem);
-  border-color: rgb(122 28 172 / 0.15);
+  border-color: rgb(29 78 216 / 0.15);
   animation-delay: -3.5s;
 }
 
@@ -259,33 +278,41 @@ main a[class*="rounded-2xl"]:hover {
 }
 
 .welcome-splash__hello span:nth-child(1) {
-  color: #7A1CAC;
+  color: #1d4ed8;
   animation-delay: 100ms, 1.5s;
 }
 
 .welcome-splash__hello span:nth-child(2) {
-  color: #AD49E1;
+  color: #3b82f6;
   animation-delay: 220ms, 1.62s;
 }
 
 .welcome-splash__hello span:nth-child(3) {
-  color: #7A1CAC;
+  color: #1d4ed8;
   animation-delay: 340ms, 1.74s;
 }
 
 .welcome-splash__hello span:nth-child(4) {
-  color: #AD49E1;
+  color: #3b82f6;
   animation-delay: 460ms, 1.86s;
 }
 
 .welcome-splash__hello span:nth-child(5) {
-  color: #7A1CAC;
+  color: #1d4ed8;
   animation-delay: 580ms, 1.98s;
+}
+
+.dark .welcome-splash__hello span:nth-child(odd) {
+  color: #7A1CAC;
+}
+
+.dark .welcome-splash__hello span:nth-child(even) {
+  color: #AD49E1;
 }
 
 .welcome-splash__title {
   margin: 1.15rem 0 0;
-  color: #2E073F;
+  color: #1e3a8a;
   font-size: clamp(1.1rem, 3vw, 1.55rem);
   font-weight: 700;
   letter-spacing: 0.015em;
@@ -297,7 +324,7 @@ main a[class*="rounded-2xl"]:hover {
 
 .welcome-splash__tagline {
   margin: 0.65rem 0 0;
-  color: #7A1CAC;
+  color: #1d4ed8;
   font-size: clamp(0.85rem, 2vw, 1rem);
   letter-spacing: 0.025em;
 }
@@ -311,7 +338,7 @@ main a[class*="rounded-2xl"]:hover {
   align-items: center;
   gap: 0.7rem;
   margin-top: 3.5rem;
-  color: #7A1CAC;
+  color: #1d4ed8;
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.19em;
@@ -331,7 +358,7 @@ main a[class*="rounded-2xl"]:hover {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #7A1CAC;
+  background: #1d4ed8;
   animation: welcome-dot 1s ease-in-out infinite;
 }
 

@@ -61,7 +61,7 @@ const Header = () => {
                     {item.isPrimary ? (
                       <button
                         onClick={() => navigate(item.slug)}
-                        className='inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-[#7A1CAC] hover:bg-[#AD49E1] active:bg-[#2E073F] rounded-xl shadow-xs transition-all duration-200 cursor-pointer shadow-sm shadow-[#7A1CAC]/20'
+                        className='inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-[#3B82F6] active:bg-[#1E3A8A] dark:bg-[#7A1CAC] dark:hover:bg-[#AD49E1] dark:active:bg-[#2E073F] rounded-xl shadow-xs transition-all duration-200 cursor-pointer shadow-sm shadow-[#1D4ED8]/20 dark:shadow-[#7A1CAC]/20'
                       >
                         {item.slug === "/add-post" && (
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,8 +75,8 @@ const Header = () => {
                         onClick={() => navigate(item.slug)}
                         className={`inline-block px-3.5 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer ${
                           location.pathname === item.slug
-                            ? 'text-[#7A1CAC] bg-[#EBD3F8]/60 dark:text-[#EBD3F8] dark:bg-[#7A1CAC]/40 font-semibold'
-                            : 'text-slate-600 dark:text-slate-300 hover:text-[#7A1CAC] dark:hover:text-[#EBD3F8] hover:bg-[#EBD3F8]/30 dark:hover:bg-[#2E073F]/70'
+                            ? 'text-[#1D4ED8] bg-[#DBEAFE]/60 dark:text-[#EBD3F8] dark:bg-[#7A1CAC]/40 font-semibold'
+                            : 'text-slate-600 dark:text-slate-300 hover:text-[#1D4ED8] dark:hover:text-[#EBD3F8] hover:bg-[#DBEAFE]/30 dark:hover:bg-[#2E073F]/70'
                         }`}
                       >
                         {item.name}
@@ -142,7 +142,7 @@ const Header = () => {
                   }}
                   className={`w-full text-left px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
                     location.pathname === item.slug
-                      ? 'text-[#7A1CAC] bg-[#EBD3F8]/60 dark:text-[#EBD3F8] dark:bg-[#7A1CAC]/40 font-semibold'
+                      ? 'text-[#1D4ED8] bg-[#DBEAFE]/60 dark:text-[#EBD3F8] dark:bg-[#7A1CAC]/40 font-semibold'
                       : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#2E073F]'
                   }`}
                 >

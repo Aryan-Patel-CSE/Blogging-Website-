@@ -95,7 +95,7 @@ export default function Post() {
     if (loading) {
         return (
             <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
-                <div className="w-10 h-10 border-3 border-[#EBD3F8] dark:border-[#7A1CAC]/40 border-t-[#7A1CAC] dark:border-t-[#AD49E1] rounded-full animate-spin"></div>
+                <div className="w-10 h-10 border-3 border-[#DBEAFE] dark:border-[#7A1CAC]/40 border-t-[#1D4ED8] dark:border-t-[#AD49E1] rounded-full animate-spin"></div>
                 <p className="text-sm font-medium text-slate-500 dark:text-[#EBD3F8]/70">Loading story...</p>
             </div>
         );
@@ -160,7 +160,7 @@ function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDe
                     <div className="flex items-center justify-between">
                         <Link
                             to="/all-posts"
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-[#EBD3F8]/70 hover:text-[#7A1CAC] dark:hover:text-[#AD49E1] transition-colors"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-[#EBD3F8]/70 hover:text-[#1D4ED8] dark:hover:text-[#AD49E1] transition-colors"
                         >
                             &larr; Back to all stories
                         </Link>
@@ -217,7 +217,7 @@ function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDe
 
                     {/* Article Body Content */}
                     <div className="bg-white dark:bg-[#2E073F] rounded-3xl p-6 sm:p-10 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs">
-                        <div className="prose prose-slate dark:prose-invert prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-[#7A1CAC] dark:prose-a:text-[#AD49E1] prose-img:rounded-2xl leading-relaxed text-slate-800 dark:text-slate-100">
+                        <div className="prose prose-slate dark:prose-invert prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-[#1D4ED8] dark:prose-a:text-[#AD49E1] prose-img:rounded-2xl leading-relaxed text-slate-800 dark:text-slate-100">
                             {parse(post.content || '')}
                         </div>
                     </div>
@@ -227,13 +227,13 @@ function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDe
                         <section className="bg-white dark:bg-[#2E073F] rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs space-y-4">
                             <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#7A1CAC]/30 pb-4">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-xl bg-[#EBD3F8]/50 dark:bg-[#240632] flex items-center justify-center text-[#7A1CAC] dark:text-[#AD49E1]">
+                                    <div className="w-8 h-8 rounded-xl bg-[#DBEAFE]/50 dark:bg-[#240632] flex items-center justify-center text-[#1D4ED8] dark:text-[#AD49E1]">
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
                                     </div>
                                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">Photo Gallery</h2>
-                                    <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-[#EBD3F8] dark:bg-[#7A1CAC]/40 text-[#7A1CAC] dark:text-[#EBD3F8]">
+                                    <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-[#DBEAFE] dark:bg-[#7A1CAC]/40 text-[#1D4ED8] dark:text-[#EBD3F8]">
                                         {imageMedia.length}
                                     </span>
                                 </div>
@@ -275,14 +275,14 @@ function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDe
                                     return (
                                         <div
                                             key={item.fileId || index}
-                                            className="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200/90 dark:border-[#7A1CAC]/30 hover:border-[#7A1CAC] dark:hover:border-[#AD49E1] bg-slate-50/50 dark:bg-[#240632] hover:bg-white dark:hover:bg-[#310744] transition-all shadow-xs gap-3 group"
+                                            className="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200/90 dark:border-[#7A1CAC]/30 hover:border-[#1D4ED8] dark:hover:border-[#AD49E1] bg-slate-50/50 dark:bg-[#240632] hover:bg-white dark:hover:bg-[#310744] transition-all shadow-xs gap-3 group"
                                         >
                                             <div className="flex items-center gap-3 min-w-0">
                                                 <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300 flex items-center justify-center font-black text-xs flex-shrink-0">
                                                     PDF
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate group-hover:text-[#7A1CAC] dark:group-hover:text-[#AD49E1] transition-colors" title={item.name}>
+                                                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate group-hover:text-[#1D4ED8] dark:group-hover:text-[#AD49E1] transition-colors" title={item.name}>
                                                         {item.name}
                                                     </p>
                                                     <p className="text-xs text-slate-400 dark:text-[#EBD3F8]/60">
@@ -309,7 +309,7 @@ function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDe
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         aria-label={`Download document ${item.name}`}
-                                                        className="px-3 py-1.5 text-xs font-semibold text-white bg-[#7A1CAC] hover:bg-[#AD49E1] rounded-lg transition-colors cursor-pointer shadow-xs inline-flex items-center gap-1"
+                                                        className="px-3 py-1.5 text-xs font-semibold text-white bg-[#1D4ED8] hover:bg-[#3B82F6] dark:bg-[#7A1CAC] dark:hover:bg-[#AD49E1] rounded-lg transition-colors cursor-pointer shadow-xs inline-flex items-center gap-1"
                                                     >
                                                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -326,7 +326,7 @@ function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDe
                     )}
 
                     <footer className="flex items-center gap-3 rounded-2xl border border-slate-200/80 dark:border-[#7A1CAC]/40 bg-white dark:bg-[#2E073F] p-5 shadow-xs">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#EBD3F8] text-lg font-bold text-[#7A1CAC] dark:bg-[#7A1CAC]/40 dark:text-[#EBD3F8]" aria-hidden="true">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#DBEAFE] text-lg font-bold text-[#1D4ED8] dark:bg-[#7A1CAC]/40 dark:text-[#EBD3F8]" aria-hidden="true">
                             {authorName.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -360,7 +360,7 @@ function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDe
                                     href={appwriteService.getFileView(selectedImage.fileId) || '#'}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-xs font-semibold text-[#7A1CAC] dark:text-[#AD49E1] hover:text-[#AD49E1] dark:hover:text-[#EBD3F8] px-2 py-1 rounded-md hover:bg-[#EBD3F8]/40 dark:hover:bg-[#240632] transition-colors"
+                                    className="text-xs font-semibold text-[#1D4ED8] dark:text-[#AD49E1] hover:text-[#3B82F6] dark:hover:text-[#EBD3F8] px-2 py-1 rounded-md hover:bg-[#DBEAFE]/40 dark:hover:bg-[#240632] transition-colors"
                                 >
                                     Open Full Size &rarr;
                                 </a>
@@ -406,7 +406,7 @@ function GalleryCard({ item, onSelect }) {
     return (
         <div
             onClick={onSelect}
-            className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#240632] border border-slate-200 dark:border-[#7A1CAC]/40 hover:border-[#7A1CAC] dark:hover:border-[#AD49E1] cursor-pointer shadow-xs hover:shadow-md transition-all duration-200"
+            className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#240632] border border-slate-200 dark:border-[#7A1CAC]/40 hover:border-[#1D4ED8] dark:hover:border-[#AD49E1] cursor-pointer shadow-xs hover:shadow-md transition-all duration-200"
         >
             {!hasError && src ? (
                 <img

@@ -46,7 +46,7 @@ const Signup = () => {
                 </h2>
                 <p className='mt-2 text-center text-sm text-slate-600 dark:text-[#EBD3F8]/70'>
                     Already have an account?{' '}
-                    <Link to="/login" className='font-semibold text-[#7A1CAC] hover:text-[#AD49E1] dark:text-[#AD49E1] dark:hover:text-[#EBD3F8] transition-colors'>
+                    <Link to="/login" className='font-semibold text-[#1D4ED8] hover:text-[#3B82F6] dark:text-[#AD49E1] dark:hover:text-[#EBD3F8] transition-colors'>
                         Sign In
                     </Link>
                 </p>

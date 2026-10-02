@@ -39,7 +39,7 @@ const RTE = ({ name, control, label, defaultValue = '' }) => {
                                     "link image media | removeformat | help",
                                 content_style: isDark
                                     ? "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #f8fafc; background-color: #190325; padding: 12px; } a { color: #AD49E1; }"
-                                    : "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #1e293b; padding: 12px; } a { color: #7A1CAC; }",
+                                    : "body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #1e293b; padding: 12px; } a { color: #1D4ED8; }",
                                 skin: isDark ? "oxide-dark" : "oxide",
                                 content_css: isDark ? "dark" : "default",
                                 promotion: false,
@@ -55,4 +55,3 @@ const RTE = ({ name, control, label, defaultValue = '' }) => {
 };
 
 export default RTE;
-

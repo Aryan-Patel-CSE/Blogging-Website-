@@ -99,7 +99,7 @@
 }
 
 .prose h1 { font-size: 2.25rem; }
-.prose h2 { font-size: 1.75rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; }
+.prose h2 { font-size: 1.75rem; border-bottom: 1px solid #dbeafe; padding-bottom: 0.5rem; }
 .dark .prose h2 { border-bottom-color: #3b0d52; }
 .prose h3 { font-size: 1.35rem; }
 
@@ -120,11 +120,11 @@
 }
 
 .prose blockquote {
-  border-left: 4px solid #7A1CAC;
+  border-left: 4px solid #1d4ed8;
   padding-left: 1.25rem;
   font-style: italic;
   color: #475569;
-  background: #fbf7fd;
+  background: #f8fbff;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   border-radius: 0 0.75rem 0.75rem 0;
@@ -138,7 +138,7 @@
 }
 
 .prose a {
-  color: #7A1CAC;
+  color: #1d4ed8;
   text-decoration: underline;
   text-underline-offset: 3px;
   font-weight: 500;
@@ -149,7 +149,7 @@
 }
 
 .prose a:hover {
-  color: #AD49E1;
+  color: #2563eb;
 }
 
 .dark .prose a:hover {
@@ -165,8 +165,8 @@
 }
 
 .prose code {
-  background-color: #f5e9fc;
-  color: #2E073F;
+  background-color: #eff6ff;
+  color: #1e3a8a;
   padding: 0.2rem 0.4rem;
   border-radius: 0.375rem;
   font-size: 0.9em;

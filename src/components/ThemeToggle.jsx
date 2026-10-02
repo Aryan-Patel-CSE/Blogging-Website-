@@ -13,7 +13,7 @@ const ThemeToggle = ({ className = '' }) => {
       className={`relative p-2 rounded-xl transition-all duration-300 cursor-pointer border flex items-center justify-center ${
         isDark
           ? 'bg-[#2E073F] border-[#7A1CAC] text-[#EBD3F8] hover:bg-[#3b0d52] hover:text-white shadow-sm shadow-[#AD49E1]/20'
-          : 'bg-white border-slate-200 text-slate-700 hover:bg-[#EBD3F8]/30 hover:border-[#AD49E1]/40 hover:text-[#7A1CAC] shadow-xs'
+          : 'bg-white border-slate-200 text-slate-700 hover:bg-[#DBEAFE]/30 hover:border-[#3B82F6]/40 hover:text-[#1D4ED8] shadow-xs'
       } ${className}`}
     >
       <span className="sr-only">Toggle theme</span>
@@ -35,7 +35,7 @@ const ThemeToggle = ({ className = '' }) => {
       ) : (
         // Moon icon for light mode (click to go to dark)
         <svg
-          className="w-5 h-5 transition-transform duration-300 hover:-rotate-12 text-[#7A1CAC]"
+          className="w-5 h-5 transition-transform duration-300 hover:-rotate-12 text-[#1D4ED8]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

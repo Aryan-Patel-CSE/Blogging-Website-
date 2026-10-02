@@ -33,7 +33,7 @@ function EditPost() {
     if (loading) {
         return (
             <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
-                <div className="w-10 h-10 border-3 border-[#EBD3F8] dark:border-[#7A1CAC]/40 border-t-[#7A1CAC] dark:border-t-[#AD49E1] rounded-full animate-spin"></div>
+                <div className="w-10 h-10 border-3 border-[#DBEAFE] dark:border-[#7A1CAC]/40 border-t-[#1D4ED8] dark:border-t-[#AD49E1] rounded-full animate-spin"></div>
                 <p className="text-sm font-medium text-slate-500 dark:text-[#EBD3F8]/70">Loading story details...</p>
             </div>
         );
@@ -45,7 +45,7 @@ function EditPost() {
                 <div className="mb-8 max-w-5xl mx-auto flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-[#EBD3F8]/70 mb-2">
-                            <Link to="/all-posts" className="hover:text-[#7A1CAC] dark:hover:text-[#AD49E1] transition-colors">Stories</Link>
+                            <Link to="/all-posts" className="hover:text-[#1D4ED8] dark:hover:text-[#AD49E1] transition-colors">Stories</Link>
                             <span>/</span>
                             <span className="text-slate-800 dark:text-[#EBD3F8]">Edit</span>
                         </div>

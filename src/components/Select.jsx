@@ -19,7 +19,7 @@ const Select = ({
                     {...props}
                     ref={ref}   
                     id={id}
-                    className={`w-full px-4 py-2.5 rounded-xl bg-white dark:bg-[#240632] text-slate-900 dark:text-slate-100 text-sm border border-slate-300 dark:border-[#7A1CAC]/40 focus:border-[#7A1CAC] dark:focus:border-[#AD49E1] focus:ring-3 focus:ring-[#AD49E1]/20 transition-all duration-200 outline-none appearance-none cursor-pointer shadow-xs ${className}`}
+                    className={`w-full px-4 py-2.5 rounded-xl bg-white dark:bg-[#240632] text-slate-900 dark:text-slate-100 text-sm border border-slate-300 dark:border-[#7A1CAC]/40 focus:border-[#1D4ED8] dark:focus:border-[#AD49E1] focus:ring-3 focus:ring-[#3B82F6]/20 transition-all duration-200 outline-none appearance-none cursor-pointer shadow-xs ${className}`}
                 >
                     {options?.map((option) => ( 
                         <option key={option} value={option} className="capitalize bg-white dark:bg-[#240632] text-slate-900 dark:text-slate-100">

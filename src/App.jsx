@@ -69,7 +69,7 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fbf9fe] dark:bg-[#190325] text-slate-900 dark:text-slate-100 selection:bg-[#AD49E1] selection:text-white transition-colors duration-200">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFF] dark:bg-[#190325] text-slate-900 dark:text-slate-100 selection:bg-[#3B82F6] dark:selection:bg-[#AD49E1] selection:text-white transition-colors duration-200">
       <Header />
       <main className="flex-1 w-full">
         <Outlet />

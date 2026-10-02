@@ -11,7 +11,7 @@ const Button = ({
   ...props
 }) => {
   const combinedCustomClass = className || classname;
-  const defaultBg = bgColor || 'bg-[#7A1CAC] hover:bg-[#AD49E1] active:bg-[#2E073F] shadow-sm shadow-[#7A1CAC]/25';
+  const defaultBg = bgColor || 'bg-[#1D4ED8] hover:bg-[#3B82F6] active:bg-[#1E3A8A] dark:bg-[#7A1CAC] dark:hover:bg-[#AD49E1] dark:active:bg-[#2E073F] shadow-sm shadow-[#1D4ED8]/25 dark:shadow-[#7A1CAC]/25';
   const defaultText = textColor || 'text-white';
 
   return (
@@ -33,4 +33,3 @@ const Button = ({
 };
 
 export default Button;
-
