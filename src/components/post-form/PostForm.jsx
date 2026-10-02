@@ -253,11 +253,13 @@ const PostForm = ({ post }) => {
                 ];
 
                 // 4. Update the post record BEFORE deleting files that the user removed
+                const currentUserName = userData?.name || userData?.userData?.name || '';
                 const dbPost = await appwriteService.updatePost(post.$id, {
                     title: data.title,
                     content: data.content,
                     featuredimage: finalCoverId,
                     status: data.status,
+                    authorName: currentUserName,
                     media: finalMedia,
                 });
 
@@ -329,6 +331,7 @@ const PostForm = ({ post }) => {
 
                 // 3. Create post record
                 const currentUserId = userData?.$id || userData?.userData?.$id;
+                const currentUserName = userData?.name || userData?.userData?.name || '';
                 const dbPost = await appwriteService.createPost({
                     title: data.title,
                     slug: data.slug,
@@ -336,6 +339,7 @@ const PostForm = ({ post }) => {
                     featuredimage: uploadedCover.$id,
                     status: data.status,
                     userid: currentUserId,
+                    authorName: currentUserName,
                     media: newlyUploadedMediaItems,
                 });
 

@@ -23,13 +23,16 @@ export default function Post() {
     const currentUserId = userData?.$id || userData?.userData?.$id;
     const authorId = post?.userid || post?.userId;
     const isAuthor = post && currentUserId ? authorId === currentUserId : false;
-    const storedAuthorName = typeof post?.author === "string" ? post.author : post?.author?.name;
+    const storedAuthorName =
+        (typeof post?.author === "string" ? post.author : post?.author?.name) ||
+        (typeof post?.authorName === "string" ? post.authorName : '') ||
+        (typeof post?.authorname === "string" ? post.authorname : '') ||
+        (typeof post?.username === "string" ? post.username : '') ||
+        (typeof post?.name === "string" ? post.name : '');
     const authorName =
-        post?.authorName ||
         storedAuthorName ||
-        post?.username ||
-        (authorId === currentUserId ? userData?.name || userData?.userData?.name : null) ||
-        "InkSpace author";
+        (authorId === currentUserId ? userData?.name || userData?.userData?.name : '') ||
+        'InkSpace author';
 
     useEffect(() => {
         if (slug) {

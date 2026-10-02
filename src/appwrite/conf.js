@@ -90,6 +90,12 @@ export function extractMediaFromContent(content = '') {
     return { content, media: [] };
 }
 
+function normalizeAuthorName(rawName) {
+    if (typeof rawName !== 'string') return '';
+    const trimmed = rawName.trim();
+    return trimmed || '';
+}
+
 export class Service {
     client = new Client();
     databases;
@@ -107,39 +113,38 @@ export class Service {
         return parseMedia(rawMedia);
     }
 
-    async createPost({ title, slug, content, featuredImage, featuredimage, status, userId, userid, media = [] }) {
+    async createPost({ title, slug, content, featuredImage, featuredimage, status, userId, userid, authorName, media = [] }) {
         const imageId = featuredimage || featuredImage;
         const uid = userid || userId;
+        const author = normalizeAuthorName(authorName);
         const validMedia = parseMedia(media);
         const serializedMedia = JSON.stringify(validMedia);
+        const basePayload = {
+            title,
+            content,
+            featuredimage: imageId,
+            status,
+            userid: uid,
+            ...(author ? { authorName: author } : {}),
+            ...(validMedia.length > 0 ? { media: serializedMedia } : {}),
+        };
 
-        // 1. First attempt: create document with native 'media' attribute
+        // 1. First attempt: create document with native fields when available
         try {
             return await this.databases.createDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
                 slug,
-                {
-                    title,
-                    content,
-                    featuredimage: imageId,
-                    status,
-                    userid: uid,
-                    media: serializedMedia,
-                }
+                basePayload
             );
         } catch (error) {
-            const isUnknownMediaAttr =
-                error?.message &&
-                error.message.toLowerCase().includes('unknown attribute') &&
-                error.message.toLowerCase().includes('media');
+            const message = (error?.message || '').toLowerCase();
+            const isUnknownMediaAttr = message.includes('unknown attribute') && message.includes('media');
+            const isUnknownAuthorAttr = message.includes('unknown attribute') && message.includes('author');
 
-            // 2. Schema Fallback: If Appwrite collection doesn't have the 'media' attribute,
-            // embed media metadata seamlessly into post content so post creation succeeds!
-            if (isUnknownMediaAttr) {
-                console.info(
-                    "Appwrite schema missing 'media' attribute. Seamlessly storing attachments in post content."
-                );
+            // 2. Schema Fallback: If Appwrite collection doesn't have 'media' or 'authorName',
+            // embed media metadata seamlessly into content so post creation still succeeds.
+            if (isUnknownMediaAttr || isUnknownAuthorAttr) {
                 const contentWithMedia =
                     validMedia.length > 0 ? embedMediaInContent(content, validMedia) : content;
 
@@ -162,14 +167,16 @@ export class Service {
         }
     }
 
-    async updatePost(slug, { title, content, featuredImage, featuredimage, status, media }) {
+    async updatePost(slug, { title, content, featuredImage, featuredimage, status, authorName, media }) {
         const imageId = featuredimage || featuredImage;
+        const author = normalizeAuthorName(authorName);
         const validMedia = media !== undefined ? parseMedia(media) : undefined;
         const payload = {
             title,
             content,
             featuredimage: imageId,
             status,
+            ...(author ? { authorName: author } : {}),
         };
 
         if (validMedia !== undefined) {
@@ -184,17 +191,17 @@ export class Service {
                 payload
             );
         } catch (error) {
-            const isUnknownMediaAttr =
-                error?.message &&
-                error.message.toLowerCase().includes('unknown attribute') &&
-                error.message.toLowerCase().includes('media');
+            const message = (error?.message || '').toLowerCase();
+            const isUnknownMediaAttr = message.includes('unknown attribute') && message.includes('media');
+            const isUnknownAuthorAttr = message.includes('unknown attribute') && message.includes('author');
 
             // Schema Fallback on update
-            if (isUnknownMediaAttr) {
+            if (isUnknownMediaAttr || isUnknownAuthorAttr) {
                 console.info(
-                    "Appwrite schema missing 'media' attribute on update. Embedding attachments in content."
+                    "Appwrite schema missing 'media' or 'authorName' attribute on update. Embedding attachments in content."
                 );
                 delete payload.media;
+                delete payload.authorName;
                 if (validMedia !== undefined) {
                     payload.content =
                         validMedia.length > 0
@@ -243,6 +250,12 @@ export class Service {
                 post.featuredimage = img;
                 post.userId = uid;
                 post.userid = uid;
+                post.authorName =
+                    normalizeAuthorName(post.authorName) ||
+                    normalizeAuthorName(post.authorname) ||
+                    normalizeAuthorName(post.username) ||
+                    normalizeAuthorName(post.name) ||
+                    null;
 
                 // Check native media attribute first, then fallback to embedded content
                 const directMedia = parseMedia(post.media);
@@ -272,6 +285,12 @@ export class Service {
                     post.featuredimage = img;
                     post.userId = uid;
                     post.userid = uid;
+                    post.authorName =
+                        normalizeAuthorName(post.authorName) ||
+                        normalizeAuthorName(post.authorname) ||
+                        normalizeAuthorName(post.username) ||
+                        normalizeAuthorName(post.name) ||
+                        null;
 
                     const directMedia = parseMedia(post.media);
                     const { content: cleanContent, media: embeddedMedia } = extractMediaFromContent(post.content);
