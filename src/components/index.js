@@ -13,6 +13,7 @@ import RTE from './RTE'
 import PostForm from'./post-form/PostForm'
 import AuthLayout from './AuthLayout'
 import ThemeToggle from './ThemeToggle'
+import CommentSystem from './CommentSystem'
 
 export {
   Header,
@@ -29,5 +30,6 @@ export {
   RTE,
   PostForm,
   AuthLayout,
-  ThemeToggle
+  ThemeToggle,
+  CommentSystem
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import appwriteService from "../appwrite/conf";
-import { Button, Container } from "../components";
+import { Button, CommentSystem, Container } from "../components";
 import parse from "html-react-parser";
 import { useSelector } from "react-redux";
 
@@ -22,7 +22,26 @@ export default function Post() {
     const userData = useSelector((state) => state.auth.userData);
     const currentUserId = userData?.$id || userData?.userData?.$id;
     const authorId = post?.userid || post?.userId;
-    const isAuthor = post && currentUserId ? authorId === currentUserId : false;
+    const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || '')
+        .split(',')
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean);
+    const userEmail = (userData?.email || userData?.userData?.email || '').toLowerCase();
+    const userRoles = [
+        userData?.role,
+        userData?.userData?.role,
+        userData?.label,
+        userData?.userData?.label,
+        userData?.roles,
+        userData?.userData?.roles,
+    ]
+        .flatMap((entry) => (Array.isArray(entry) ? entry : [entry]))
+        .filter(Boolean)
+        .map(String)
+        .join(' ')
+        .toLowerCase();
+    const isAdminUser = adminEmails.includes(userEmail) || userRoles.includes('admin');
+    const isAuthor = post && (currentUserId ? authorId === currentUserId || isAdminUser : false);
     const storedAuthorName =
         (typeof post?.author === "string" ? post.author : post?.author?.name) ||
         (typeof post?.authorName === "string" ? post.authorName : '') ||
@@ -119,11 +138,13 @@ export default function Post() {
             authorName={authorName}
             handleDeletePost={handleDeletePost}
             deleting={deleting}
+            postId={post.$id || slug}
+            postAuthorId={post?.userid || post?.userId}
         />
     );
 }
 
-function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDeletePost, deleting }) {
+function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDeletePost, deleting, postId, postAuthorId }) {
     const [imgSrc, setImgSrc] = useState(initialUrl);
     const [imageError, setImageError] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -224,6 +245,8 @@ function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDe
                             {parse(post.content || '')}
                         </div>
                     </div>
+
+                    <CommentSystem postId={postId} postAuthorId={postAuthorId} />
 
                     {/* Additional Photo Gallery (if images present) */}
                     {imageMedia.length > 0 && (
