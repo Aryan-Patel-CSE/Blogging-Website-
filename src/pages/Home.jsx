@@ -57,14 +57,14 @@ function Home() {
     return (
       <div className="w-full py-12 md:py-16">
         <Container>
-          <div className="theme-hero relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 text-white p-8 md:p-14 shadow-2xl">
+          <div className="theme-hero relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 text-white p-8 md:p-14 shadow-2xl animate-fade-in-up">
             {/* Decorative Background Shapes */}
-            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none animate-float-slow"></div>
+            <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl pointer-events-none animate-float-delayed"></div>
 
             <div className="relative z-10 max-w-2xl">
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1 text-xs font-semibold tracking-wider uppercase bg-white/10 backdrop-blur-md rounded-full text-indigo-200 mb-6 border border-white/10">
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 Discover & Share
               </span>
 
@@ -84,13 +84,13 @@ function Home() {
               <div className="flex flex-wrap gap-4">
                 <Link
                   to="/login"
-                  className="px-6 py-3 rounded-xl bg-white text-slate-900 font-bold text-sm hover:bg-slate-100 active:scale-[0.98] transition-all shadow-lg"
+                  className="px-6 py-3 rounded-xl bg-white text-slate-900 font-bold text-sm hover:bg-slate-100 active:scale-[0.98] transition-all shadow-lg hover:shadow-indigo-500/20"
                 >
                   Login to Explore
                 </Link>
                 <Link
                   to="/signup"
-                  className="px-6 py-3 rounded-xl bg-indigo-600/80 hover:bg-indigo-600 text-white font-semibold text-sm border border-indigo-400/30 backdrop-blur-sm transition-all"
+                  className="px-6 py-3 rounded-xl bg-indigo-600/80 hover:bg-indigo-600 text-white font-semibold text-sm border border-indigo-400/30 backdrop-blur-sm transition-all hover:border-indigo-300"
                 >
                   Create Free Account
                 </Link>
@@ -105,7 +105,7 @@ function Home() {
   // Logged in with 0 posts
   if (posts.length === 0) {
     return (
-      <div className="w-full py-16 text-center">
+      <div className="w-full py-16 text-center animate-fade-in-up">
         <Container>
           <div className="max-w-md mx-auto bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-10 shadow-sm space-y-4">
             <div className="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
@@ -161,7 +161,7 @@ function Home() {
   return (
     <div className="w-full py-8">
       <Container>
-        <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200/80">
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-200/80 animate-fade-in-up">
           <div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">
               Latest Stories
@@ -194,8 +194,12 @@ function Home() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {posts.map((post) => (
-            <div key={post.$id} className="h-full">
+          {posts.map((post, index) => (
+            <div 
+              key={post.$id} 
+              style={{ animationDelay: `${index * 60}ms` }} 
+              className="h-full animate-fade-in-up"
+            >
               <PostCard {...post} />
             </div>
           ))}

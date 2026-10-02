@@ -160,28 +160,28 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
     return (
         <div className="py-8 md:py-12">
             <Container>
-                <article className="max-w-4xl mx-auto space-y-8">
+                <article className="max-w-4xl mx-auto space-y-8 animate-fade-in-up">
                     {/* Top Action Bar */}
                     <div className="flex items-center justify-between">
                         <Link
                             to="/all-posts"
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors group"
                         >
-                            &larr; Back to all stories
+                            <span className="transition-transform duration-200 group-hover:-translate-x-1">&larr;</span> Back to all stories
                         </Link>
 
                         {isAuthor && (
                             <div className="flex items-center gap-2">
                                 <Link to={`/edit-post/${post.$id}`}>
-                                    <button className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition-all shadow-xs cursor-pointer">
+                                    <button className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 active:scale-95 rounded-xl transition-all shadow-xs cursor-pointer">
                                         Edit Story
                                     </button>
                                 </Link>
                                 <Button
                                     onClick={handleDeletePost}
                                     loading={deleting}
-                                    bgColor="bg-rose-500 hover:bg-rose-600"
-                                    className="px-4 py-2 text-xs font-bold rounded-xl"
+                                    bgColor="bg-rose-500 hover:bg-rose-600 active:scale-95"
+                                    className="px-4 py-2 text-xs font-bold rounded-xl transition-transform"
                                 >
                                     Delete
                                 </Button>
@@ -193,11 +193,14 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                     <header className="space-y-4">
                         <div className="flex items-center gap-2">
                             {post.status && (
-                                <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider ${
+                                <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider inline-flex items-center gap-1.5 ${
                                     post.status === 'active' 
                                         ? 'bg-emerald-100 text-emerald-800' 
                                         : 'bg-slate-100 text-slate-700'
                                 }`}>
+                                    {post.status === 'active' && (
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    )}
                                     {post.status}
                                 </span>
                             )}
@@ -210,12 +213,12 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
 
                     {/* Featured Cover Image */}
                     {imgSrc && !imageError && (
-                        <div className="w-full aspect-[21/9] rounded-3xl overflow-hidden shadow-lg border border-slate-200/80 bg-slate-100">
+                        <div className="w-full aspect-[21/9] rounded-3xl overflow-hidden shadow-lg border border-slate-200/80 bg-slate-100 group">
                             <img
                                 src={imgSrc}
                                 alt={post.title}
                                 onError={handleImageError}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                             />
                         </div>
                     )}
@@ -232,7 +235,7 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                         <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-5">
                             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                    <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center transition-transform duration-300 hover:scale-105">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
@@ -255,23 +258,24 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                                             key={image.fileId || index}
                                             type="button"
                                             onClick={() => openLightbox(index)}
-                                            className="group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 focus:outline-none focus:ring-3 focus:ring-indigo-400 cursor-pointer shadow-2xs hover:shadow-md transition-all duration-200"
+                                            style={{ animationDelay: `${index * 50}ms` }}
+                                            className="card-shine group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 focus:outline-none focus:ring-3 focus:ring-indigo-400 cursor-pointer shadow-xs hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 hover:border-indigo-300 transition-all duration-300 animate-fade-in-up"
                                         >
                                             <img
                                                 src={preview}
                                                 alt={image.name || `Gallery photo ${index + 1}`}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
                                                 loading="lazy"
                                             />
-                                            <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/20 transition-colors flex items-center justify-center">
-                                                <div className="w-8 h-8 rounded-full bg-white/90 text-slate-800 opacity-0 group-hover:opacity-100 group-hover:scale-100 scale-75 transition-all duration-200 flex items-center justify-center shadow-md">
+                                            <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/25 transition-colors flex items-center justify-center">
+                                                <div className="w-8 h-8 rounded-full bg-white/95 text-slate-800 opacity-0 group-hover:opacity-100 group-hover:scale-100 scale-75 transition-all duration-300 flex items-center justify-center shadow-md">
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
                                                     </svg>
                                                 </div>
                                             </div>
                                             {image.name && (
-                                                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-2 text-left opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-left opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                     <p className="text-[11px] text-white truncate font-medium">{image.name}</p>
                                                 </div>
                                             )}
@@ -287,7 +291,7 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                         <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-4">
                             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                                    <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center transition-transform duration-300 hover:scale-105">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                         </svg>
@@ -310,16 +314,17 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                                     return (
                                         <div
                                             key={doc.fileId || index}
-                                            className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300 transition-all shadow-2xs group"
+                                            style={{ animationDelay: `${index * 70}ms` }}
+                                            className="card-shine flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300 hover:shadow-md hover:shadow-slate-200/50 hover:-translate-y-0.5 transition-all duration-300 group animate-fade-in-up"
                                         >
                                             <div className="flex items-center gap-3 min-w-0 pr-3">
-                                                <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex-shrink-0 flex items-center justify-center">
+                                                <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex-shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
                                                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                                         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9.5 8.5h-2V13H9c.55 0 1-.45 1-1v-.5c0-.55-.45-1-1-1zm6 3h-2v-6h2c.83 0 1.5.67 1.5 1.5v3c0 .83-.67 1.5-1.5 1.5zm-3.5 0h-2v-6h2c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1z"/>
                                                     </svg>
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-xs font-bold text-slate-800 truncate" title={doc.name}>
+                                                    <p className="text-xs font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors" title={doc.name}>
                                                         {doc.name || 'Document.pdf'}
                                                     </p>
                                                     <span className="text-[10px] uppercase font-bold text-rose-600 tracking-wider">
@@ -334,7 +339,7 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                                                         href={viewUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-indigo-600 transition-colors inline-flex items-center gap-1"
+                                                        className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-indigo-600 active:scale-95 transition-all inline-flex items-center gap-1"
                                                         title="Open in new tab"
                                                     >
                                                         <span>View</span>
@@ -347,7 +352,7 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                                                     <a
                                                         href={downloadUrl}
                                                         download={doc.name || "download.pdf"}
-                                                        className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors inline-flex items-center gap-1 shadow-2xs"
+                                                        className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95 transition-all inline-flex items-center gap-1 shadow-2xs"
                                                         title="Download attachment"
                                                     >
                                                         <span>Download</span>
@@ -372,14 +377,14 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                     role="dialog" 
                     aria-modal="true" 
                     aria-label="Image Preview"
-                    className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in"
+                    className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-fadeIn transition-opacity duration-300"
                     onClick={closeLightbox}
                 >
                     {/* Close Button */}
                     <button
                         type="button"
                         onClick={closeLightbox}
-                        className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/80 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-20 cursor-pointer"
+                        className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/80 hover:text-white p-2.5 rounded-full bg-white/10 hover:bg-white/25 hover:scale-110 active:scale-95 transition-all duration-200 z-20 cursor-pointer shadow-lg"
                         title="Close preview (Esc)"
                     >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -395,7 +400,7 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                                 e.stopPropagation();
                                 prevLightboxImage();
                             }}
-                            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-20 cursor-pointer"
+                            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 rounded-full bg-white/10 hover:bg-white/25 hover:scale-110 active:scale-95 transition-all duration-200 z-20 cursor-pointer shadow-lg"
                             title="Previous image (Left arrow)"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,7 +417,7 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                                 e.stopPropagation();
                                 nextLightboxImage();
                             }}
-                            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-20 cursor-pointer"
+                            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 rounded-full bg-white/10 hover:bg-white/25 hover:scale-110 active:scale-95 transition-all duration-200 z-20 cursor-pointer shadow-lg"
                             title="Next image (Right arrow)"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -423,13 +428,13 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
 
                     {/* Image Preview Container */}
                     <div 
-                        className="relative max-w-4xl max-h-[85vh] flex flex-col items-center justify-center"
+                        className="relative max-w-4xl max-h-[85vh] flex flex-col items-center justify-center animate-scale-in"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <img
                             src={appwriteService.getFileView(galleryImages[lightboxIndex].fileId) || appwriteService.getFilePreview(galleryImages[lightboxIndex].fileId)}
                             alt={galleryImages[lightboxIndex].name || "Gallery Image"}
-                            className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl"
+                            className="max-w-full max-h-[75vh] object-contain rounded-2xl shadow-2xl transition-transform duration-300"
                         />
                         <div className="mt-3 flex items-center justify-between w-full text-white/90 text-xs px-2">
                             <span className="font-medium truncate max-w-[70%]">

@@ -417,13 +417,13 @@ const PostForm = ({ post }) => {
                             />
                             <label
                                 htmlFor={multiFileInputId}
-                                className={`flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-6 text-center transition-all ${
+                                className={`flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-300 ${
                                     totalExtraFilesCount >= MEDIA_LIMITS.MAX_EXTRA_FILES
                                         ? 'border-slate-200 bg-slate-50 cursor-not-allowed opacity-60'
-                                        : 'border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/30 cursor-pointer bg-slate-50/50'
+                                        : 'border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/40 hover:scale-[1.006] active:scale-[0.99] cursor-pointer bg-slate-50/50 group'
                                 }`}
                             >
-                                <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2">
+                                <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2 transition-transform duration-300 group-hover:scale-110">
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                                     </svg>
@@ -449,7 +449,7 @@ const PostForm = ({ post }) => {
                                     </span>
                                 </h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {savedMedia.map((item) => {
+                                    {savedMedia.map((item, index) => {
                                         const isMarkedForRemoval = removedSavedMediaIds.includes(item.fileId);
                                         const isImage = item.type === 'image';
                                         const preview = isImage ? appwriteService.getFilePreview(item.fileId) : null;
@@ -457,10 +457,11 @@ const PostForm = ({ post }) => {
                                         return (
                                             <div
                                                 key={item.fileId}
-                                                className={`relative flex items-center gap-3 p-3 rounded-xl border transition-all ${
+                                                style={{ animationDelay: `${index * 40}ms` }}
+                                                className={`relative flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 animate-fade-in-up ${
                                                     isMarkedForRemoval
-                                                        ? 'bg-rose-50/70 border-rose-200 opacity-60'
-                                                        : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
+                                                        ? 'bg-rose-50/70 border-rose-200 opacity-60 scale-[0.98]'
+                                                        : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs hover:shadow-xs'
                                                 }`}
                                             >
                                                 <div className="w-12 h-12 rounded-lg bg-slate-100 flex-shrink-0 overflow-hidden flex items-center justify-center border border-slate-200">
@@ -494,7 +495,7 @@ const PostForm = ({ post }) => {
                                                 <button
                                                     type="button"
                                                     onClick={() => handleToggleRemoveSavedMedia(item.fileId)}
-                                                    className={`p-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+                                                    className={`p-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors active:scale-95 ${
                                                         isMarkedForRemoval
                                                             ? 'text-indigo-600 hover:bg-indigo-50'
                                                             : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
@@ -526,10 +527,11 @@ const PostForm = ({ post }) => {
                                     </span>
                                 </h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {stagedFiles.map((staged) => (
+                                    {stagedFiles.map((staged, index) => (
                                         <div
                                             key={staged.id}
-                                            className="relative flex items-center gap-3 p-3 rounded-xl border border-emerald-200/80 bg-emerald-50/30 shadow-2xs"
+                                            style={{ animationDelay: `${index * 40}ms` }}
+                                            className="relative flex items-center gap-3 p-3 rounded-xl border border-emerald-200/80 bg-emerald-50/30 shadow-2xs animate-fade-in-up transition-all duration-300 hover:bg-emerald-50/60"
                                         >
                                             <div className="w-12 h-12 rounded-lg bg-white flex-shrink-0 overflow-hidden flex items-center justify-center border border-emerald-100">
                                                 {staged.previewUrl ? (
@@ -560,7 +562,7 @@ const PostForm = ({ post }) => {
                                             <button
                                                 type="button"
                                                 onClick={() => handleRemoveStagedFile(staged.id)}
-                                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer transition-colors"
+                                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer transition-colors active:scale-95"
                                                 title="Remove file"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

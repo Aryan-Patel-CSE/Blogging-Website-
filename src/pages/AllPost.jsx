@@ -114,8 +114,12 @@ function AllPosts() {
                     </div>
                 ) : (
                     <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
-                        {filteredPosts.map((post) => (
-                            <div key={post.$id} className="h-full">
+                        {filteredPosts.map((post, index) => (
+                            <div 
+                                key={post.$id} 
+                                style={{ animationDelay: `${index * 50}ms` }} 
+                                className="h-full animate-fade-in-up"
+                            >
                                 <PostCard {...post} />
                             </div>
                         ))}
