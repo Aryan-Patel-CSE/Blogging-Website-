@@ -66,4 +66,4 @@ function EditPost() {
     ) : null;
 }
 
-export default EditPost;
+export default EditPost;

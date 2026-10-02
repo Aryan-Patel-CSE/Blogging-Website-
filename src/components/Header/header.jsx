@@ -4,7 +4,7 @@ import { Container, Logo, LogoutBtn } from '../index';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-const Header = () => {
+const Header = ({ darkTheme, onToggleTheme }) => {
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
   const navigate = useNavigate();
@@ -14,58 +14,71 @@ const Header = () => {
   const navItems = [
     {
       name: 'Home',
-      slug: "/",
-      active: true
+      slug: '/',
+      active: true,
     },
     {
-      name: "All Posts",
-      slug: "/all-posts",
+      name: 'All Posts',
+      slug: '/all-posts',
       active: authStatus,
     },
     {
-      name: "Write Post",
-      slug: "/add-post",
+      name: 'Write Post',
+      slug: '/add-post',
       active: authStatus,
       isPrimary: true,
     },
     {
-      name: "Login",
-      slug: "/login",
+      name: 'Login',
+      slug: '/login',
       active: !authStatus,
     },
     {
-      name: "Sign Up",
-      slug: "/signup",
+      name: 'Sign Up',
+      slug: '/signup',
       active: !authStatus,
       isPrimary: true,
     },
   ];
 
   return (
-    <header className='sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/80 transition-all'>
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/80 transition-all">
       <Container>
-        <nav className='flex items-center justify-between py-3.5'>
+        <nav className="flex items-center justify-between py-3.5">
           {/* Logo */}
-          <div className='flex items-center gap-6'>
-            <Link to='/' className="transition-transform duration-200 hover:scale-[1.02]">
-              <Logo width='160px' />
+          <div className="flex items-center gap-6">
+            <Link
+              to="/"
+              className="transition-transform duration-200 hover:scale-[1.02]"
+            >
+              <Logo width="160px" />
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className='hidden md:flex items-center gap-2'>
-            <ul className='flex items-center gap-1.5'>
-              {navItems.map((item) => 
+          <div className="hidden md:flex items-center gap-2">
+            <ul className="flex items-center gap-1.5">
+              {navItems.map((item) =>
                 item.active ? (
                   <li key={item.name}>
                     {item.isPrimary ? (
                       <button
                         onClick={() => navigate(item.slug)}
-                        className='inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl shadow-xs transition-all duration-200 cursor-pointer'
+                        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl shadow-xs transition-all duration-200 cursor-pointer"
                       >
-                        {item.slug === "/add-post" && (
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+                        {item.slug === '/add-post' && (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M12 4v16m8-8H4"
+                            ></path>
                           </svg>
                         )}
                         {item.name}
@@ -83,16 +96,20 @@ const Header = () => {
                       </button>
                     )}
                   </li>
-                ) : null
+                ) : null,
               )}
             </ul>
+
+            <ThemeToggle darkTheme={darkTheme} onToggle={onToggleTheme} />
 
             {authStatus && (
               <div className="flex items-center gap-3 pl-2 ml-2 border-l border-slate-200">
                 {userData?.name && (
                   <div className="hidden lg:flex items-center gap-2 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span className="truncate max-w-[120px]">{userData.name}</span>
+                    <span className="truncate max-w-[120px]">
+                      {userData.name}
+                    </span>
                   </div>
                 )}
                 <LogoutBtn />
@@ -101,18 +118,34 @@ const Header = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className='flex items-center gap-2 md:hidden'>
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle darkTheme={darkTheme} onToggle={onToggleTheme} />
             {authStatus && <LogoutBtn />}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className='p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer'
+              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
               aria-label="Toggle menu"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 {mobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  ></path>
                 )}
               </svg>
             </button>
@@ -121,10 +154,11 @@ const Header = () => {
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className='md:hidden py-3 border-t border-slate-200 space-y-1.5 animate-fadeIn'>
+          <div className="md:hidden py-3 border-t border-slate-200 space-y-1.5 animate-fadeIn">
             {userData?.name && (
               <div className="px-3 py-1.5 text-xs font-medium text-slate-500">
-                Signed in as <strong className="text-slate-800">{userData.name}</strong>
+                Signed in as{' '}
+                <strong className="text-slate-800">{userData.name}</strong>
               </div>
             )}
             {navItems.map((item) =>
@@ -143,7 +177,7 @@ const Header = () => {
                 >
                   {item.name}
                 </button>
-              ) : null
+              ) : null,
             )}
           </div>
         )}
@@ -152,4 +186,41 @@ const Header = () => {
   );
 };
 
-export default Header;
+const ThemeToggle = ({ darkTheme, onToggle }) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    aria-label={darkTheme ? 'Switch to light theme' : 'Switch to dark theme'}
+    aria-pressed={darkTheme}
+    title={darkTheme ? 'Switch to light theme' : 'Switch to dark theme'}
+    className="theme-toggle inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 cursor-pointer"
+  >
+    <svg
+      className={`h-5 w-5 transition-transform duration-500 ${darkTheme ? 'rotate-180' : 'rotate-0'}`}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden="true"
+    >
+      {darkTheme ? (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5a8.5 8.5 0 1 0 12 12Z"
+        />
+      ) : (
+        <>
+          <circle cx="12" cy="12" r="4" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"
+          />
+        </>
+      )}
+    </svg>
+  </button>
+);
+
+export default Header;

@@ -14,21 +14,73 @@ export class Service {
         this.bucket = new Storage(this.client);
     }
 
-    async createPost({ title, slug, content, featuredImage, featuredimage, status, userId, userid }) {
+    parseMedia(media) {
+        if (!media) return [];
+        if (Array.isArray(media)) {
+            return media.filter(
+                (item) => item && typeof item === 'object' && typeof item.fileId === 'string'
+            );
+        }
+        if (typeof media === 'string') {
+            try {
+                const parsed = JSON.parse(media);
+                if (Array.isArray(parsed)) {
+                    return parsed.filter(
+                        (item) => item && typeof item === 'object' && typeof item.fileId === 'string'
+                    );
+                }
+            } catch (e) {
+                console.warn('Appwrite service :: parseMedia :: failed to parse media JSON', e);
+            }
+        }
+        return [];
+    }
+
+    formatMediaForSave(media) {
+        if (!media) return JSON.stringify([]);
+        if (typeof media === 'string') {
+            try {
+                const parsed = JSON.parse(media);
+                if (Array.isArray(parsed)) {
+                    return JSON.stringify(parsed);
+                }
+            } catch {
+                return JSON.stringify([]);
+            }
+        }
+        if (Array.isArray(media)) {
+            const sanitized = media
+                .filter((item) => item && typeof item === 'object' && item.fileId)
+                .map((item) => ({
+                    fileId: String(item.fileId),
+                    name: String(item.name || 'attachment'),
+                    mimeType: String(item.mimeType || (item.type === 'pdf' ? 'application/pdf' : 'image/jpeg')),
+                    type: item.type === 'pdf' ? 'pdf' : 'image',
+                }));
+            return JSON.stringify(sanitized);
+        }
+        return JSON.stringify([]);
+    }
+
+    async createPost({ title, slug, content, featuredImage, featuredimage, status, userId, userid, media }) {
         try {
             const imageId = featuredimage || featuredImage;
             const uid = userid || userId;
+            const payload = {
+                title,
+                content,
+                featuredimage: imageId,
+                status,
+                userid: uid,
+            };
+            if (media !== undefined) {
+                payload.media = this.formatMediaForSave(media);
+            }
             return await this.databases.createDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
                 slug,
-                {
-                    title,
-                    content,
-                    featuredimage: imageId,
-                    status,
-                    userid: uid,
-                }
+                payload
             );
         } catch (error) {
             console.error('Appwrite service :: createPost :: error', error);
@@ -36,19 +88,23 @@ export class Service {
         }
     }
 
-    async updatePost(slug, { title, content, featuredImage, featuredimage, status }) {
+    async updatePost(slug, { title, content, featuredImage, featuredimage, status, media }) {
         try {
             const imageId = featuredimage || featuredImage;
+            const payload = {
+                title,
+                content,
+                featuredimage: imageId,
+                status
+            };
+            if (media !== undefined) {
+                payload.media = this.formatMediaForSave(media);
+            }
             return await this.databases.updateDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
                 slug,
-                {
-                    title,
-                    content,
-                    featuredimage: imageId,
-                    status
-                }
+                payload
             );
         } catch (error) {
             console.error('Appwrite service :: updatePost :: error', error);
@@ -84,6 +140,7 @@ export class Service {
                 post.featuredimage = img;
                 post.userId = uid;
                 post.userid = uid;
+                post.media = this.parseMedia(post.media);
             }
             return post;
         } catch (error) {
@@ -107,6 +164,7 @@ export class Service {
                     post.featuredimage = img;
                     post.userId = uid;
                     post.userid = uid;
+                    post.media = this.parseMedia(post.media);
                     return post;
                 });
             }
@@ -146,6 +204,14 @@ export class Service {
         }
     }
 
+    async deleteFiles(fileIds = []) {
+        if (!fileIds || !fileIds.length) return [];
+        const uniqueIds = Array.from(new Set(fileIds.filter(Boolean)));
+        return await Promise.allSettled(
+            uniqueIds.map((id) => this.deleteFile(id))
+        );
+    }
+
     getFilePreview(fileId) {
         if (!fileId) return null;
         if (typeof fileId === 'string' && (fileId.startsWith('http://') || fileId.startsWith('https://') || fileId.startsWith('blob:'))) {
@@ -182,6 +248,23 @@ export class Service {
         } catch (error) {
             console.error('Appwrite service :: getFileView :: error', error);
             return null;
+        }
+    }
+
+    getFileDownload(fileId) {
+        if (!fileId) return null;
+        if (typeof fileId === 'string' && (fileId.startsWith('http://') || fileId.startsWith('https://') || fileId.startsWith('blob:'))) {
+            return fileId;
+        }
+        try {
+            const download = this.bucket.getFileDownload(
+                config.appwriteBucketId,
+                fileId
+            );
+            return download ? download.toString() : null;
+        } catch (error) {
+            console.error('Appwrite service :: getFileDownload :: error', error);
+            return this.getFileView(fileId);
         }
     }
 }
