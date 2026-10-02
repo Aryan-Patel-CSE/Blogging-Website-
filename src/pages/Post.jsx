@@ -4,6 +4,7 @@ import appwriteService from "../appwrite/conf";
 import { Button, CommentSystem, Container } from "../components";
 import parse from "html-react-parser";
 import { useSelector } from "react-redux";
+import { isAdminUser } from "../utils/authHelper";
 
 function formatFileSize(bytes) {
     if (!bytes || typeof bytes !== "number") return "";
@@ -22,26 +23,9 @@ export default function Post() {
     const userData = useSelector((state) => state.auth.userData);
     const currentUserId = userData?.$id || userData?.userData?.$id;
     const authorId = post?.userid || post?.userId;
-    const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || '')
-        .split(',')
-        .map((email) => email.trim().toLowerCase())
-        .filter(Boolean);
-    const userEmail = (userData?.email || userData?.userData?.email || '').toLowerCase();
-    const userRoles = [
-        userData?.role,
-        userData?.userData?.role,
-        userData?.label,
-        userData?.userData?.label,
-        userData?.roles,
-        userData?.userData?.roles,
-    ]
-        .flatMap((entry) => (Array.isArray(entry) ? entry : [entry]))
-        .filter(Boolean)
-        .map(String)
-        .join(' ')
-        .toLowerCase();
-    const isAdminUser = adminEmails.includes(userEmail) || userRoles.includes('admin');
-    const isAuthor = post && (currentUserId ? authorId === currentUserId || isAdminUser : false);
+    const isAdmin = isAdminUser(userData);
+    const isAuthor = Boolean(post && currentUserId && authorId === currentUserId);
+    const canManagePost = isAuthor || isAdmin;
     const storedAuthorName =
         (typeof post?.author === "string" ? post.author : post?.author?.name) ||
         (typeof post?.authorName === "string" ? post.authorName : '') ||
@@ -134,7 +118,8 @@ export default function Post() {
             post={post}
             imageId={imageId}
             initialUrl={initialUrl}
-            isAuthor={isAuthor}
+            canManagePost={canManagePost}
+            isAdmin={isAdmin}
             authorName={authorName}
             handleDeletePost={handleDeletePost}
             deleting={deleting}
@@ -144,7 +129,7 @@ export default function Post() {
     );
 }
 
-function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDeletePost, deleting, postId, postAuthorId }) {
+function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, authorName, handleDeletePost, deleting, postId, postAuthorId }) {
     const [imgSrc, setImgSrc] = useState(initialUrl);
     const [imageError, setImageError] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -189,8 +174,16 @@ function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDe
                             &larr; Back to all stories
                         </Link>
 
-                        {isAuthor && (
+                        {canManagePost && (
                             <div className="flex items-center gap-2">
+                                {isAdmin && (
+                                    <span className="inline-flex items-center gap-1 rounded-lg border border-amber-500/50 bg-amber-500/10 px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                                        <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                            <path fillRule="evenodd" d="M10 1.5 17 4v5.1c0 4.4-2.9 7.5-7 9.4-4.1-1.9-7-5-7-9.4V4l7-2.5Zm0 4a2.1 2.1 0 0 0-2.1 2.1v1.1a1 1 0 0 0-.8 1v3.1a1 1 0 0 0 1 1h3.8a1 1 0 0 0 1-1V9.7a1 1 0 0 0-.8-1V7.6A2.1 2.1 0 0 0 10 5.5Zm-.8 3.1V7.6a.8.8 0 0 1 1.6 0v1h-1.6Z" clipRule="evenodd" />
+                                        </svg>
+                                        Admin
+                                    </span>
+                                )}
                                 <Link to={`/edit-post/${post.$id}`}>
                                     <button className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-[#EBD3F8] bg-white dark:bg-[#240632] border border-slate-300 dark:border-[#7A1CAC]/40 hover:bg-slate-50 dark:hover:bg-[#360a4a] rounded-xl transition-all shadow-xs cursor-pointer">
                                         Edit Story

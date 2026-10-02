@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { EMPTY_TREE, useNode } from '../hooks/useNode';
+import { isAdminUser } from '../utils/authHelper';
 
 const CLIENT_ID_KEY = 'inkspace_client_id';
 const ROOT_COMMENT_ID = 1;
+
+function createCommentId() {
+    return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
 
 function getStoredTree(storageKey) {
     if (typeof window === 'undefined') {
@@ -67,48 +72,6 @@ function formatRelativeTime(timestamp) {
     return `${days}d ago`;
 }
 
-function normalizeAdminList(value) {
-    if (!value) return [];
-    if (Array.isArray(value)) {
-        return value.flatMap((entry) => normalizeAdminList(entry));
-    }
-
-    return String(value)
-        .split(',')
-        .map((item) => item.trim().toLowerCase())
-        .filter(Boolean);
-}
-
-function isAdminUser(userData) {
-    const configuredAdmins = normalizeAdminList(import.meta.env.VITE_ADMIN_EMAILS);
-    const candidateEmails = [
-        userData?.email,
-        userData?.userData?.email,
-    ].filter(Boolean);
-
-    const roleValues = [
-        userData?.role,
-        userData?.userData?.role,
-        userData?.label,
-        userData?.userData?.label,
-        userData?.roles,
-        userData?.userData?.roles,
-        userData?.labels,
-        userData?.userData?.labels,
-    ];
-
-    const roleText = roleValues
-        .flatMap((value) => (Array.isArray(value) ? value : [value]))
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-
-    return (
-        configuredAdmins.some((email) => candidateEmails.some((candidate) => candidate.toLowerCase() === email)) ||
-        roleText.includes('admin')
-    );
-}
-
 const avatarColors = [
     'bg-sky-500',
     'bg-violet-500',
@@ -157,7 +120,7 @@ function CommentSystem({ postId, postAuthorId }) {
         if (!value) return;
 
         const comment = {
-            id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            id: createCommentId(),
             text: value,
             userName: currentUserName,
             userId: currentUserId,
@@ -193,24 +156,14 @@ function CommentSystem({ postId, postAuthorId }) {
         setEditDraft('');
     };
 
-    const canManageComment = (comment) => {
-        if (!comment) return false;
-        const authoredByCurrentUser =
-            comment.userId === currentUserId ||
-            (comment.clientAuthorId && comment.clientAuthorId === clientId);
-        return authoredByCurrentUser || comment.isAdmin || isAdmin;
-    };
-
     const renderComment = (comment, depth = 0) => {
         const replyCount = Array.isArray(comment.items) ? comment.items.length : 0;
         const replyAreaOpen = expandedReplies[comment.id] ?? true;
-        const isEditable = canManageComment(comment);
-        const isCurrentUserComment =
-            comment.userId === currentUserId ||
-            (comment.clientAuthorId && comment.clientAuthorId === clientId);
-        const isPostAuthorComment =
-            comment.userId === postAuthorId ||
-            (comment.clientAuthorId && comment.clientAuthorId === postAuthorId);
+        const isCommentAuthor =
+            (Boolean(currentUserId) && comment.userId === currentUserId) ||
+            (Boolean(comment.clientAuthorId) && comment.clientAuthorId === clientId);
+        const canManageComment = isCommentAuthor || isAdmin;
+        const isPostAuthorComment = Boolean(postAuthorId) && comment.userId === postAuthorId;
 
         return (
             <div
@@ -232,7 +185,7 @@ function CommentSystem({ postId, postAuthorId }) {
                                     Author
                                 </span>
                             )}
-                            {isCurrentUserComment && (
+                            {isCommentAuthor && (
                                 <span className="rounded-full border border-[#AD49E1]/40 bg-[#AD49E1]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#D79AFA]">
                                     You
                                 </span>
@@ -306,14 +259,14 @@ function CommentSystem({ postId, postAuthorId }) {
                         Reply
                     </button>
 
-                    {isEditable && (
+                    {canManageComment && (
                         <>
                             <button
                                 type="button"
                                 onClick={() => beginEditing(comment)}
                                 className="rounded-full border border-[#53116B] bg-[#2E073F] px-3 py-1 text-[11px] font-semibold text-[#D8BDE4] transition hover:border-[#AD49E1] hover:bg-[#360A4A]"
                             >
-                                Edit
+                                {isAdmin && !isCommentAuthor ? 'Edit (Admin)' : 'Edit'}
                             </button>
                             <button
                                 type="button"

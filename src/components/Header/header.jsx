@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { Container, Logo, LogoutBtn, ThemeToggle } from '../index';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { isAdminUser } from '../../utils/authHelper';
 
 const Header = () => {
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
+  const isAdmin = isAdminUser(userData);
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -96,6 +98,11 @@ const Header = () => {
                     <div className="hidden lg:flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-[#EBD3F8] bg-slate-100 dark:bg-[#2E073F] px-3 py-1.5 rounded-full border border-transparent dark:border-[#7A1CAC]/40">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                       <span className="truncate max-w-[120px]">{userData.name}</span>
+                      {isAdmin && (
+                        <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                          Admin
+                        </span>
+                      )}
                     </div>
                   )}
                   <LogoutBtn />
@@ -130,6 +137,11 @@ const Header = () => {
             {userData?.name && (
               <div className="px-3 py-1.5 text-xs font-medium text-slate-500 dark:text-[#EBD3F8]/70">
                 Signed in as <strong className="text-slate-800 dark:text-white">{userData.name}</strong>
+                {isAdmin && (
+                  <span className="ml-2 inline-flex rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                    Admin
+                  </span>
+                )}
               </div>
             )}
             {navItems.map((item) =>

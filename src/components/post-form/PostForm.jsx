@@ -253,13 +253,11 @@ const PostForm = ({ post }) => {
                 ];
 
                 // 4. Update the post record BEFORE deleting files that the user removed
-                const currentUserName = userData?.name || userData?.userData?.name || '';
                 const dbPost = await appwriteService.updatePost(post.$id, {
                     title: data.title,
                     content: data.content,
                     featuredimage: finalCoverId,
                     status: data.status,
-                    authorName: currentUserName,
                     media: finalMedia,
                 });
 
