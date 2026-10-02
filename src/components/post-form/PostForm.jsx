@@ -1,23 +1,49 @@
-import { useCallback, useState, useEffect, useId } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { RTE, Button, Input, Select } from '../index';
 import appwriteService from '../../appwrite/conf';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-const MEDIA_LIMITS = {
-    MAX_EXTRA_FILES: 8,
-    MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024, // 10 MB per file
-    MAX_FILE_SIZE_LABEL: '10 MB',
-    ACCEPTED_INPUT_TYPES: 'image/png, image/jpeg, image/jpg, image/gif, image/webp, application/pdf',
-};
+// Configurable constants for media attachments
+const ALLOWED_IMAGE_TYPES = [
+    'image/png',
+    'image/jpeg',
+    'image/jpg',
+    'image/gif',
+    'image/webp',
+];
+const ALLOWED_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
 
-const formatBytes = (bytes) => {
-    if (!bytes && bytes !== 0) return '';
+const ALLOWED_DOCUMENT_TYPES = ['application/pdf'];
+const ALLOWED_DOCUMENT_EXTENSIONS = ['.pdf'];
+
+const MAX_MEDIA_FILES = 10;
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const ACCEPTED_MEDIA_TYPES =
+    'image/png, image/jpg, image/jpeg, image/gif, image/webp, application/pdf';
+
+function formatFileSize(bytes) {
+    if (!bytes || typeof bytes !== 'number') return '';
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-};
+}
+
+function getMediaType(file) {
+    if (!file) return null;
+    const name = (file.name || '').toLowerCase();
+    const type = (file.type || '').toLowerCase();
+
+    if (ALLOWED_IMAGE_TYPES.includes(type) || ALLOWED_IMAGE_EXTENSIONS.some((ext) => name.endsWith(ext))) {
+        return 'image';
+    }
+    if (ALLOWED_DOCUMENT_TYPES.includes(type) || ALLOWED_DOCUMENT_EXTENSIONS.some((ext) => name.endsWith(ext))) {
+        return 'pdf';
+    }
+    return null;
+}
 
 const PostForm = ({ post }) => {
     const { register, handleSubmit, watch, setValue, control, getValues } = useForm({
@@ -26,7 +52,7 @@ const PostForm = ({ post }) => {
             slug: post?.$id || post?.slug || '',
             content: post?.content || '',
             status: post?.status || 'active',
-        }
+        },
     });
 
     const navigate = useNavigate();
@@ -34,116 +60,144 @@ const PostForm = ({ post }) => {
     const [loading, setLoading] = useState(false);
     const [formError, setFormError] = useState('');
     const [mediaError, setMediaError] = useState('');
-    const multiFileInputId = useId();
 
-    // Featured Cover Image state
+    // Featured Cover Image State
     const [selectedFile, setSelectedFile] = useState(null);
     const existingImage = post?.featuredimage || post?.featuredImage;
     const [previewUrl, setPreviewUrl] = useState(
         existingImage ? appwriteService.getFilePreview(existingImage) : null
     );
 
-    // Additional Media: Saved (edit mode) & Staged (newly selected)
-    const [savedMedia] = useState(() => {
-        return Array.isArray(post?.media) ? post.media : [];
-    });
-    const [removedSavedMediaIds, setRemovedSavedMediaIds] = useState([]);
-    const [stagedFiles, setStagedFiles] = useState([]);
+    // Additional Media State: saved existing items & new pending items
+    const [savedMedia, setSavedMedia] = useState(
+        Array.isArray(post?.media) ? post.media : []
+    );
+    const [pendingFiles, setPendingFiles] = useState([]);
 
-    // Calculate active total extra files
-    const retainedSavedMedia = savedMedia.filter((item) => !removedSavedMediaIds.includes(item.fileId));
-    const totalExtraFilesCount = retainedSavedMedia.length + stagedFiles.length;
+    // Keep ref to pending files and cover preview to revoke blob URLs on unmount
+    const pendingFilesRef = useRef(pendingFiles);
+    pendingFilesRef.current = pendingFiles;
+    const previewUrlRef = useRef(previewUrl);
+    previewUrlRef.current = previewUrl;
 
-    // Revoke object URLs on unmount or when staged files change
     useEffect(() => {
         return () => {
-            stagedFiles.forEach((item) => {
-                if (item.previewUrl) {
+            pendingFilesRef.current.forEach((item) => {
+                if (item.previewUrl && item.previewUrl.startsWith('blob:')) {
                     URL.revokeObjectURL(item.previewUrl);
                 }
             });
+            if (previewUrlRef.current && previewUrlRef.current.startsWith('blob:')) {
+                URL.revokeObjectURL(previewUrlRef.current);
+            }
         };
-    }, [stagedFiles]);
+    }, []);
 
-    const handleCoverImageChange = (e) => {
+    const handleImageChange = (e) => {
         const file = e.target.files?.[0];
         if (file) {
+            const mediaType = getMediaType(file);
+            if (mediaType !== 'image') {
+                setFormError(`Cover image "${file.name}" has an unsupported format. Allowed formats: PNG, JPG, JPEG, GIF, WEBP.`);
+                e.target.value = '';
+                return;
+            }
+            if (file.size > MAX_FILE_SIZE_BYTES) {
+                setFormError(`Cover image "${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB size limit (${formatFileSize(file.size)}).`);
+                e.target.value = '';
+                return;
+            }
+
+            if (previewUrl && previewUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(previewUrl);
+            }
             setSelectedFile(file);
             setPreviewUrl(URL.createObjectURL(file));
+            setFormError('');
         }
     };
 
-    const handleAdditionalFilesChange = (e) => {
-        setMediaError('');
+    const handleAdditionalMediaChange = (e) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
 
-        if (totalExtraFilesCount + files.length > MEDIA_LIMITS.MAX_EXTRA_FILES) {
-            const availableSlots = Math.max(0, MEDIA_LIMITS.MAX_EXTRA_FILES - totalExtraFilesCount);
-            setMediaError(
-                `Limit exceeded: You can only attach up to ${MEDIA_LIMITS.MAX_EXTRA_FILES} extra files in total. You have ${availableSlots} slot(s) remaining.`
-            );
-            e.target.value = '';
+        // Reset the input value so the same file could be selected again if removed
+        e.target.value = '';
+
+        const errors = [];
+        const newItems = [];
+        const currentCount = savedMedia.length + pendingFiles.length;
+        const availableSlots = MAX_MEDIA_FILES - currentCount;
+
+        if (availableSlots <= 0) {
+            setMediaError(`Maximum limit of ${MAX_MEDIA_FILES} additional files reached. Remove existing items before adding more.`);
             return;
         }
 
-        const validNewFiles = [];
-
         for (const file of files) {
-            // Validate file size
-            if (file.size > MEDIA_LIMITS.MAX_FILE_SIZE_BYTES) {
-                setMediaError(`"${file.name}" exceeds the ${MEDIA_LIMITS.MAX_FILE_SIZE_LABEL} limit (${formatBytes(file.size)}).`);
-                e.target.value = '';
-                return;
+            if (newItems.length >= availableSlots) {
+                errors.push(`Reached maximum limit of ${MAX_MEDIA_FILES} additional files.`);
+                break;
             }
 
-            // Validate file type
-            const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-            const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|gif|webp)$/i.test(file.name);
-
-            if (!isPdf && !isImage) {
-                setMediaError(`"${file.name}" is not supported. Please upload PNG, JPG, WebP, GIF, or PDF files only.`);
-                e.target.value = '';
-                return;
+            const mediaType = getMediaType(file);
+            if (!mediaType) {
+                errors.push(`"${file.name}" is not supported. Only PNG, JPG, JPEG, GIF, WEBP, and PDF files are allowed.`);
+                continue;
             }
 
-            validNewFiles.push({
+            if (file.size > MAX_FILE_SIZE_BYTES) {
+                errors.push(`"${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB limit (${formatFileSize(file.size)}).`);
+                continue;
+            }
+
+            // Check for duplicates
+            const isDuplicatePending = pendingFiles.some(
+                (p) => p.name === file.name && p.size === file.size
+            );
+            const isDuplicateSaved = savedMedia.some((s) => s.name === file.name);
+            if (isDuplicatePending || isDuplicateSaved) {
+                errors.push(`"${file.name}" is already attached or selected.`);
+                continue;
+            }
+
+            const objectUrl = mediaType === 'image' ? URL.createObjectURL(file) : null;
+            newItems.push({
                 id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
                 file,
+                previewUrl: objectUrl,
+                type: mediaType,
                 name: file.name,
                 size: file.size,
-                type: isPdf ? 'pdf' : 'image',
-                mimeType: file.type || (isPdf ? 'application/pdf' : 'image/jpeg'),
-                previewUrl: isPdf ? null : URL.createObjectURL(file),
+                mimeType: file.type || (mediaType === 'pdf' ? 'application/pdf' : 'image/jpeg'),
             });
         }
 
-        setStagedFiles((prev) => [...prev, ...validNewFiles]);
-        e.target.value = '';
+        if (errors.length > 0) {
+            setMediaError(errors.join(' '));
+        } else {
+            setMediaError('');
+        }
+
+        if (newItems.length > 0) {
+            setPendingFiles((prev) => [...prev, ...newItems]);
+        }
     };
 
-    const handleRemoveStagedFile = (id) => {
+    const handleRemoveSavedMedia = (fileId) => {
+        setSavedMedia((prev) => prev.filter((item) => item.fileId !== fileId));
         setMediaError('');
-        setStagedFiles((prev) => {
-            const target = prev.find((item) => item.id === id);
-            if (target && target.previewUrl) {
-                URL.revokeObjectURL(target.previewUrl);
-            }
-            return prev.filter((item) => item.id !== id);
-        });
     };
 
-    const handleToggleRemoveSavedMedia = (fileId) => {
-        setMediaError('');
-        setRemovedSavedMediaIds((prev) => {
-            if (prev.includes(fileId)) {
-                // Restore item
-                return prev.filter((id) => id !== fileId);
-            } else {
-                // Mark for removal
-                return [...prev, fileId];
+    const handleRemovePendingFile = (id) => {
+        setPendingFiles((prev) => {
+            const item = prev.find((p) => p.id === id);
+            if (item?.previewUrl && item.previewUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(item.previewUrl);
             }
+            return prev.filter((p) => p.id !== id);
         });
+        setMediaError('');
     };
 
     const submit = async (data) => {
@@ -151,137 +205,141 @@ const PostForm = ({ post }) => {
         setMediaError('');
         setLoading(true);
 
-        const newlyUploadedIds = [];
+        const newlyUploadedFileIds = [];
+        let postRecordSaved = false;
 
         try {
-            const coverFileToUpload = (data.image && data.image[0]) || selectedFile;
+            const fileToUpload = (data.image && data.image[0]) || selectedFile;
 
             if (post) {
-                // ==================== EDIT POST ====================
+                // EDITING EXISTING STORY
                 let finalCoverId = post.featuredimage || post.featuredImage;
-                let oldCoverId = null;
 
-                // 1. Upload new cover image if user selected one
-                if (coverFileToUpload) {
-                    const uploadedCover = await appwriteService.uploadFile(coverFileToUpload);
-                    if (uploadedCover) {
-                        newlyUploadedIds.push(uploadedCover.$id);
-                        oldCoverId = finalCoverId;
+                // 1. Upload new cover image if one was selected
+                if (fileToUpload) {
+                    const uploadedCover = await appwriteService.uploadFile(fileToUpload);
+                    if (uploadedCover?.$id) {
                         finalCoverId = uploadedCover.$id;
+                        newlyUploadedFileIds.push(uploadedCover.$id);
                     }
                 }
 
-                // 2. Upload newly staged extra media files
-                const newUploadedMediaItems = [];
-                for (const staged of stagedFiles) {
-                    const uploaded = await appwriteService.uploadFile(staged.file);
-                    if (uploaded) {
-                        newlyUploadedIds.push(uploaded.$id);
-                        newUploadedMediaItems.push({
-                            fileId: uploaded.$id,
-                            name: staged.name,
-                            mimeType: staged.mimeType,
-                            type: staged.type,
+                // 2. Upload any pending additional media files
+                const newlyUploadedMediaItems = [];
+                for (const item of pendingFiles) {
+                    const uploadedMedia = await appwriteService.uploadFile(item.file);
+                    if (uploadedMedia?.$id) {
+                        newlyUploadedFileIds.push(uploadedMedia.$id);
+                        newlyUploadedMediaItems.push({
+                            fileId: uploadedMedia.$id,
+                            name: item.name,
+                            mimeType: item.mimeType,
+                            type: item.type,
+                            ...(typeof item.size === 'number' ? { size: item.size } : {}),
                         });
                     }
                 }
 
-                // 3. Assemble final media array (retained saved + newly uploaded)
-                const currentRetainedSaved = savedMedia.filter(
-                    (item) => !removedSavedMediaIds.includes(item.fileId)
-                );
-                const finalMedia = [...currentRetainedSaved, ...newUploadedMediaItems];
+                // 3. Combine retained savedMedia + newly uploaded media
+                const finalMedia = [
+                    ...savedMedia.map((m) => ({
+                        fileId: m.fileId,
+                        name: m.name,
+                        mimeType: m.mimeType,
+                        type: m.type,
+                        ...(typeof m.size === 'number' ? { size: m.size } : {}),
+                    })),
+                    ...newlyUploadedMediaItems,
+                ];
 
-                // 4. Update the post record in the database FIRST
-                let dbPost;
-                try {
-                    dbPost = await appwriteService.updatePost(post.$id, {
-                        title: data.title,
-                        content: data.content,
-                        featuredimage: finalCoverId,
-                        status: data.status,
-                        media: finalMedia,
-                    });
-                } catch (updateError) {
-                    // Update failed! Clean up newly uploaded files immediately
-                    if (newlyUploadedIds.length > 0) {
-                        await appwriteService.deleteFiles(newlyUploadedIds);
-                    }
-                    throw updateError;
-                }
-
-                // 5. Only AFTER post record update succeeds, safely delete removed files from storage
-                const filesToDelete = new Set();
-                if (
-                    oldCoverId &&
-                    oldCoverId !== finalCoverId &&
-                    !finalMedia.some((m) => m.fileId === oldCoverId)
-                ) {
-                    filesToDelete.add(oldCoverId);
-                }
-
-                removedSavedMediaIds.forEach((id) => {
-                    if (id !== finalCoverId && !finalMedia.some((m) => m.fileId === id)) {
-                        filesToDelete.add(id);
-                    }
+                // 4. Update the post record BEFORE deleting files that the user removed
+                const dbPost = await appwriteService.updatePost(post.$id, {
+                    title: data.title,
+                    content: data.content,
+                    featuredimage: finalCoverId,
+                    status: data.status,
+                    media: finalMedia,
                 });
 
+                postRecordSaved = true;
+
+                // 5. Update succeeded! Now delete files that the user removed.
+                // Avoid deleting retained files or deleting the same file twice.
+                const retainedFileIds = new Set([
+                    finalCoverId,
+                    ...finalMedia.map((m) => m.fileId),
+                ]);
+
+                const filesToDelete = new Set();
+
+                // If cover was replaced, queue old cover for deletion (if not retained elsewhere)
+                const oldCover = post.featuredimage || post.featuredImage;
+                if (fileToUpload && oldCover && !retainedFileIds.has(oldCover)) {
+                    filesToDelete.add(oldCover);
+                }
+
+                // Check original post.media for items removed by author
+                const originalMedia = post.media || [];
+                for (const item of originalMedia) {
+                    if (item?.fileId && !retainedFileIds.has(item.fileId)) {
+                        filesToDelete.add(item.fileId);
+                    }
+                }
+
+                // Safely delete removed files without failing navigation
                 if (filesToDelete.size > 0) {
-                    await appwriteService.deleteFiles(Array.from(filesToDelete));
+                    await Promise.allSettled(
+                        Array.from(filesToDelete).map((id) => appwriteService.deleteFile(id))
+                    );
                 }
 
                 if (dbPost) {
                     navigate(`/post/${dbPost.$id}`);
                 }
             } else {
-                // ==================== CREATE POST ====================
-                if (!coverFileToUpload) {
+                // CREATING NEW STORY
+                if (!fileToUpload) {
                     setFormError('Please select a featured cover image for your story.');
                     setLoading(false);
                     return;
                 }
 
-                // 1. Upload featured cover image
-                const uploadedCover = await appwriteService.uploadFile(coverFileToUpload);
-                if (uploadedCover) {
-                    newlyUploadedIds.push(uploadedCover.$id);
+                // 1. Upload featured cover
+                const uploadedCover = await appwriteService.uploadFile(fileToUpload);
+                if (!uploadedCover?.$id) {
+                    throw new Error('Failed to upload featured cover image.');
                 }
+                newlyUploadedFileIds.push(uploadedCover.$id);
 
-                // 2. Upload staged extra media files
-                const newUploadedMediaItems = [];
-                for (const staged of stagedFiles) {
-                    const uploaded = await appwriteService.uploadFile(staged.file);
-                    if (uploaded) {
-                        newlyUploadedIds.push(uploaded.$id);
-                        newUploadedMediaItems.push({
-                            fileId: uploaded.$id,
-                            name: staged.name,
-                            mimeType: staged.mimeType,
-                            type: staged.type,
+                // 2. Upload pending media files
+                const newlyUploadedMediaItems = [];
+                for (const item of pendingFiles) {
+                    const uploadedMedia = await appwriteService.uploadFile(item.file);
+                    if (uploadedMedia?.$id) {
+                        newlyUploadedFileIds.push(uploadedMedia.$id);
+                        newlyUploadedMediaItems.push({
+                            fileId: uploadedMedia.$id,
+                            name: item.name,
+                            mimeType: item.mimeType,
+                            type: item.type,
+                            ...(typeof item.size === 'number' ? { size: item.size } : {}),
                         });
                     }
                 }
 
-                // 3. Create post record in Appwrite Database
+                // 3. Create post record
                 const currentUserId = userData?.$id || userData?.userData?.$id;
-                let dbPost;
-                try {
-                    dbPost = await appwriteService.createPost({
-                        title: data.title,
-                        slug: data.slug,
-                        content: data.content,
-                        featuredimage: uploadedCover.$id,
-                        status: data.status,
-                        userid: currentUserId,
-                        media: newUploadedMediaItems,
-                    });
-                } catch (createError) {
-                    // Create post failed! Clean up newly uploaded files from storage
-                    if (newlyUploadedIds.length > 0) {
-                        await appwriteService.deleteFiles(newlyUploadedIds);
-                    }
-                    throw createError;
-                }
+                const dbPost = await appwriteService.createPost({
+                    title: data.title,
+                    slug: data.slug,
+                    content: data.content,
+                    featuredimage: uploadedCover.$id,
+                    status: data.status,
+                    userid: currentUserId,
+                    media: newlyUploadedMediaItems,
+                });
+
+                postRecordSaved = true;
 
                 if (dbPost) {
                     navigate(`/post/${dbPost.$id}`);
@@ -289,19 +347,26 @@ const PostForm = ({ post }) => {
             }
         } catch (error) {
             console.error('Error submitting post:', error);
-            const msg = error?.message || 'Failed to save post. Please check your inputs and try again.';
-            const lowerMsg = msg.toLowerCase();
 
-            if (lowerMsg.includes('permission') || error?.code === 401 || error?.code === 403) {
+            // If update/create failed after new uploads, attempt to clean up those new uploads
+            if (!postRecordSaved && newlyUploadedFileIds.length > 0) {
+                try {
+                    await Promise.allSettled(
+                        newlyUploadedFileIds.map((id) => appwriteService.deleteFile(id))
+                    );
+                } catch (cleanupErr) {
+                    console.warn('Failed to clean up newly uploaded files after error', cleanupErr);
+                }
+            }
+
+            const msg = error?.message || 'Failed to save post. Please check your inputs and try again.';
+            if (msg.toLowerCase().includes('permission') || error?.code === 401) {
                 setFormError(
-                    'Appwrite Permission Error: In Appwrite Console under Storage -> Bucket -> Settings -> Permissions, ensure "Users" (and "Any" if public) have Read & Create permissions.'
+                    'Storage Permission Error: In Appwrite Console under Storage -> Bucket -> Settings -> Permissions, ensure "Users" and "Any" have Read & Create permissions.'
                 );
-            } else if (
-                lowerMsg.includes('attribute') &&
-                (lowerMsg.includes('media') || lowerMsg.includes('not found') || lowerMsg.includes('unknown'))
-            ) {
+            } else if (msg.toLowerCase().includes('media') && msg.toLowerCase().includes('attribute')) {
                 setFormError(
-                    'Appwrite Schema Error: Attribute "media" not found in your collection schema. In Appwrite Console -> Databases -> your collection -> Attributes, add an optional String attribute named "media" (size: 10000 or more).'
+                    "Appwrite Database Schema Error: The 'media' attribute is missing in your Posts collection. In Appwrite Console -> Databases -> Posts collection -> Attributes -> Add String attribute 'media' (Size: 65535, Required: false)."
                 );
             } else {
                 setFormError(msg);
@@ -332,244 +397,148 @@ const PostForm = ({ post }) => {
         return () => subscription.unsubscribe();
     }, [watch, slugTransform, setValue]);
 
+    const totalAttachedMediaCount = savedMedia.length + pendingFiles.length;
+
     return (
         <form onSubmit={handleSubmit(submit)} className="max-w-5xl mx-auto space-y-6">
             {formError && (
-                <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-start gap-3 shadow-xs">
-                    <svg className="w-5 h-5 flex-shrink-0 text-rose-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-sm flex items-center gap-2">
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <div className="flex-1 font-medium leading-relaxed">{formError}</div>
+                    <span>{formError}</span>
                 </div>
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Content Area */}
                 <div className="lg:col-span-2 space-y-5">
-                    {/* Title & Slug */}
-                    <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+                    <div className="bg-white dark:bg-[#2E073F] rounded-2xl p-6 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs space-y-4">
                         <Input
                             label="Post Title"
                             placeholder="Enter a compelling title..."
                             className="text-base"
-                            {...register("title", { required: "Title is required" })}
+                            {...register('title', { required: 'Title is required' })}
                         />
 
                         <Input
                             label="URL Slug"
                             placeholder="post-url-slug"
-                            {...register("slug", { required: "Slug is required" })}
+                            {...register('slug', { required: 'Slug is required' })}
                             onInput={(e) => {
-                                setValue("slug", slugTransform(e.currentTarget.value), { shouldValidate: true });
+                                setValue('slug', slugTransform(e.currentTarget.value), { shouldValidate: true });
                             }}
                         />
                     </div>
 
-                    {/* Article Content RTE */}
-                    <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
-                        <RTE 
-                            label="Article Content" 
-                            name="content" 
-                            control={control} 
-                            defaultValue={getValues("content")} 
+                    <div className="bg-white dark:bg-[#2E073F] rounded-2xl p-6 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs">
+                        <RTE
+                            label="Article Content"
+                            name="content"
+                            control={control}
+                            defaultValue={getValues('content')}
                         />
                     </div>
 
-                    {/* Optional Additional Media: Extra Images & PDF Attachments */}
-                    <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-5">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    {/* Additional Media & Attachments Section */}
+                    <div className="bg-white dark:bg-[#2E073F] rounded-2xl p-6 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-[#7A1CAC]/30 pb-3">
                             <div>
-                                <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-[#7A1CAC] dark:text-[#AD49E1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                                        />
                                     </svg>
-                                    Additional Media & Attachments
-                                    <span className="text-xs font-normal text-slate-400">(Optional)</span>
+                                    Additional Media & Documents
                                 </h3>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    Upload extra gallery photos or PDF documents for readers to view and download.
+                                <p className="text-xs text-slate-500 dark:text-[#EBD3F8]/70 mt-0.5">
+                                    Upload extra images or PDF attachments (optional, up to {MAX_MEDIA_FILES} files, max {MAX_FILE_SIZE_MB}MB each)
                                 </p>
                             </div>
-                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 self-start sm:self-auto">
-                                {totalExtraFilesCount} / {MEDIA_LIMITS.MAX_EXTRA_FILES} files
+                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#EBD3F8]/40 dark:bg-[#240632] text-slate-700 dark:text-[#EBD3F8] self-start sm:self-auto border border-slate-200/60 dark:border-[#7A1CAC]/30">
+                                {totalAttachedMediaCount} / {MAX_MEDIA_FILES} files
                             </span>
                         </div>
 
                         {mediaError && (
-                            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
-                                <svg className="w-4 h-4 flex-shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-amber-800 dark:text-amber-300 text-xs flex items-start gap-2">
+                                <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                    />
                                 </svg>
-                                <span>{mediaError}</span>
+                                <div className="flex-1">
+                                    <span>{mediaError}</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setMediaError('')}
+                                    className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 font-bold text-sm ml-2 cursor-pointer"
+                                >
+                                    &times;
+                                </button>
                             </div>
                         )}
 
-                        {/* File Picker Zone */}
-                        <div>
-                            <input
-                                id={multiFileInputId}
-                                type="file"
-                                multiple
-                                accept={MEDIA_LIMITS.ACCEPTED_INPUT_TYPES}
-                                onChange={handleAdditionalFilesChange}
-                                className="hidden"
-                                disabled={totalExtraFilesCount >= MEDIA_LIMITS.MAX_EXTRA_FILES}
-                            />
-                            <label
-                                htmlFor={multiFileInputId}
-                                className={`flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-300 ${
-                                    totalExtraFilesCount >= MEDIA_LIMITS.MAX_EXTRA_FILES
-                                        ? 'border-slate-200 bg-slate-50 cursor-not-allowed opacity-60'
-                                        : 'border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/40 hover:scale-[1.006] active:scale-[0.99] cursor-pointer bg-slate-50/50 group'
-                                }`}
-                            >
-                                <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2 transition-transform duration-300 group-hover:scale-110">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                        {/* File Picker / Dropzone */}
+                        {totalAttachedMediaCount < MAX_MEDIA_FILES && (
+                            <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 dark:border-[#7A1CAC]/40 hover:border-[#7A1CAC] dark:hover:border-[#AD49E1] rounded-2xl cursor-pointer bg-slate-50/60 dark:bg-[#240632]/60 hover:bg-[#EBD3F8]/20 dark:hover:bg-[#360a4a]/40 transition-all duration-200 group">
+                                <div className="w-12 h-12 rounded-2xl bg-[#EBD3F8]/50 dark:bg-[#240632] group-hover:bg-[#EBD3F8] dark:group-hover:bg-[#360a4a] flex items-center justify-center text-[#7A1CAC] dark:text-[#AD49E1] mb-2 transition-colors">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                                        />
                                     </svg>
                                 </div>
-                                <span className="text-sm font-semibold text-slate-700">
-                                    {totalExtraFilesCount >= MEDIA_LIMITS.MAX_EXTRA_FILES
-                                        ? `Maximum limit reached (${MEDIA_LIMITS.MAX_EXTRA_FILES} files)`
-                                        : 'Click to select additional images or PDFs'}
-                                </span>
-                                <span className="text-xs text-slate-400 mt-1">
-                                    PNG, JPG, WebP, GIF, or PDF (Max 10MB each)
-                                </span>
+                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-[#7A1CAC] dark:group-hover:text-[#AD49E1] transition-colors">
+                                    Click to select multiple images or PDFs
+                                </p>
+                                <p className="text-xs text-slate-400 dark:text-[#EBD3F8]/60 mt-1">
+                                    Supports PNG, JPG, JPEG, GIF, WEBP, and PDF (Max {MAX_FILE_SIZE_MB}MB each)
+                                </p>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept={ACCEPTED_MEDIA_TYPES}
+                                    className="hidden"
+                                    onChange={handleAdditionalMediaChange}
+                                />
                             </label>
-                        </div>
-
-                        {/* Saved Media (in Edit mode) */}
-                        {savedMedia.length > 0 && (
-                            <div className="space-y-3 pt-2">
-                                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                                    <span>Existing Attachments</span>
-                                    <span className="text-[10px] font-normal text-slate-400">
-                                        ({savedMedia.length} saved)
-                                    </span>
-                                </h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {savedMedia.map((item, index) => {
-                                        const isMarkedForRemoval = removedSavedMediaIds.includes(item.fileId);
-                                        const isImage = item.type === 'image';
-                                        const preview = isImage ? appwriteService.getFilePreview(item.fileId) : null;
-
-                                        return (
-                                            <div
-                                                key={item.fileId}
-                                                style={{ animationDelay: `${index * 40}ms` }}
-                                                className={`relative flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 animate-fade-in-up ${
-                                                    isMarkedForRemoval
-                                                        ? 'bg-rose-50/70 border-rose-200 opacity-60 scale-[0.98]'
-                                                        : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs hover:shadow-xs'
-                                                }`}
-                                            >
-                                                <div className="w-12 h-12 rounded-lg bg-slate-100 flex-shrink-0 overflow-hidden flex items-center justify-center border border-slate-200">
-                                                    {isImage && preview ? (
-                                                        <img src={preview} alt={item.name} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <div className="text-rose-500">
-                                                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9.5 8.5h-2V13H9c.55 0 1-.45 1-1v-.5c0-.55-.45-1-1-1zm6 3h-2v-6h2c.83 0 1.5.67 1.5 1.5v3c0 .83-.67 1.5-1.5 1.5zm-3.5 0h-2v-6h2c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1z"/>
-                                                            </svg>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className={`text-xs font-semibold truncate ${isMarkedForRemoval ? 'line-through text-slate-500' : 'text-slate-800'}`}>
-                                                        {item.name || 'Attachment'}
-                                                    </p>
-                                                    <div className="flex items-center gap-2 mt-0.5">
-                                                        <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded ${
-                                                            isImage ? 'bg-indigo-50 text-indigo-700' : 'bg-rose-50 text-rose-700'
-                                                        }`}>
-                                                            {item.type}
-                                                        </span>
-                                                        {isMarkedForRemoval && (
-                                                            <span className="text-[10px] text-rose-600 font-semibold">
-                                                                Will be removed
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleToggleRemoveSavedMedia(item.fileId)}
-                                                    className={`p-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors active:scale-95 ${
-                                                        isMarkedForRemoval
-                                                            ? 'text-indigo-600 hover:bg-indigo-50'
-                                                            : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
-                                                    }`}
-                                                    title={isMarkedForRemoval ? "Undo removal" : "Remove attachment"}
-                                                >
-                                                    {isMarkedForRemoval ? (
-                                                        <span className="text-xs font-bold underline">Undo</span>
-                                                    ) : (
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                        </svg>
-                                                    )}
-                                                </button>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
                         )}
 
-                        {/* Staged New Files */}
-                        {stagedFiles.length > 0 && (
+                        {/* Attached Media List */}
+                        {totalAttachedMediaCount > 0 && (
                             <div className="space-y-3 pt-2">
-                                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 flex items-center gap-1.5">
-                                    <span>New Files Ready to Upload</span>
-                                    <span className="text-[10px] font-normal text-emerald-700">
-                                        ({stagedFiles.length} newly selected)
-                                    </span>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-[#EBD3F8]/60">
+                                    Attached Media ({totalAttachedMediaCount})
                                 </h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {stagedFiles.map((staged, index) => (
-                                        <div
-                                            key={staged.id}
-                                            style={{ animationDelay: `${index * 40}ms` }}
-                                            className="relative flex items-center gap-3 p-3 rounded-xl border border-emerald-200/80 bg-emerald-50/30 shadow-2xs animate-fade-in-up transition-all duration-300 hover:bg-emerald-50/60"
-                                        >
-                                            <div className="w-12 h-12 rounded-lg bg-white flex-shrink-0 overflow-hidden flex items-center justify-center border border-emerald-100">
-                                                {staged.previewUrl ? (
-                                                    <img src={staged.previewUrl} alt={staged.name} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="text-rose-500">
-                                                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9.5 8.5h-2V13H9c.55 0 1-.45 1-1v-.5c0-.55-.45-1-1-1zm6 3h-2v-6h2c.83 0 1.5.67 1.5 1.5v3c0 .83-.67 1.5-1.5 1.5zm-3.5 0h-2v-6h2c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1z"/>
-                                                        </svg>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-xs font-semibold text-slate-800 truncate" title={staged.name}>
-                                                    {staged.name}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-0.5">
-                                                    <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded ${
-                                                        staged.type === 'image' ? 'bg-indigo-100 text-indigo-700' : 'bg-rose-100 text-rose-700'
-                                                    }`}>
-                                                        {staged.type}
-                                                    </span>
-                                                    <span className="text-[10px] text-slate-400">
-                                                        {formatBytes(staged.size)}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRemoveStagedFile(staged.id)}
-                                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer transition-colors active:scale-95"
-                                                title="Remove file"
-                                            >
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
+                                    {/* Saved Media Items */}
+                                    {savedMedia.map((item) => (
+                                        <SavedMediaItem
+                                            key={item.fileId}
+                                            item={item}
+                                            onRemove={() => handleRemoveSavedMedia(item.fileId)}
+                                        />
+                                    ))}
+
+                                    {/* Newly Selected Pending Media Items */}
+                                    {pendingFiles.map((item) => (
+                                        <PendingMediaItem
+                                            key={item.id}
+                                            item={item}
+                                            onRemove={() => handleRemovePendingFile(item.id)}
+                                        />
                                     ))}
                                 </div>
                             </div>
@@ -579,56 +548,65 @@ const PostForm = ({ post }) => {
 
                 {/* Sidebar Settings Area */}
                 <div className="space-y-5">
-                    <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-5">
-                        <h3 className="text-base font-bold text-slate-800 border-b border-slate-100 pb-3">
+                    <div className="bg-white dark:bg-[#2E073F] rounded-2xl p-6 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs space-y-5">
+                        <h3 className="text-base font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-[#7A1CAC]/30 pb-3">
                             Publication Settings
                         </h3>
 
                         <Select
-                            options={["active", "inactive"]}
+                            options={['active', 'inactive']}
                             label="Status"
-                            {...register("status", { required: true })}
+                            {...register('status', { required: true })}
                         />
 
-                        {/* Featured Cover Image (Required for post cover) */}
+                        {/* Required Featured Image Picker */}
                         <div>
                             {(() => {
-                                const imageRegister = register("image", { required: !post && !existingImage && !selectedFile });
+                                const imageRegister = register('image', {
+                                    required: !post && !existingImage && !selectedFile,
+                                });
                                 return (
                                     <Input
-                                        label="Featured Cover Image"
+                                        label="Featured Cover Image *"
                                         type="file"
                                         accept="image/png, image/jpg, image/jpeg, image/gif, image/webp"
                                         {...imageRegister}
                                         onChange={(e) => {
                                             imageRegister.onChange(e);
-                                            handleCoverImageChange(e);
+                                            handleImageChange(e);
                                         }}
                                     />
                                 );
                             })()}
                             {previewUrl && (
-                                <div className="mt-3 relative rounded-xl overflow-hidden border border-slate-200 aspect-video bg-slate-50 flex items-center justify-center">
+                                <div className="mt-3 relative rounded-xl overflow-hidden border border-slate-200 dark:border-[#7A1CAC]/40 aspect-video bg-slate-50 dark:bg-[#240632] flex items-center justify-center">
                                     <img
                                         src={previewUrl}
-                                        alt="Cover Preview"
+                                        alt="Preview"
                                         className="w-full h-full object-cover"
                                     />
-                                    <span className="absolute bottom-2 left-2 px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-black/60 text-white backdrop-blur-xs">
-                                        Cover Image
-                                    </span>
                                 </div>
                             )}
                         </div>
 
                         <div className="pt-2">
-                            <Button 
-                                type="submit" 
+                            <Button
+                                type="submit"
                                 loading={loading}
                                 className="w-full py-3 text-base font-semibold shadow-md"
-                                bgColor={post ? "bg-emerald-600 hover:bg-emerald-700" : "bg-indigo-600 hover:bg-indigo-700"}
+                                bgColor={
+                                    post
+                                        ? 'bg-emerald-600 hover:bg-emerald-700'
+                                        : 'bg-[#7A1CAC] hover:bg-[#AD49E1]'
+                                }
                             >
-                                {post ? (loading ? "Updating Post..." : "Update Story") : (loading ? "Publishing..." : "Publish Story")}
+                                {post
+                                    ? loading
+                                        ? 'Updating Post...'
+                                        : 'Update Story'
+                                    : loading
+                                    ? 'Publishing...'
+                                    : 'Publish Story'}
                             </Button>
                         </div>
                     </div>
@@ -637,6 +615,121 @@ const PostForm = ({ post }) => {
         </form>
     );
 };
+
+function SavedMediaItem({ item, onRemove }) {
+    const [imgSrc, setImgSrc] = useState(
+        item.type === 'image' ? appwriteService.getFilePreview(item.fileId) : null
+    );
+
+    const handleImgError = () => {
+        const viewUrl = appwriteService.getFileView(item.fileId);
+        if (viewUrl && viewUrl !== imgSrc) {
+            setImgSrc(viewUrl);
+        }
+    };
+
+    return (
+        <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-[#7A1CAC]/30 bg-white dark:bg-[#240632] hover:border-slate-300 dark:hover:border-[#AD49E1] transition-all shadow-xs gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+                {item.type === 'image' ? (
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-[#190325] border border-slate-200 dark:border-[#7A1CAC]/40 flex-shrink-0 flex items-center justify-center">
+                        {imgSrc ? (
+                            <img
+                                src={imgSrc}
+                                alt={item.name}
+                                onError={handleImgError}
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <span className="text-[10px] text-slate-400 dark:text-[#EBD3F8]/60">IMG</span>
+                        )}
+                    </div>
+                ) : (
+                    <div className="w-12 h-12 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 flex flex-col items-center justify-center flex-shrink-0 font-bold text-xs">
+                        <span>PDF</span>
+                    </div>
+                )}
+                <div className="min-w-0">
+                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate" title={item.name}>
+                        {item.name}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
+                            Saved
+                        </span>
+                        {item.size && (
+                            <span className="text-[11px] text-slate-400 dark:text-[#EBD3F8]/60">
+                                {formatFileSize(item.size)}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+            <button
+                type="button"
+                onClick={onRemove}
+                title="Remove attached file"
+                aria-label={`Remove ${item.name}`}
+                className="p-1.5 rounded-lg text-slate-400 dark:text-[#EBD3F8]/60 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer flex-shrink-0"
+            >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                </svg>
+            </button>
+        </div>
+    );
+}
+
+function PendingMediaItem({ item, onRemove }) {
+    return (
+        <div className="flex items-center justify-between p-3 rounded-xl border border-[#7A1CAC]/30 dark:border-[#7A1CAC]/40 bg-[#EBD3F8]/20 dark:bg-[#240632] hover:border-[#AD49E1] transition-all shadow-xs gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+                {item.type === 'image' && item.previewUrl ? (
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-[#190325] border border-[#7A1CAC]/40 flex-shrink-0">
+                        <img
+                            src={item.previewUrl}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                ) : (
+                    <div className="w-12 h-12 rounded-lg bg-rose-100 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 flex flex-col items-center justify-center flex-shrink-0 font-bold text-xs">
+                        <span>PDF</span>
+                    </div>
+                )}
+                <div className="min-w-0">
+                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate" title={item.name}>
+                        {item.name}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#EBD3F8] dark:bg-[#7A1CAC]/40 text-[#7A1CAC] dark:text-[#EBD3F8]">
+                            New Upload
+                        </span>
+                        <span className="text-[11px] text-slate-500 dark:text-[#EBD3F8]/60">
+                            {formatFileSize(item.size)}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <button
+                type="button"
+                onClick={onRemove}
+                title="Remove pending file"
+                aria-label={`Remove ${item.name}`}
+                className="p-1.5 rounded-lg text-slate-400 dark:text-[#EBD3F8]/60 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer flex-shrink-0"
+            >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    );
+}
 
 export default PostForm;
 

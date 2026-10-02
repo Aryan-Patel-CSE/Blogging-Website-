@@ -1,5 +1,94 @@
+
 import config from '../conf/config'
 import { Client, Databases, Storage, Query, ID } from 'appwrite'
+
+
+/**
+ * Safely normalizes media data from the database into an array of media objects.
+ * Handles missing, null, undefined, JSON string, or malformed media data.
+ *
+ * @param {string|Array|null|undefined} rawMedia
+ * @returns {Array<{fileId: string, name: string, mimeType: string, type: 'image'|'pdf', size?: number}>}
+ */
+export function parseMedia(rawMedia) {
+    if (!rawMedia) return [];
+    let parsed = rawMedia;
+    if (typeof rawMedia === 'string') {
+        const trimmed = rawMedia.trim();
+        if (!trimmed || trimmed === '[]') return [];
+        try {
+            parsed = JSON.parse(trimmed);
+        } catch (e) {
+            console.warn('Appwrite service :: parseMedia :: Failed to parse media string', e);
+            return [];
+        }
+    }
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+        .filter((item) => item && typeof item === 'object' && item.fileId)
+        .map((item) => {
+            const fileName = item.name ? String(item.name) : 'Attachment';
+            const mimeType = item.mimeType ? String(item.mimeType) : '';
+            const isPdf =
+                item.type === 'pdf' ||
+                mimeType === 'application/pdf' ||
+                fileName.toLowerCase().endsWith('.pdf');
+
+            return {
+                fileId: String(item.fileId),
+                name: fileName,
+                mimeType: mimeType || (isPdf ? 'application/pdf' : 'image/jpeg'),
+                type: isPdf ? 'pdf' : 'image',
+                ...(typeof item.size === 'number' ? { size: item.size } : {}),
+            };
+        });
+}
+
+const MEDIA_COMMENT_PREFIX = '<!--INKSPACE_MEDIA:';
+const MEDIA_COMMENT_SUFFIX = '-->';
+
+/**
+ * Encodes additional media array into an HTML comment block appended to content.
+ * Used as a zero-configuration fallback when the Appwrite database collection
+ * schema does not have a dedicated 'media' string attribute.
+ */
+export function embedMediaInContent(content = '', mediaList = []) {
+    const cleanContent = stripMediaFromContent(content);
+    const validMedia = parseMedia(mediaList);
+    if (!validMedia || validMedia.length === 0) {
+        return cleanContent;
+    }
+    const encoded = encodeURIComponent(JSON.stringify(validMedia));
+    return `${cleanContent}\n${MEDIA_COMMENT_PREFIX}${encoded}${MEDIA_COMMENT_SUFFIX}`;
+}
+
+/**
+ * Removes any INKSPACE_MEDIA comment blocks from content.
+ */
+export function stripMediaFromContent(content = '') {
+    if (!content || typeof content !== 'string') return '';
+    return content.replace(/<!--INKSPACE_MEDIA:[\s\S]*?-->/g, '').trimEnd();
+}
+
+/**
+ * Extracts and decodes media array from content comment blocks if present.
+ */
+export function extractMediaFromContent(content = '') {
+    if (!content || typeof content !== 'string') return { content: '', media: [] };
+    const match = content.match(/<!--INKSPACE_MEDIA:([\s\S]*?)-->/);
+    if (match && match[1]) {
+        try {
+            const decoded = decodeURIComponent(match[1].trim());
+            const parsed = parseMedia(decoded);
+            const cleanContent = content.replace(/<!--INKSPACE_MEDIA:[\s\S]*?-->/g, '').trimEnd();
+            return { content: cleanContent, media: parsed };
+        } catch (e) {
+            console.warn('Appwrite service :: extractMediaFromContent :: Failed to parse embedded media', e);
+        }
+    }
+    return { content, media: [] };
+}
 
 export class Service {
     client = new Client();
@@ -14,92 +103,80 @@ export class Service {
         this.bucket = new Storage(this.client);
     }
 
-    parseMedia(media) {
-        if (!media) return [];
-        if (Array.isArray(media)) {
-            return media.filter(
-                (item) => item && typeof item === 'object' && typeof item.fileId === 'string'
-            );
-        }
-        if (typeof media === 'string') {
-            try {
-                const parsed = JSON.parse(media);
-                if (Array.isArray(parsed)) {
-                    return parsed.filter(
-                        (item) => item && typeof item === 'object' && typeof item.fileId === 'string'
-                    );
-                }
-            } catch (e) {
-                console.warn('Appwrite service :: parseMedia :: failed to parse media JSON', e);
-            }
-        }
-        return [];
+    parseMedia(rawMedia) {
+        return parseMedia(rawMedia);
     }
 
-    formatMediaForSave(media) {
-        if (!media) return JSON.stringify([]);
-        if (typeof media === 'string') {
-            try {
-                const parsed = JSON.parse(media);
-                if (Array.isArray(parsed)) {
-                    return JSON.stringify(parsed);
-                }
-            } catch {
-                return JSON.stringify([]);
-            }
-        }
-        if (Array.isArray(media)) {
-            const sanitized = media
-                .filter((item) => item && typeof item === 'object' && item.fileId)
-                .map((item) => ({
-                    fileId: String(item.fileId),
-                    name: String(item.name || 'attachment'),
-                    mimeType: String(item.mimeType || (item.type === 'pdf' ? 'application/pdf' : 'image/jpeg')),
-                    type: item.type === 'pdf' ? 'pdf' : 'image',
-                }));
-            return JSON.stringify(sanitized);
-        }
-        return JSON.stringify([]);
-    }
+    async createPost({ title, slug, content, featuredImage, featuredimage, status, userId, userid, media = [] }) {
+        const imageId = featuredimage || featuredImage;
+        const uid = userid || userId;
+        const validMedia = parseMedia(media);
+        const serializedMedia = JSON.stringify(validMedia);
 
-    async createPost({ title, slug, content, featuredImage, featuredimage, status, userId, userid, media }) {
+        // 1. First attempt: create document with native 'media' attribute
         try {
-            const imageId = featuredimage || featuredImage;
-            const uid = userid || userId;
-            const payload = {
-                title,
-                content,
-                featuredimage: imageId,
-                status,
-                userid: uid,
-            };
-            if (media !== undefined) {
-                payload.media = this.formatMediaForSave(media);
-            }
             return await this.databases.createDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
                 slug,
-                payload
+                {
+                    title,
+                    content,
+                    featuredimage: imageId,
+                    status,
+                    userid: uid,
+                    media: serializedMedia,
+                }
             );
         } catch (error) {
+            const isUnknownMediaAttr =
+                error?.message &&
+                error.message.toLowerCase().includes('unknown attribute') &&
+                error.message.toLowerCase().includes('media');
+
+            // 2. Schema Fallback: If Appwrite collection doesn't have the 'media' attribute,
+            // embed media metadata seamlessly into post content so post creation succeeds!
+            if (isUnknownMediaAttr) {
+                console.info(
+                    "Appwrite schema missing 'media' attribute. Seamlessly storing attachments in post content."
+                );
+                const contentWithMedia =
+                    validMedia.length > 0 ? embedMediaInContent(content, validMedia) : content;
+
+                return await this.databases.createDocument(
+                    config.appwriteDatabaseId,
+                    config.appwriteTableId,
+                    slug,
+                    {
+                        title,
+                        content: contentWithMedia,
+                        featuredimage: imageId,
+                        status,
+                        userid: uid,
+                    }
+                );
+            }
+
             console.error('Appwrite service :: createPost :: error', error);
             throw error;
         }
     }
 
     async updatePost(slug, { title, content, featuredImage, featuredimage, status, media }) {
+        const imageId = featuredimage || featuredImage;
+        const validMedia = media !== undefined ? parseMedia(media) : undefined;
+        const payload = {
+            title,
+            content,
+            featuredimage: imageId,
+            status,
+        };
+
+        if (validMedia !== undefined) {
+            payload.media = JSON.stringify(validMedia);
+        }
+
         try {
-            const imageId = featuredimage || featuredImage;
-            const payload = {
-                title,
-                content,
-                featuredimage: imageId,
-                status
-            };
-            if (media !== undefined) {
-                payload.media = this.formatMediaForSave(media);
-            }
             return await this.databases.updateDocument(
                 config.appwriteDatabaseId,
                 config.appwriteTableId,
@@ -107,6 +184,32 @@ export class Service {
                 payload
             );
         } catch (error) {
+            const isUnknownMediaAttr =
+                error?.message &&
+                error.message.toLowerCase().includes('unknown attribute') &&
+                error.message.toLowerCase().includes('media');
+
+            // Schema Fallback on update
+            if (isUnknownMediaAttr) {
+                console.info(
+                    "Appwrite schema missing 'media' attribute on update. Embedding attachments in content."
+                );
+                delete payload.media;
+                if (validMedia !== undefined) {
+                    payload.content =
+                        validMedia.length > 0
+                            ? embedMediaInContent(content, validMedia)
+                            : stripMediaFromContent(content);
+                }
+
+                return await this.databases.updateDocument(
+                    config.appwriteDatabaseId,
+                    config.appwriteTableId,
+                    slug,
+                    payload
+                );
+            }
+
             console.error('Appwrite service :: updatePost :: error', error);
             throw error;
         }
@@ -140,7 +243,12 @@ export class Service {
                 post.featuredimage = img;
                 post.userId = uid;
                 post.userid = uid;
-                post.media = this.parseMedia(post.media);
+
+                // Check native media attribute first, then fallback to embedded content
+                const directMedia = parseMedia(post.media);
+                const { content: cleanContent, media: embeddedMedia } = extractMediaFromContent(post.content);
+                post.content = cleanContent;
+                post.media = directMedia.length > 0 ? directMedia : embeddedMedia;
             }
             return post;
         } catch (error) {
@@ -164,7 +272,11 @@ export class Service {
                     post.featuredimage = img;
                     post.userId = uid;
                     post.userid = uid;
-                    post.media = this.parseMedia(post.media);
+
+                    const directMedia = parseMedia(post.media);
+                    const { content: cleanContent, media: embeddedMedia } = extractMediaFromContent(post.content);
+                    post.content = cleanContent;
+                    post.media = directMedia.length > 0 ? directMedia : embeddedMedia;
                     return post;
                 });
             }
@@ -202,14 +314,6 @@ export class Service {
             console.error('Appwrite service :: deleteFile :: error', error);
             return false;
         }
-    }
-
-    async deleteFiles(fileIds = []) {
-        if (!fileIds || !fileIds.length) return [];
-        const uniqueIds = Array.from(new Set(fileIds.filter(Boolean)));
-        return await Promise.allSettled(
-            uniqueIds.map((id) => this.deleteFile(id))
-        );
     }
 
     getFilePreview(fileId) {
@@ -271,4 +375,4 @@ export class Service {
 
 const service = new Service();
 
-export default service;
+export default service;

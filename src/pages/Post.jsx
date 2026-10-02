@@ -1,9 +1,16 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import appwriteService from "../appwrite/conf";
 import { Button, Container } from "../components";
 import parse from "html-react-parser";
 import { useSelector } from "react-redux";
+
+function formatFileSize(bytes) {
+    if (!bytes || typeof bytes !== "number") return "";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export default function Post() {
     const [post, setPost] = useState(null);
@@ -16,6 +23,13 @@ export default function Post() {
     const currentUserId = userData?.$id || userData?.userData?.$id;
     const authorId = post?.userid || post?.userId;
     const isAuthor = post && currentUserId ? authorId === currentUserId : false;
+    const storedAuthorName = typeof post?.author === "string" ? post.author : post?.author?.name;
+    const authorName =
+        post?.authorName ||
+        storedAuthorName ||
+        post?.username ||
+        (authorId === currentUserId ? userData?.name || userData?.userData?.name : null) ||
+        "InkSpace author";
 
     useEffect(() => {
         if (slug) {
@@ -43,31 +57,33 @@ export default function Post() {
 
         setDeleting(true);
         try {
-            // 1. Delete the post database record FIRST
+            // Delete post record first
             const status = await appwriteService.deletePost(post.$id);
             if (status) {
-                // 2. Only after database record deletion succeeds, delete all associated media files
-                const fileIdsToDelete = new Set();
+                // Collect all associated media files and cover image
+                // Ensure each file is only deleted once and retained files are protected
+                const filesToDelete = new Set();
                 const coverId = post.featuredimage || post.featuredImage;
-                if (coverId && typeof coverId === 'string') {
-                    fileIdsToDelete.add(coverId);
+                if (coverId) {
+                    filesToDelete.add(coverId);
                 }
-
                 if (Array.isArray(post.media)) {
                     post.media.forEach((item) => {
-                        if (item?.fileId && typeof item.fileId === 'string') {
-                            fileIdsToDelete.add(item.fileId);
+                        if (item?.fileId) {
+                            filesToDelete.add(item.fileId);
                         }
                     });
                 }
 
-                if (fileIdsToDelete.size > 0) {
-                    await appwriteService.deleteFiles(Array.from(fileIdsToDelete));
+                if (filesToDelete.size > 0) {
+                    await Promise.allSettled(
+                        Array.from(filesToDelete).map((id) => appwriteService.deleteFile(id))
+                    );
                 }
 
                 navigate("/all-posts");
             } else {
-                alert("Failed to delete post record. Files were left untouched.");
+                alert("Failed to delete post record.");
             }
         } catch (error) {
             console.error("Error deleting post:", error);
@@ -80,8 +96,8 @@ export default function Post() {
     if (loading) {
         return (
             <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
-                <div className="w-10 h-10 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-                <p className="text-sm font-medium text-slate-500">Loading story...</p>
+                <div className="w-10 h-10 border-3 border-[#EBD3F8] dark:border-[#7A1CAC]/40 border-t-[#7A1CAC] dark:border-t-[#AD49E1] rounded-full animate-spin"></div>
+                <p className="text-sm font-medium text-slate-500 dark:text-[#EBD3F8]/70">Loading story...</p>
             </div>
         );
     }
@@ -92,96 +108,76 @@ export default function Post() {
     const initialUrl = imageId ? appwriteService.getFilePreview(imageId) : null;
 
     return (
-        <PostContent 
-            post={post} 
-            imageId={imageId} 
-            initialUrl={initialUrl} 
-            isAuthor={isAuthor} 
-            handleDeletePost={handleDeletePost} 
-            deleting={deleting} 
+        <PostContent
+            key={post.$id || imageId}
+            post={post}
+            imageId={imageId}
+            initialUrl={initialUrl}
+            isAuthor={isAuthor}
+            authorName={authorName}
+            handleDeletePost={handleDeletePost}
+            deleting={deleting}
         />
     );
 }
 
-function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, deleting }) {
-    const [fallbackUrl, setFallbackUrl] = useState(null);
+function PostContent({ post, imageId, initialUrl, isAuthor, authorName, handleDeletePost, deleting }) {
+    const [imgSrc, setImgSrc] = useState(initialUrl);
     const [imageError, setImageError] = useState(false);
-    const [lightboxIndex, setLightboxIndex] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
 
-    const imgSrc = fallbackUrl || initialUrl;
-
-    // Normalize and filter media
-    const mediaList = Array.isArray(post.media) ? post.media : [];
-    const galleryImages = mediaList.filter(
-        (item) => item?.type === 'image' || (!item?.type && !item?.name?.toLowerCase().endsWith('.pdf'))
-    );
-    const pdfDocuments = mediaList.filter(
-        (item) => item?.type === 'pdf' || item?.name?.toLowerCase().endsWith('.pdf')
-    );
+    // Close lightbox on Escape key
+    useEffect(() => {
+        if (!selectedImage) return;
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                setSelectedImage(null);
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [selectedImage]);
 
     const handleImageError = () => {
         if (imageId && imgSrc && imgSrc.includes('/preview?')) {
             const viewUrl = appwriteService.getFileView(imageId);
             if (viewUrl && viewUrl !== imgSrc) {
-                setFallbackUrl(viewUrl);
+                setImgSrc(viewUrl);
                 return;
             }
         }
         setImageError(true);
     };
 
-    // Lightbox handlers
-    const openLightbox = (index) => setLightboxIndex(index);
-    const closeLightbox = () => setLightboxIndex(null);
-    const nextLightboxImage = useCallback(() => {
-        if (galleryImages.length > 0) {
-            setLightboxIndex((prev) => (prev + 1) % galleryImages.length);
-        }
-    }, [galleryImages.length]);
-
-    const prevLightboxImage = useCallback(() => {
-        if (galleryImages.length > 0) {
-            setLightboxIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
-        }
-    }, [galleryImages.length]);
-
-    // Keyboard navigation for Lightbox
-    useEffect(() => {
-        if (lightboxIndex === null) return;
-        const handleKeyDown = (e) => {
-            if (e.key === "Escape") closeLightbox();
-            if (e.key === "ArrowRight") nextLightboxImage();
-            if (e.key === "ArrowLeft") prevLightboxImage();
-        };
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [lightboxIndex, nextLightboxImage, prevLightboxImage]);
+    const mediaList = Array.isArray(post.media) ? post.media : [];
+    const imageMedia = mediaList.filter((item) => item.type === "image");
+    const pdfMedia = mediaList.filter((item) => item.type === "pdf");
 
     return (
         <div className="py-8 md:py-12">
             <Container>
-                <article className="max-w-4xl mx-auto space-y-8 animate-fade-in-up">
+                <article className="max-w-4xl mx-auto space-y-8">
                     {/* Top Action Bar */}
                     <div className="flex items-center justify-between">
                         <Link
                             to="/all-posts"
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors group"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-[#EBD3F8]/70 hover:text-[#7A1CAC] dark:hover:text-[#AD49E1] transition-colors"
                         >
-                            <span className="transition-transform duration-200 group-hover:-translate-x-1">&larr;</span> Back to all stories
+                            &larr; Back to all stories
                         </Link>
 
                         {isAuthor && (
                             <div className="flex items-center gap-2">
                                 <Link to={`/edit-post/${post.$id}`}>
-                                    <button className="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 active:scale-95 rounded-xl transition-all shadow-xs cursor-pointer">
+                                    <button className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-[#EBD3F8] bg-white dark:bg-[#240632] border border-slate-300 dark:border-[#7A1CAC]/40 hover:bg-slate-50 dark:hover:bg-[#360a4a] rounded-xl transition-all shadow-xs cursor-pointer">
                                         Edit Story
                                     </button>
                                 </Link>
                                 <Button
                                     onClick={handleDeletePost}
                                     loading={deleting}
-                                    bgColor="bg-rose-500 hover:bg-rose-600 active:scale-95"
-                                    className="px-4 py-2 text-xs font-bold rounded-xl transition-transform"
+                                    bgColor="bg-rose-500 hover:bg-rose-600"
+                                    className="px-4 py-2 text-xs font-bold rounded-xl"
                                 >
                                     Delete
                                 </Button>
@@ -193,172 +189,133 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                     <header className="space-y-4">
                         <div className="flex items-center gap-2">
                             {post.status && (
-                                <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider inline-flex items-center gap-1.5 ${
-                                    post.status === 'active' 
-                                        ? 'bg-emerald-100 text-emerald-800' 
-                                        : 'bg-slate-100 text-slate-700'
+                                <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider ${
+                                    post.status === 'active'
+                                        ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/50'
+                                        : 'bg-slate-100 dark:bg-[#240632] text-slate-700 dark:text-[#EBD3F8] border border-slate-200 dark:border-[#7A1CAC]/30'
                                 }`}>
-                                    {post.status === 'active' && (
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    )}
                                     {post.status}
                                 </span>
                             )}
                         </div>
 
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                             {post.title}
                         </h1>
                     </header>
 
-                    {/* Featured Cover Image */}
+                    {/* Featured Image Cover */}
                     {imgSrc && !imageError && (
-                        <div className="w-full aspect-[21/9] rounded-3xl overflow-hidden shadow-lg border border-slate-200/80 bg-slate-100 group">
+                        <div className="w-full aspect-[21/9] rounded-3xl overflow-hidden shadow-lg border border-slate-200/80 dark:border-[#7A1CAC]/40 bg-slate-100 dark:bg-[#240632]">
                             <img
                                 src={imgSrc}
                                 alt={post.title}
                                 onError={handleImageError}
-                                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                                className="w-full h-full object-cover"
                             />
                         </div>
                     )}
 
-                    {/* Article Content */}
-                    <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-xs">
-                        <div className="prose prose-slate prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-indigo-600 prose-img:rounded-2xl leading-relaxed text-slate-800">
+                    {/* Article Body Content */}
+                    <div className="bg-white dark:bg-[#2E073F] rounded-3xl p-6 sm:p-10 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs">
+                        <div className="prose prose-slate dark:prose-invert prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-[#7A1CAC] dark:prose-a:text-[#AD49E1] prose-img:rounded-2xl leading-relaxed text-slate-800 dark:text-slate-100">
                             {parse(post.content || '')}
                         </div>
                     </div>
 
-                    {/* Optional Story Gallery Section */}
-                    {galleryImages.length > 0 && (
-                        <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-5">
-                            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center transition-transform duration-300 hover:scale-105">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    {/* Additional Photo Gallery (if images present) */}
+                    {imageMedia.length > 0 && (
+                        <section className="bg-white dark:bg-[#2E073F] rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs space-y-4">
+                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#7A1CAC]/30 pb-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-xl bg-[#EBD3F8]/50 dark:bg-[#240632] flex items-center justify-center text-[#7A1CAC] dark:text-[#AD49E1]">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
                                     </div>
-                                    <div>
-                                        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Photo Gallery</h2>
-                                        <p className="text-xs text-slate-500">Click any image to view full screen</p>
-                                    </div>
+                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Photo Gallery</h2>
+                                    <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-[#EBD3F8] dark:bg-[#7A1CAC]/40 text-[#7A1CAC] dark:text-[#EBD3F8]">
+                                        {imageMedia.length}
+                                    </span>
                                 </div>
-                                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
-                                    {galleryImages.length} {galleryImages.length === 1 ? 'photo' : 'photos'}
-                                </span>
+                                <span className="text-xs text-slate-400 dark:text-[#EBD3F8]/60">Click to expand</span>
                             </div>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                {galleryImages.map((image, index) => {
-                                    const preview = appwriteService.getFilePreview(image.fileId);
-                                    return (
-                                        <button
-                                            key={image.fileId || index}
-                                            type="button"
-                                            onClick={() => openLightbox(index)}
-                                            style={{ animationDelay: `${index * 50}ms` }}
-                                            className="card-shine group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 focus:outline-none focus:ring-3 focus:ring-indigo-400 cursor-pointer shadow-xs hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 hover:border-indigo-300 transition-all duration-300 animate-fade-in-up"
-                                        >
-                                            <img
-                                                src={preview}
-                                                alt={image.name || `Gallery photo ${index + 1}`}
-                                                className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
-                                                loading="lazy"
-                                            />
-                                            <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/25 transition-colors flex items-center justify-center">
-                                                <div className="w-8 h-8 rounded-full bg-white/95 text-slate-800 opacity-0 group-hover:opacity-100 group-hover:scale-100 scale-75 transition-all duration-300 flex items-center justify-center shadow-md">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            {image.name && (
-                                                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-left opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                    <p className="text-[11px] text-white truncate font-medium">{image.name}</p>
-                                                </div>
-                                            )}
-                                        </button>
-                                    );
-                                })}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                {imageMedia.map((item, index) => (
+                                    <GalleryCard
+                                        key={item.fileId || index}
+                                        item={item}
+                                        onSelect={() => setSelectedImage(item)}
+                                    />
+                                ))}
                             </div>
                         </section>
                     )}
 
-                    {/* Optional PDF Attachments Section */}
-                    {pdfDocuments.length > 0 && (
-                        <section className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-4">
-                            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center transition-transform duration-300 hover:scale-105">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Documents & Attachments</h2>
-                                        <p className="text-xs text-slate-500">Download or view attached files for this story</p>
-                                    </div>
+                    {/* PDF Attachments & Documents (if PDFs present) */}
+                    {pdfMedia.length > 0 && (
+                        <section className="bg-white dark:bg-[#2E073F] rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-[#7A1CAC]/40 shadow-xs space-y-4">
+                            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-[#7A1CAC]/30 pb-4">
+                                <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
                                 </div>
-                                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
-                                    {pdfDocuments.length} {pdfDocuments.length === 1 ? 'file' : 'files'}
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Attachments & Documents</h2>
+                                <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300">
+                                    {pdfMedia.length}
                                 </span>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                                {pdfDocuments.map((doc, index) => {
-                                    const viewUrl = appwriteService.getFileView(doc.fileId);
-                                    const downloadUrl = appwriteService.getFileDownload(doc.fileId);
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {pdfMedia.map((item, index) => {
+                                    const viewUrl = appwriteService.getFileView(item.fileId);
+                                    const downloadUrl = appwriteService.getFileDownload(item.fileId) || viewUrl;
 
                                     return (
                                         <div
-                                            key={doc.fileId || index}
-                                            style={{ animationDelay: `${index * 70}ms` }}
-                                            className="card-shine flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300 hover:shadow-md hover:shadow-slate-200/50 hover:-translate-y-0.5 transition-all duration-300 group animate-fade-in-up"
+                                            key={item.fileId || index}
+                                            className="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200/90 dark:border-[#7A1CAC]/30 hover:border-[#7A1CAC] dark:hover:border-[#AD49E1] bg-slate-50/50 dark:bg-[#240632] hover:bg-white dark:hover:bg-[#310744] transition-all shadow-xs gap-3 group"
                                         >
-                                            <div className="flex items-center gap-3 min-w-0 pr-3">
-                                                <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex-shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9.5 8.5h-2V13H9c.55 0 1-.45 1-1v-.5c0-.55-.45-1-1-1zm6 3h-2v-6h2c.83 0 1.5.67 1.5 1.5v3c0 .83-.67 1.5-1.5 1.5zm-3.5 0h-2v-6h2c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1z"/>
-                                                    </svg>
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300 flex items-center justify-center font-black text-xs flex-shrink-0">
+                                                    PDF
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-xs font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors" title={doc.name}>
-                                                        {doc.name || 'Document.pdf'}
+                                                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate group-hover:text-[#7A1CAC] dark:group-hover:text-[#AD49E1] transition-colors" title={item.name}>
+                                                        {item.name}
                                                     </p>
-                                                    <span className="text-[10px] uppercase font-bold text-rose-600 tracking-wider">
-                                                        PDF Attachment
-                                                    </span>
+                                                    <p className="text-xs text-slate-400 dark:text-[#EBD3F8]/60">
+                                                        {item.size ? formatFileSize(item.size) : 'PDF Document'}
+                                                    </p>
                                                 </div>
                                             </div>
-
-                                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                                            <div className="flex items-center gap-2 flex-shrink-0">
                                                 {viewUrl && (
                                                     <a
                                                         href={viewUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-indigo-600 active:scale-95 transition-all inline-flex items-center gap-1"
-                                                        title="Open in new tab"
+                                                        aria-label={`View document ${item.name} in new tab`}
+                                                        className="px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-[#EBD3F8] bg-white dark:bg-[#190325] hover:bg-slate-100 dark:hover:bg-[#360a4a] border border-slate-200 dark:border-[#7A1CAC]/40 rounded-lg transition-colors cursor-pointer"
                                                     >
-                                                        <span>View</span>
-                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                                        </svg>
+                                                        View
                                                     </a>
                                                 )}
                                                 {downloadUrl && (
                                                     <a
                                                         href={downloadUrl}
-                                                        download={doc.name || "download.pdf"}
-                                                        className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95 transition-all inline-flex items-center gap-1 shadow-2xs"
-                                                        title="Download attachment"
+                                                        download={item.name}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        aria-label={`Download document ${item.name}`}
+                                                        className="px-3 py-1.5 text-xs font-semibold text-white bg-[#7A1CAC] hover:bg-[#AD49E1] rounded-lg transition-colors cursor-pointer shadow-xs inline-flex items-center gap-1"
                                                     >
-                                                        <span>Download</span>
-                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                                         </svg>
+                                                        Download
                                                     </a>
                                                 )}
                                             </div>
@@ -368,81 +325,63 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
                             </div>
                         </section>
                     )}
+
+                    <footer className="flex items-center gap-3 rounded-2xl border border-slate-200/80 dark:border-[#7A1CAC]/40 bg-white dark:bg-[#2E073F] p-5 shadow-xs">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#EBD3F8] text-lg font-bold text-[#7A1CAC] dark:bg-[#7A1CAC]/40 dark:text-[#EBD3F8]" aria-hidden="true">
+                            {authorName.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#EBD3F8]/65">
+                                Written by
+                            </p>
+                            <p className="mt-0.5 text-sm font-bold text-slate-900 dark:text-white">
+                                {authorName}
+                            </p>
+                        </div>
+                    </footer>
                 </article>
             </Container>
 
-            {/* Interactive Image Lightbox Modal */}
-            {lightboxIndex !== null && galleryImages[lightboxIndex] && (
-                <div 
-                    role="dialog" 
-                    aria-modal="true" 
-                    aria-label="Image Preview"
-                    className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-fadeIn transition-opacity duration-300"
-                    onClick={closeLightbox}
+            {/* Lightbox Modal for Gallery Images */}
+            {selectedImage && (
+                <div
+                    className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+                    onClick={() => setSelectedImage(null)}
                 >
-                    {/* Close Button */}
-                    <button
-                        type="button"
-                        onClick={closeLightbox}
-                        className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/80 hover:text-white p-2.5 rounded-full bg-white/10 hover:bg-white/25 hover:scale-110 active:scale-95 transition-all duration-200 z-20 cursor-pointer shadow-lg"
-                        title="Close preview (Esc)"
-                    >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-
-                    {/* Previous Button */}
-                    {galleryImages.length > 1 && (
-                        <button
-                            type="button"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                prevLightboxImage();
-                            }}
-                            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 rounded-full bg-white/10 hover:bg-white/25 hover:scale-110 active:scale-95 transition-all duration-200 z-20 cursor-pointer shadow-lg"
-                            title="Previous image (Left arrow)"
-                        >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
-                            </svg>
-                        </button>
-                    )}
-
-                    {/* Next Button */}
-                    {galleryImages.length > 1 && (
-                        <button
-                            type="button"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                nextLightboxImage();
-                            }}
-                            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 rounded-full bg-white/10 hover:bg-white/25 hover:scale-110 active:scale-95 transition-all duration-200 z-20 cursor-pointer shadow-lg"
-                            title="Next image (Right arrow)"
-                        >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </button>
-                    )}
-
-                    {/* Image Preview Container */}
-                    <div 
-                        className="relative max-w-4xl max-h-[85vh] flex flex-col items-center justify-center animate-scale-in"
+                    <div
+                        className="relative max-w-4xl max-h-[90vh] bg-white dark:bg-[#2E073F] rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-[#7A1CAC]/50 flex flex-col"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <img
-                            src={appwriteService.getFileView(galleryImages[lightboxIndex].fileId) || appwriteService.getFilePreview(galleryImages[lightboxIndex].fileId)}
-                            alt={galleryImages[lightboxIndex].name || "Gallery Image"}
-                            className="max-w-full max-h-[75vh] object-contain rounded-2xl shadow-2xl transition-transform duration-300"
-                        />
-                        <div className="mt-3 flex items-center justify-between w-full text-white/90 text-xs px-2">
-                            <span className="font-medium truncate max-w-[70%]">
-                                {galleryImages[lightboxIndex].name || `Photo ${lightboxIndex + 1}`}
-                            </span>
-                            <span className="text-white/60 font-mono">
-                                {lightboxIndex + 1} / {galleryImages.length}
-                            </span>
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-[#7A1CAC]/40 bg-white dark:bg-[#2E073F]">
+                            <p className="text-sm font-semibold text-slate-800 dark:text-white truncate pr-4">
+                                {selectedImage.name}
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <a
+                                    href={appwriteService.getFileView(selectedImage.fileId) || '#'}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs font-semibold text-[#7A1CAC] dark:text-[#AD49E1] hover:text-[#AD49E1] dark:hover:text-[#EBD3F8] px-2 py-1 rounded-md hover:bg-[#EBD3F8]/40 dark:hover:bg-[#240632] transition-colors"
+                                >
+                                    Open Full Size &rarr;
+                                </a>
+                                <button
+                                    onClick={() => setSelectedImage(null)}
+                                    aria-label="Close modal"
+                                    className="p-1 rounded-lg text-slate-400 dark:text-[#EBD3F8]/70 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#240632] transition-colors cursor-pointer"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div className="p-2 sm:p-4 bg-black/90 dark:bg-[#190325] flex items-center justify-center max-h-[75vh] overflow-auto">
+                            <img
+                                src={appwriteService.getFilePreview(selectedImage.fileId) || appwriteService.getFileView(selectedImage.fileId)}
+                                alt={selectedImage.name}
+                                className="max-w-full max-h-[70vh] object-contain rounded-xl"
+                            />
                         </div>
                     </div>
                 </div>
@@ -450,3 +389,47 @@ function PostContent({ post, imageId, initialUrl, isAuthor, handleDeletePost, de
         </div>
     );
 }
+
+function GalleryCard({ item, onSelect }) {
+    const previewUrl = appwriteService.getFilePreview(item.fileId);
+    const [src, setSrc] = useState(previewUrl);
+    const [hasError, setHasError] = useState(false);
+
+    const handleError = () => {
+        const viewUrl = appwriteService.getFileView(item.fileId);
+        if (viewUrl && viewUrl !== src) {
+            setSrc(viewUrl);
+        } else {
+            setHasError(true);
+        }
+    };
+
+    return (
+        <div
+            onClick={onSelect}
+            className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#240632] border border-slate-200 dark:border-[#7A1CAC]/40 hover:border-[#7A1CAC] dark:hover:border-[#AD49E1] cursor-pointer shadow-xs hover:shadow-md transition-all duration-200"
+        >
+            {!hasError && src ? (
+                <img
+                    src={src}
+                    alt={item.name}
+                    onError={handleError}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+            ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center p-3 text-slate-400 dark:text-[#EBD3F8]/60 text-xs">
+                    <svg className="w-8 h-8 mb-1 text-slate-300 dark:text-[#7A1CAC]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{item.name}</span>
+                </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                <p className="text-xs text-white font-medium truncate w-full">
+                    {item.name}
+                </p>
+            </div>
+        </div>
+    );
+}
+

@@ -1,26 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 import { Outlet } from 'react-router-dom';
 import authservice from './appwrite/auth';
 import { login, logout } from './store/authSlice';
-import { Header, Footer, Logo } from './components';
+import { Footer, Header } from './components';
+import './App.css';
 
 const App = () => {
   const [loading, setLoading] = useState(true);
-  const [darkTheme, setDarkTheme] = useState(
-    () => window.localStorage.getItem('theme') === 'dark',
-  );
   const dispatch = useDispatch();
 
   useEffect(() => {
-    document.documentElement.dataset.theme = darkTheme ? 'dark' : 'light';
-    window.localStorage.setItem('theme', darkTheme ? 'dark' : 'light');
-  }, [darkTheme]);
+    let active = true;
+    let loadingTimer;
+    const startedAt = Date.now();
+    const minimumLoadingDuration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ? 500
+      : 2600;
 
-  useEffect(() => {
-    authservice
-      .getCurrentUser()
+    authservice.getCurrentUser()
       .then((userData) => {
         if (userData) {
           dispatch(login(userData));
@@ -32,27 +31,46 @@ const App = () => {
         console.error('App :: getCurrentUser :: error', error);
         dispatch(logout());
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        const remainingDuration = Math.max(
+          0,
+          minimumLoadingDuration - (Date.now() - startedAt),
+        );
+        loadingTimer = window.setTimeout(() => {
+          if (active) setLoading(false);
+        }, remainingDuration);
+      });
+
+    return () => {
+      active = false;
+      window.clearTimeout(loadingTimer);
+    };
   }, [dispatch]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
-        <Logo width="180px" />
-        <div className="w-8 h-8 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mt-2"></div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-          Loading InkSpace...
-        </p>
+      <div className="welcome-splash" role="status" aria-live="polite">
+        <div className="welcome-splash__content">
+          <span className="welcome-splash__sr-only">Hello. Welcome to InkSpace.</span>
+          <h1 className="welcome-splash__hello" aria-hidden="true">
+            {'Hello'.split('').map((letter, index) => (
+              <span key={`${letter}-${index}`}>{letter}</span>
+            ))}
+          </h1>
+          <p className="welcome-splash__title">Welcome to InkSpace</p>
+          <p className="welcome-splash__tagline">Stories, perspectives &amp; ideas—just for you.</p>
+          <div className="welcome-splash__loading" aria-hidden="true">
+            <span>Opening your space</span>
+            <span className="welcome-splash__dots"><i /><i /><i /></span>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-indigo-500 selection:text-white">
-      <Header
-        darkTheme={darkTheme}
-        onToggleTheme={() => setDarkTheme((currentTheme) => !currentTheme)}
-      />
+    <div className="min-h-screen flex flex-col bg-[#fbf9fe] dark:bg-[#190325] text-slate-900 dark:text-slate-100 selection:bg-[#AD49E1] selection:text-white transition-colors duration-200">
+      <Header />
       <main className="flex-1 w-full">
         <Outlet />
       </main>

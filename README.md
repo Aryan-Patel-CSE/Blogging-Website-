@@ -159,3 +159,31 @@ Reusable building blocks (`Input`, `Select`, `Button`, `Logo`, `PostCard`) are p
 2. **Synchronous Effect Pitfalls:** Invoking state updaters synchronously at the start of `useEffect` triggers cascading re-render cycles. Initializing state with default values and deriving boolean flags declaratively produces smoother, warning-free renders.
 3. **Decoupled Architecture:** Wrapping third-party SDKs behind dedicated service wrappers creates cleaner code, simplifies debugging, and centralizes error handling.
 4. **Design Precision Matters:** A well-considered color palette, consistent typography, responsive drawer navigation, and subtle micro-interactions transform a functional project into a memorable, consumer-grade product.
+
+---
+
+## Appwrite Backend Setup Instructions
+
+### 1. Database Collection (`posts` / Articles)
+To support multi-image galleries and PDF attachments, add the following attribute to your Posts collection in the Appwrite Console:
+
+- **Navigate:** Databases &rarr; *[Your Database]* &rarr; *[Your Posts Collection]* &rarr; **Attributes**
+- **Attribute Type:** `String`
+- **Attribute Key:** `media`
+- **Size:** `65535` (or at least `10000`)
+- **Required:** `false` (Optional)
+- **Default Value:** `[]` or leave empty
+
+> **Note on Backward Compatibility:** Existing post documents without the `media` attribute will automatically default to an empty list `[]` without requiring a database migration. The existing `featuredimage` field continues to serve as the post cover.
+
+### 2. Storage Bucket Permissions & Settings
+Configure the Appwrite Storage bucket holding post cover images and attachments:
+
+- **Navigate:** Storage &rarr; *[Your Bucket]* &rarr; **Settings**
+- **Permissions:**
+  - `Any` (Role: Guests / Visitors): **Read**
+  - `Users` (Role: Authenticated Authors): **Create**, **Read**, **Update**, **Delete**
+- **Maximum File Size:** `10 MB` (or higher)
+- **Allowed File Extensions:** `png, jpg, jpeg, gif, webp, pdf`
+- **Encryption / Antivirus:** Enabled according to your security policy
+

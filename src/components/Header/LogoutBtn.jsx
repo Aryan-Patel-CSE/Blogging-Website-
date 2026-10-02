@@ -30,7 +30,7 @@ const LogoutBtn = () => {
         <button 
             onClick={logoutHandler}
             disabled={loading}
-            className='inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-slate-700 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200 cursor-pointer disabled:opacity-50'
+            className='inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-slate-700 dark:text-[#EBD3F8] hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all duration-200 cursor-pointer disabled:opacity-50'
             title="Log out of your account"
         >
             {loading ? (
