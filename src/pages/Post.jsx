@@ -136,6 +136,7 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
     const [likeCount, setLikeCount] = useState(0);
     const [dislikeCount, setDislikeCount] = useState(0);
     const [reaction, setReaction] = useState(null);
+    const [shareMessage, setShareMessage] = useState("");
 
     const handleLike = () => {
         if (reaction === "like") {
@@ -163,6 +164,46 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
             setDislikeCount((count) => count + 1);
         }
     };
+
+    const copyPostLink = async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            setShareMessage("Link copied!");
+        } catch (error) {
+            console.error("Post :: copyPostLink :: error", error);
+            setShareMessage("Unable to copy the link. Please copy it from your browser's address bar.");
+        }
+    };
+
+    const handleShare = async () => {
+        setShareMessage("");
+        const shareData = {
+            title: post.title,
+            text: `Read "${post.title}" on InkSpace`,
+            url: window.location.href,
+        };
+
+        if (typeof navigator.share === "function") {
+            try {
+                await navigator.share(shareData);
+                setShareMessage("Thanks for sharing!");
+                return;
+            } catch (error) {
+                if (error?.name !== "AbortError") {
+                    console.error("Post :: sharePost :: error", error);
+                }
+            }
+        }
+
+        await copyPostLink();
+    };
+
+    useEffect(() => {
+        if (!shareMessage) return;
+
+        const timeoutId = window.setTimeout(() => setShareMessage(""), 5000);
+        return () => window.clearTimeout(timeoutId);
+    }, [shareMessage]);
 
     // Close lightbox on Escape key
     useEffect(() => {
@@ -269,7 +310,8 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
                         </div>
                     </div>
 
-                    <div className="post-reaction" role="group" aria-label="React to this post">
+                    <div className="flex flex-col items-start gap-2">
+                    <div className="post-reaction" role="group" aria-label="React to or share this post">
                         <button
                             type="button"
                             onClick={handleLike}
@@ -317,6 +359,27 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
                             </span>
                             <span key={dislikeCount} className="post-reaction__count" aria-live="polite">{dislikeCount}</span>
                         </button>
+
+                        <span className="post-reaction__divider" aria-hidden="true" />
+
+                        <button
+                            type="button"
+                            onClick={handleShare}
+                            aria-label="Share this post"
+                            className="post-reaction__button"
+                        >
+                            <span className="post-reaction__icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="18" cy="5" r="3" />
+                                    <circle cx="6" cy="12" r="3" />
+                                    <circle cx="18" cy="19" r="3" />
+                                    <path d="m8.7 10.7 6.6-4.4m-6.6 7 6.6 4.4" />
+                                </svg>
+                            </span>
+                            <span className="text-sm font-semibold">Share</span>
+                        </button>
+                    </div>
+                    {shareMessage && <p className="text-xs font-medium text-slate-500 dark:text-[#EBD3F8]/70" role="status" aria-live="polite">{shareMessage}</p>}
                     </div>
 
                     <CommentSystem postId={postId} postAuthorId={postAuthorId} />
