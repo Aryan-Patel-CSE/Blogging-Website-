@@ -384,6 +384,203 @@ main a[class*="rounded-2xl"]:hover {
   clip-path: inset(50%);
 }
 
+.post-reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 3.5rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgb(148 163 184 / 0.2);
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #64748b;
+  box-shadow: 0 4px 14px rgb(15 23 42 / 0.06);
+}
+
+.dark .post-reaction {
+  border-color: rgb(122 28 172 / 0.3);
+  background: #240632;
+  color: #d9c7e3;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 0.14);
+}
+
+.post-reaction__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-width: 2.6rem;
+  min-height: 2.5rem;
+  padding: 0 0.45rem;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+main .post-reaction__button:hover {
+  transform: scale(1.07);
+  box-shadow: none;
+}
+
+main .post-reaction__button:active {
+  transform: scale(0.92);
+  box-shadow: none;
+}
+
+.post-reaction__button:focus-visible {
+  outline: 3px solid rgb(59 130 246 / 0.45);
+  outline-offset: 3px;
+}
+
+.dark .post-reaction__button:focus-visible {
+  outline-color: rgb(173 73 225 / 0.6);
+}
+
+.post-reaction__like.is-active {
+  color: #1d4ed8;
+}
+
+.dark .post-reaction__like.is-active {
+  color: #ad49e1;
+}
+
+.post-reaction__dislike.is-active {
+  color: #1d4ed8;
+}
+
+.dark .post-reaction__dislike.is-active {
+  color: #ad49e1;
+}
+
+.post-reaction__icon {
+  position: relative;
+  display: inline-flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-reaction__icon svg {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.post-reaction__icon--liked {
+  animation: post-like-pop 560ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.post-reaction__icon--liked::before {
+  position: absolute;
+  inset: -0.45rem;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  content: "";
+  animation: post-like-ring 560ms ease-out both;
+}
+
+.post-reaction__icon--disliked {
+  animation: post-like-pop 560ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.post-reaction__icon--disliked::before {
+  position: absolute;
+  inset: -0.45rem;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  content: "";
+  animation: post-like-ring 560ms ease-out both;
+}
+
+.post-reaction__spark {
+  position: absolute;
+  z-index: 0;
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 50%;
+  background: currentColor;
+  animation: post-like-spark 520ms ease-out both;
+}
+
+.post-reaction__spark--one {
+  top: -0.25rem;
+  left: 0.05rem;
+  --spark-x: -0.5rem;
+  --spark-y: -0.45rem;
+}
+
+.post-reaction__spark--two {
+  top: 0;
+  right: -0.3rem;
+  --spark-x: 0.55rem;
+  --spark-y: -0.35rem;
+}
+
+.post-reaction__spark--three {
+  right: -0.15rem;
+  bottom: 0;
+  --spark-x: 0.55rem;
+  --spark-y: 0.45rem;
+}
+
+.post-reaction__spark--four {
+  bottom: -0.2rem;
+  left: 0;
+  --spark-x: -0.45rem;
+  --spark-y: 0.4rem;
+}
+
+.post-reaction__count {
+  min-width: 1ch;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  animation: post-count-pop 280ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.post-reaction__divider {
+  width: 1px;
+  height: 1.55rem;
+  background: rgb(100 116 139 / 0.3);
+}
+
+.dark .post-reaction__divider {
+  background: rgb(217 199 227 / 0.3);
+}
+
+@keyframes post-like-pop {
+  0% { transform: scale(1) rotate(0); }
+  35% { transform: scale(1.45) rotate(-12deg); }
+  65% { transform: scale(0.88) rotate(7deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+@keyframes post-like-ring {
+  0% { opacity: 0.65; transform: scale(0.5); }
+  100% { opacity: 0; transform: scale(1.65); }
+}
+
+@keyframes post-like-spark {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--spark-x), var(--spark-y)) scale(0); }
+}
+
+@keyframes post-dislike-tap {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(0.2rem) scale(0.9); }
+}
+
+@keyframes post-count-pop {
+  0% { opacity: 0.5; transform: translateY(0.35rem) scale(0.75); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @keyframes welcome-content-in {
   from {
     opacity: 0;
@@ -405,13 +602,20 @@ main a[class*="rounded-2xl"]:hover {
   .welcome-splash::before,
   .welcome-splash::after,
   .welcome-splash__hello span,
-  .welcome-splash__dots i {
+  .welcome-splash__dots i,
+  .post-reaction__icon--liked,
+  .post-reaction__icon--liked::before,
+  .post-reaction__icon--disliked,
+  .post-reaction__icon--disliked::before,
+  .post-reaction__spark,
+  .post-reaction__count {
     animation: none;
   }
 
   main button:not(:disabled),
   header button:not(:disabled),
   .auth-card button:not(:disabled),
+  .post-reaction__button,
   main a[class*="rounded-xl"],
   main a[class*="rounded-2xl"] {
     transition: none;
@@ -420,6 +624,7 @@ main a[class*="rounded-2xl"]:hover {
   main button:not(:disabled):hover,
   header button:not(:disabled):hover,
   .auth-card button:not(:disabled):hover,
+  .post-reaction__button:hover,
   main a[class*="rounded-xl"]:hover,
   main a[class*="rounded-2xl"]:hover {
     transform: none;

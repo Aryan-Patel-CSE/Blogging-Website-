@@ -133,6 +133,36 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
     const [imgSrc, setImgSrc] = useState(initialUrl);
     const [imageError, setImageError] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [likeCount, setLikeCount] = useState(0);
+    const [dislikeCount, setDislikeCount] = useState(0);
+    const [reaction, setReaction] = useState(null);
+
+    const handleLike = () => {
+        if (reaction === "like") {
+            setReaction(null);
+            setLikeCount((count) => Math.max(0, count - 1));
+            return;
+        }
+
+        setReaction("like");
+        setLikeCount((count) => count + 1);
+        if (reaction === "dislike") {
+            setDislikeCount((count) => Math.max(0, count - 1));
+        }
+    };
+
+    const handleDislike = () => {
+        if (reaction === "dislike") {
+            setReaction(null);
+            setDislikeCount((count) => Math.max(0, count - 1));
+        } else {
+            setReaction("dislike");
+            if (reaction === "like") {
+                setLikeCount((count) => Math.max(0, count - 1));
+            }
+            setDislikeCount((count) => count + 1);
+        }
+    };
 
     // Close lightbox on Escape key
     useEffect(() => {
@@ -237,6 +267,56 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
                         <div className="prose prose-slate dark:prose-invert prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-[#1D4ED8] dark:prose-a:text-[#AD49E1] prose-img:rounded-2xl leading-relaxed text-slate-800 dark:text-slate-100">
                             {parse(post.content || '')}
                         </div>
+                    </div>
+
+                    <div className="post-reaction" role="group" aria-label="React to this post">
+                        <button
+                            type="button"
+                            onClick={handleLike}
+                            aria-label={`${reaction === "like" ? "Unlike" : "Like"} this post`}
+                            aria-pressed={reaction === "like"}
+                            className={`post-reaction__button post-reaction__like${reaction === "like" ? " is-active" : ""}`}
+                        >
+                            <span className={`post-reaction__icon${reaction === "like" ? " post-reaction__icon--liked" : ""}`} aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill={reaction === "like" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M7 10v12M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.5l4.2-7.3A2 2 0 0 1 15 5v.88Z" />
+                                </svg>
+                                {reaction === "like" && (
+                                    <>
+                                        <i className="post-reaction__spark post-reaction__spark--one" />
+                                        <i className="post-reaction__spark post-reaction__spark--two" />
+                                        <i className="post-reaction__spark post-reaction__spark--three" />
+                                        <i className="post-reaction__spark post-reaction__spark--four" />
+                                    </>
+                                )}
+                            </span>
+                            <span key={likeCount} className="post-reaction__count" aria-live="polite">{likeCount}</span>
+                        </button>
+
+                        <span className="post-reaction__divider" aria-hidden="true" />
+
+                        <button
+                            type="button"
+                            onClick={handleDislike}
+                            aria-label={`${reaction === "dislike" ? "Remove dislike from" : "Dislike"} this post`}
+                            aria-pressed={reaction === "dislike"}
+                            className={`post-reaction__button post-reaction__dislike${reaction === "dislike" ? " is-active" : ""}`}
+                        >
+                            <span className={`post-reaction__icon${reaction === "dislike" ? " post-reaction__icon--disliked" : ""}`} aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill={reaction === "dislike" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M17 14V2M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 7.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5l-4.2 7.3A2 2 0 0 1 9 19v-.88Z" />
+                                </svg>
+                                {reaction === "dislike" && (
+                                    <>
+                                        <i className="post-reaction__spark post-reaction__spark--one" />
+                                        <i className="post-reaction__spark post-reaction__spark--two" />
+                                        <i className="post-reaction__spark post-reaction__spark--three" />
+                                        <i className="post-reaction__spark post-reaction__spark--four" />
+                                    </>
+                                )}
+                            </span>
+                            <span key={dislikeCount} className="post-reaction__count" aria-live="polite">{dislikeCount}</span>
+                        </button>
                     </div>
 
                     <CommentSystem postId={postId} postAuthorId={postAuthorId} />
