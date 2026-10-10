@@ -17,7 +17,7 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   Light Mode Tokens: Machined Platinum & Aluminum Chassis
+   Light Mode Tokens: Machined Aircraft Aluminum & Platinum Chassis
    We use high-stop linear gradients to emulate metallic luster across plates.
    -------------------------------------------------------------------------- */
 [data-style="skeuomorphism"][data-theme="light"],
@@ -25,24 +25,24 @@
   /* Matte metallic slate background base */
   --app-bg: #DFE4EC;
 
-  /* Three-stop vertical gradient: bright specular crown down to milled silver */
-  --surface-bg: linear-gradient(180deg, #FFFFFF 0%, #F4F7FB 40%, #E4EAF2 100%);
-  --surface-hover: linear-gradient(180deg, #FFFFFF 0%, #FAFBFD 40%, #EBF0F7 100%);
-  --surface-active: #D9DFE8;
+  /* Five-stop vertical gradient: specular crown down to milled brushed aluminum */
+  --surface-bg: linear-gradient(180deg, #FFFFFF 0%, #F1F5FA 20%, #DCE5F1 50%, #BAC8D8 85%, #CBD7E7 100%);
+  --surface-hover: linear-gradient(180deg, #FFFFFF 0%, #FAFBFD 20%, #E7EEF8 50%, #C9D5E5 85%, #DCE6F3 100%);
+  --surface-active: #C8D4E2;
 
   /* Card slab gradient with a softer mid-falloff to preserve readability */
-  --surface-card: linear-gradient(180deg, #FFFFFF 0%, #F6F8FB 35%, #E4EAF3 100%);
-  --surface-card-thumb: #D8DFE9;
+  --surface-card: linear-gradient(180deg, #FFFFFF 0%, #F6F8FC 25%, #DEE6F2 60%, #C6D3E4 88%, #D6E1F0 100%);
+  --surface-card-thumb: #CAD5E4;
 
   /* High-contrast hardware engraved text colors */
-  --text-primary: #1E2530;
-  --text-secondary: #424D5D;
-  --text-muted: #64748B;
+  --text-primary: #141A24;
+  --text-secondary: #3B4657;
+  --text-muted: #5D6B7F;
   --text-inverse: #FFFFFF;
 
   /* Crisp metallic seam borders */
-  --border-color: #B2BDCC;
-  --border-color-subtle: #CBD5E1;
+  --border-color: #9AA9BC;
+  --border-color-subtle: #BAC7D8;
   --border-width: 1px;
   --border-style: solid;
 
@@ -53,44 +53,44 @@
   --radius-input: 0.75rem;
 
   /* Multi-layer physical lighting: floor drop-shadow + top edge highlight + bottom lip shadow */
-  --shadow-card: 0 6px 16px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(0, 0, 0, 0.14);
-  --shadow-card-hover: 0 12px 28px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 1), inset 0 -1px 0 rgba(0, 0, 0, 0.16);
-  --shadow-btn: 0 3px 6px rgba(0, 0, 0, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.75), inset 0 -1px 2px rgba(0, 0, 0, 0.25);
-  --shadow-inset: inset 0 3px 6px rgba(0, 0, 0, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.85);
-  --shadow-inset-sm: inset 0 2px 4px rgba(0, 0, 0, 0.14), inset 0 -1px 0 rgba(255, 255, 255, 0.8);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1.5px 0 #FFFFFF, inset 0 -1.5px 0 rgba(0, 0, 0, 0.22);
+  --shadow-card-hover: 0 14px 34px rgba(0, 0, 0, 0.18), 0 4px 8px rgba(0, 0, 0, 0.1), inset 0 1.5px 0 #FFFFFF, inset 0 -1.5px 0 rgba(0, 0, 0, 0.25);
+  --shadow-btn: 0 3px 7px rgba(0, 0, 0, 0.2), inset 0 1.5px 1px #FFFFFF, inset 0 -1.5px 2px rgba(0, 0, 0, 0.28);
+  --shadow-inset: inset 0 3px 6px rgba(0, 0, 0, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-inset-sm: inset 0 2px 4px rgba(0, 0, 0, 0.16), inset 0 -1px 0 rgba(255, 255, 255, 0.85);
 
-  /* Warm copper/amber illuminated LED accent */
-  --accent-primary: #E65A00;
-  --accent-primary-hover: #F2670D;
-  --accent-primary-active: #CC4E00;
+  /* Unified radiant brand orange illuminated indicator */
+  --accent-primary: #FF6B00;
+  --accent-primary-hover: #FF7F1F;
+  --accent-primary-active: #E65A00;
   --accent-primary-text: #FFFFFF;
-  --accent-glow: 0 4px 14px rgba(230, 90, 0, 0.35);
+  --accent-glow: 0 4px 16px rgba(255, 107, 0, 0.4);
 
   --font-family-base: 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-family-display: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
 /* --------------------------------------------------------------------------
-   Dark Mode Tokens: Anodized Dark Titanium & Gunmetal
-   Deep carbon tones with subtle specular rims to highlight device contours.
+   Dark Mode Tokens: Anodized Dark Titanium & Gunmetal Chassis
+   Deep carbon tones with metallic specular rims to highlight device contours.
    -------------------------------------------------------------------------- */
 [data-style="skeuomorphism"][data-theme="dark"] {
-  --app-bg: #12151B;
+  --app-bg: #101318;
 
   /* Three-stop gunmetal plate gradient with deep metallic absorption */
-  --surface-bg: linear-gradient(180deg, #292F39 0%, #1F242C 50%, #161920 100%);
-  --surface-hover: linear-gradient(180deg, #313844 0%, #252A34 50%, #1B1E26 100%);
-  --surface-active: #14171E;
-  --surface-card: linear-gradient(180deg, #272D36 0%, #1D222A 50%, #15181F 100%);
-  --surface-card-thumb: #101217;
+  --surface-bg: linear-gradient(180deg, #373F4D 0%, #252B35 25%, #181D24 55%, #2B3340 85%, #1C2129 100%);
+  --surface-hover: linear-gradient(180deg, #3E4756 0%, #2B323E 25%, #1C222A 55%, #323B4A 85%, #202630 100%);
+  --surface-active: #151920;
+  --surface-card: linear-gradient(180deg, #333B47 0%, #222832 25%, #161B22 55%, #272E3B 85%, #1A1F26 100%);
+  --surface-card-thumb: #0E1015;
 
-  --text-primary: #F1F5F9;
+  --text-primary: #F8FAFC;
   --text-secondary: #CBD5E1;
   --text-muted: #8E9BAE;
-  --text-inverse: #12151B;
+  --text-inverse: #101318;
 
-  --border-color: #353E4C;
-  --border-color-subtle: #262D38;
+  --border-color: #404B5D;
+  --border-color-subtle: #2C3442;
   --border-width: 1px;
   --border-style: solid;
 
@@ -100,17 +100,17 @@
   --radius-input: 0.75rem;
 
   /* Dark mode bevel shadows: subtle top edge reflection + deeper dark ambient drop */
-  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.65), 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(0, 0, 0, 0.5);
-  --shadow-card-hover: 0 14px 34px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.6);
-  --shadow-btn: 0 4px 10px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 -1px 2px rgba(0, 0, 0, 0.6);
-  --shadow-inset: inset 0 3px 8px rgba(0, 0, 0, 0.7), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
-  --shadow-inset-sm: inset 0 2px 5px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-card: 0 12px 30px rgba(0, 0, 0, 0.75), 0 3px 8px rgba(0, 0, 0, 0.5), inset 0 1.5px 0 rgba(255, 255, 255, 0.25), inset 0 -1.5px 0 rgba(0, 0, 0, 0.7);
+  --shadow-card-hover: 0 18px 42px rgba(0, 0, 0, 0.85), 0 5px 12px rgba(0, 0, 0, 0.6), inset 0 1.5px 0 rgba(255, 255, 255, 0.35), inset 0 -1.5px 0 rgba(0, 0, 0, 0.75);
+  --shadow-btn: 0 4px 10px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.3), inset 0 -1px 2px rgba(0, 0, 0, 0.7);
+  --shadow-inset: inset 0 3px 8px rgba(0, 0, 0, 0.75), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-inset-sm: inset 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
 
   --accent-primary: #FF7A18;
   --accent-primary-hover: #FF8F33;
   --accent-primary-active: #E66507;
   --accent-primary-text: #FFFFFF;
-  --accent-glow: 0 4px 18px rgba(255, 122, 24, 0.4);
+  --accent-glow: 0 4px 20px rgba(255, 122, 24, 0.45);
 
   --font-family-base: 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-family-display: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -231,6 +231,17 @@
   box-shadow: var(--shadow-card-hover) !important;
 }
 
+/* Card titles in Skeuomorphism with stamped hardware look */
+[data-style="skeuomorphism"] .neu-card h2 {
+  color: #141A24 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .neu-card h2 {
+  color: #F8FAFC !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
 /* Debossed Screen Recess: Holds the post cover image like an embedded monitor */
 [data-style="skeuomorphism"] .neu-card__thumb {
   border-radius: calc(var(--radius-card) - 2px) calc(var(--radius-card) - 2px) 0 0 !important;
@@ -260,6 +271,163 @@
   border: 1px solid var(--border-color) !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
   color: var(--accent-primary) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Precision CNC-Milled Status Badge & Pulsating Jewel LED
+   Why: Replaces flat badges with a solid machined aluminum/gunmetal bezel
+   and an inset jewel LED indicator light.
+   -------------------------------------------------------------------------- */
+[data-style="skeuomorphism"] .post-status-badge {
+  background: linear-gradient(180deg, #FFFFFF 0%, #EFF4FA 30%, #CFD9E8 70%, #ABC1D6 100%) !important;
+  border: 1px solid #7E8C9E !important;
+  box-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.18),
+    inset 0 1.5px 1px #FFFFFF,
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.35) !important;
+  color: #0F172A !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-style="skeuomorphism"] .post-status-badge__dot {
+  width: 8px !important;
+  height: 8px !important;
+  background: radial-gradient(circle at 35% 35%, #86EFAC 0%, #10B981 55%, #047857 100%) !important;
+  box-shadow: 
+    0 0 10px rgba(16, 185, 129, 0.95),
+    0 0 2px #34D399,
+    inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+  border: 1.5px solid #065F46 !important;
+  animation: skeuoLedPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes skeuoLedPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.8), 0 0 2px #34D399, inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(16, 185, 129, 1), 0 0 4px #6EE7B7, inset 0 1px 1px rgba(255, 255, 255, 1);
+  }
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .post-status-badge {
+  background: linear-gradient(180deg, #4A5668 0%, #293240 45%, #151A22 65%, #2B3442 100%) !important;
+  border: 1px solid #4B5565 !important;
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.8) !important;
+  color: #F8FAFC !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.9) !important;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .post-status-badge__dot {
+  box-shadow: 
+    0 0 12px rgba(52, 211, 153, 0.95),
+    0 0 3px #6EE7B7,
+    inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+}
+
+/* -------------------------------------------------------------
+   Machined Aircraft Aluminum Faceplate Article Masthead
+   Why: Replaces the plain text box with a luxury instrument plate
+   featuring metallic reflection sheen, brushed divider, and engraved headline.
+   ------------------------------------------------------------- */
+[data-style="skeuomorphism"] .article-masthead {
+  border-radius: 1.25rem !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5F8FC 20%, #E3EAF4 65%, #CBD6E5 90%, #DAE3F0 100%) !important;
+  border: 1px solid #9BAAC0 !important;
+  box-shadow: 
+    0 14px 34px rgba(0, 0, 0, 0.16),
+    0 2px 6px rgba(0, 0, 0, 0.08),
+    inset 0 1.5px 0 rgba(255, 255, 255, 1),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.22) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Metallic specular reflection streak */
+[data-style="skeuomorphism"] .article-masthead::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, transparent 40%, rgba(255, 255, 255, 0.2) 60%, transparent 100%);
+  pointer-events: none;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .article-masthead {
+  background: linear-gradient(180deg, #373F4D 0%, #242A34 30%, #161A21 65%, #29313D 90%, #1C2128 100%) !important;
+  border: 1px solid #3F4A5B !important;
+  box-shadow: 
+    0 18px 44px rgba(0, 0, 0, 0.78),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .article-masthead::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, transparent 45%, rgba(255, 255, 255, 0.05) 70%, transparent 100%);
+}
+
+/* Milled faceplate separator rule */
+[data-style="skeuomorphism"] .article-masthead__meta-row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  padding-bottom: 1.25rem !important;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .article-masthead__meta-row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Debossed Aluminum Metadata Tag */
+[data-style="skeuomorphism"] .article-masthead__category {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(180deg, #E6EDF5 0%, #D0DBE8 100%) !important;
+  border: 1px solid #A2B1C4 !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  color: var(--accent-primary) !important;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .article-masthead__category {
+  background: linear-gradient(180deg, #1A1F26 0%, #12161C 100%) !important;
+  border: 1px solid #303947 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.9);
+}
+
+/* Stamped / Engraved Headline Typography */
+[data-style="skeuomorphism"] .article-masthead__title {
+  color: #141A24 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), 0 -1px 0 rgba(0, 0, 0, 0.22) !important;
+  letter-spacing: -0.025em;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .article-masthead__title {
+  color: #F8FAFC !important;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.95), 0 -1px 0 rgba(255, 255, 255, 0.2) !important;
+  letter-spacing: -0.025em;
+}
+
+/* Brushed Metal Reaction Rail */
+[data-style="skeuomorphism"] .post-reaction {
+  background: var(--surface-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  border-radius: var(--radius-btn) !important;
+  padding: 4px 8px !important;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .post-reaction {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
 /* --------------------------------------------------------------------------

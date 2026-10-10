@@ -85,12 +85,9 @@ const PostCard = ({ $id, title, featuredImage, featuredimage, status, author, au
           )}
 
           {status && (
-            <span className={`absolute top-3 right-3 px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider shadow-sm ${
-              status === 'active'
-                ? 'bg-emerald-500 text-white'
-                : 'bg-slate-700 text-white'
-            }`}>
-              {status}
+            <span className={`post-status-badge post-status-badge--card post-status-badge--${status.toLowerCase()}`}>
+              <span className="post-status-badge__dot" aria-hidden="true" />
+              <span className="post-status-badge__label">{status}</span>
             </span>
           )}
         </div>

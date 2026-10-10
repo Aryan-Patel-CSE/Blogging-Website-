@@ -275,3 +275,42 @@
   border-top: var(--border-width) solid var(--border-color) !important;
   background-color: var(--surface-bg) !important;
 }
+
+/* -------------------------------------------------------------
+   Article Masthead & Status Badge (Claymorphism Edition)
+   Why: Volumetric 3D inflated pill plates with marshmallow dual-inner
+   glows and squishy tactile presence.
+   ------------------------------------------------------------- */
+[data-style="claymorphism"] .article-masthead {
+  border-radius: 2rem !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: var(--shadow-card) !important;
+  background: var(--surface-card) !important;
+}
+
+[data-style="claymorphism"] .post-status-badge {
+  border-radius: 9999px !important;
+  border: 2px solid rgba(255, 255, 255, 0.7) !important;
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%) !important;
+  box-shadow: 
+    0 6px 14px rgba(16, 185, 129, 0.2),
+    inset 0 3px 6px rgba(255, 255, 255, 0.95),
+    inset 0 -3px 6px rgba(4, 120, 87, 0.15) !important;
+  color: #065F46 !important;
+  font-weight: 800 !important;
+}
+
+[data-style="claymorphism"][data-theme="dark"] .post-status-badge {
+  background: linear-gradient(135deg, #064E3B 0%, #022C22 100%) !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+  box-shadow: 
+    0 6px 14px rgba(0, 0, 0, 0.4),
+    inset 0 3px 6px rgba(110, 231, 183, 0.35),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.5) !important;
+  color: #A7F3D0 !important;
+}
+
+[data-style="claymorphism"] .post-status-badge__dot {
+  background: #10B981 !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.9), inset 0 1px 2px #FFFFFF !important;
+}

@@ -133,3 +133,67 @@ body {
   border-color: var(--border-color-subtle);
   font-weight: 700;
 }
+
+/* -------------------------------------------------------------
+   Universal Post Status Badge & Masthead Foundations
+   ------------------------------------------------------------- */
+.post-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-badge);
+  background: var(--surface-bg);
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-btn);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  line-height: 1;
+  transition: all 180ms ease;
+}
+
+.post-status-badge--card {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.625rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), var(--shadow-btn);
+}
+
+.post-status-badge__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background-color: #10B981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.75);
+  flex-shrink: 0;
+}
+
+.article-masthead {
+  border-radius: var(--radius-card);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+  transition: all 200ms ease;
+}
+
+.article-masthead__category {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-primary);
+}
+
+.article-masthead__meta {
+  color: var(--text-muted);
+}
+
+.article-masthead__title {
+  color: var(--text-primary);
+}

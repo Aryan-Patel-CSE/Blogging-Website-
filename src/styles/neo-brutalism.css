@@ -722,3 +722,48 @@
   box-shadow: 2px 2px 0px var(--border-color) !important;
   transform: translate(-1px, -1px);
 }
+
+/* -------------------------------------------------------------
+   Article Masthead & Status Badge (Neo-Brutalism Edition)
+   Why: The masthead slab is treated like a heavy architectural blueprint
+   block with a punchy die-cut Toxic Mint status sticker badge.
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] .article-masthead {
+  border: 3.5px solid var(--border-color) !important;
+  border-radius: 0px !important;
+  box-shadow: 8px 8px 0px var(--border-color) !important;
+  background-color: var(--surface-card) !important;
+}
+
+[data-style="neo-brutalism"] .post-status-badge {
+  border-radius: 0px !important;
+  border: 2.5px solid var(--border-color) !important;
+  box-shadow: 2.5px 2.5px 0px var(--border-color) !important;
+  background: #00FFA3 !important;
+  color: #000000 !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.06em !important;
+  transform: rotate(-1deg);
+}
+
+[data-style="neo-brutalism"] .post-status-badge__dot {
+  background: #000000 !important;
+  box-shadow: none !important;
+  border-radius: 0px !important;
+}
+
+[data-style="neo-brutalism"] .article-masthead__category {
+  border: 2px solid var(--border-color) !important;
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  padding: 2px 8px !important;
+  box-shadow: 2px 2px 0px var(--border-color) !important;
+  font-weight: 900 !important;
+  transform: rotate(1deg);
+  display: inline-block;
+}
+
+[data-style="neo-brutalism"] .article-masthead__title {
+  font-weight: 900 !important;
+  letter-spacing: -0.04em !important;
+}

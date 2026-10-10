@@ -339,24 +339,63 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
                         </div>
                     </div>
 
-                    {/* Article Header */}
-                    <header className="space-y-4">
-                        <div className="flex items-center gap-2">
-                            {post.status && (
-                                <span className={`px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider shadow-xs ${
-                                    post.status === 'active'
-                                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
-                                        : 'neu-surface-sm text-slate-700 dark:text-slate-300'
-                                }`}>
-                                    {post.status}
-                                </span>
-                            )}
-                        </div>
+                    {/* Article Masthead Plate */}
+                    {(() => {
+                        const rawText = (post.content?.replace(/<[^>]+>/g, '') || '').trim();
+                        const wordCount = rawText ? rawText.split(/\s+/).filter(Boolean).length : 0;
+                        const readingTime = `${Math.max(1, Math.ceil(wordCount / 200))} min read`;
+                        const postDate = post.$createdAt ? new Date(post.$createdAt).toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        }) : null;
 
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-                            {post.title}
-                        </h1>
-                    </header>
+                        return (
+                            <header className="article-masthead neu-card p-6 sm:p-8 md:p-10 space-y-6">
+                                <div className="flex flex-wrap items-center justify-between gap-4 article-masthead__meta-row">
+                                    <div className="flex items-center gap-3">
+                                        {post.status && (
+                                            <span className={`post-status-badge post-status-badge--${post.status.toLowerCase()}`}>
+                                                <span className="post-status-badge__dot" aria-hidden="true" />
+                                                <span className="post-status-badge__label">{post.status}</span>
+                                            </span>
+                                        )}
+                                        <span className="article-masthead__category">
+                                            Editorial Story
+                                        </span>
+                                    </div>
+
+                                    <div className="article-masthead__meta flex flex-wrap items-center gap-3 text-xs">
+                                        <span className="article-masthead__author flex items-center gap-2 font-bold text-slate-700 dark:text-slate-200">
+                                            <span className="w-6 h-6 rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] flex items-center justify-center text-[10px] font-black uppercase ring-1 ring-[var(--accent-primary)]/30">
+                                                {authorName.charAt(0)}
+                                            </span>
+                                            <span>{authorName}</span>
+                                        </span>
+                                        <span className="article-masthead__separator opacity-40" aria-hidden="true">•</span>
+                                        <span className="article-masthead__time flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium">
+                                            <svg className="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span>{readingTime}</span>
+                                        </span>
+                                        {postDate && (
+                                            <>
+                                                <span className="article-masthead__separator opacity-40" aria-hidden="true">•</span>
+                                                <span className="article-masthead__date text-slate-500 dark:text-slate-400 font-medium">
+                                                    {postDate}
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <h1 className="article-masthead__title text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                                    {post.title}
+                                </h1>
+                            </header>
+                        );
+                    })()}
 
                     {/* Featured Image Cover */}
                     {imgSrc && !imageError && (
