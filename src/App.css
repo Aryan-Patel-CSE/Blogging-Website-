@@ -1,0 +1,1248 @@
+@import "tailwindcss";
+
+/* -------------------------------------------------------------
+   Neumorphic Base & Surface Utilities
+------------------------------------------------------------- */
+.neu-surface {
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset);
+  border: 1px solid var(--neu-border);
+  transition: all 250ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.neu-surface-sm {
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset-sm);
+  border: 1px solid var(--neu-border);
+  transition: all 220ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.neu-inset {
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-inset);
+  border: 1px solid var(--neu-border-subtle);
+  transition: all 220ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.neu-inset-sm {
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-inset-sm);
+  border: 1px solid var(--neu-border-subtle);
+}
+
+/* -------------------------------------------------------------
+   Neumorphic Card (Ref: Smit-Prajapati/smart-liger-5)
+   Subtle inset/outset elevation on rest and hover
+------------------------------------------------------------- */
+.neu-card {
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset);
+  border: 1px solid var(--neu-border);
+  border-radius: 1.25rem;
+  transition:
+    transform 280ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    box-shadow 280ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    border-color 280ms ease;
+}
+
+.neu-card:hover,
+.group:hover .neu-card {
+  transform: translateY(-5px);
+  box-shadow: var(--neu-shadow-outset-lg);
+  border-color: rgba(255, 107, 0, 0.35);
+}
+
+.dark .neu-card:hover,
+.dark .group:hover .neu-card {
+  border-color: rgba(255, 122, 24, 0.4);
+}
+
+/* Thumbnail inset container inside card */
+.neu-card__thumb {
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-inset-sm);
+  border-bottom: 1px solid var(--neu-border-subtle);
+}
+
+/* -------------------------------------------------------------
+   Navigation / Post Header: Unified "Read Story" Bar
+   (Ref: AKAspidey01/ugly-horse-68)
+------------------------------------------------------------- */
+.neu-read-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem 0.85rem;
+  border-radius: 9999px;
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-inset-sm);
+  border: 1px solid var(--neu-border-subtle);
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  transition: all 260ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.dark .neu-read-bar {
+  color: #cbd5e1;
+}
+
+.neu-read-bar__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 9999px;
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset-sm);
+  color: var(--primary-orange);
+  transition: all 260ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.neu-read-bar__arrow {
+  transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* On Card/Bar Hover */
+.group:hover .neu-read-bar,
+.neu-read-bar:hover {
+  background-color: rgba(255, 107, 0, 0.06);
+  border-color: rgba(255, 107, 0, 0.4);
+  color: var(--primary-orange);
+  box-shadow: var(--neu-shadow-outset-sm);
+}
+
+.group:hover .neu-read-bar__badge,
+.neu-read-bar:hover .neu-read-bar__badge {
+  background-color: var(--primary-orange);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.45);
+  transform: translateX(2px);
+}
+
+.group:hover .neu-read-bar__arrow,
+.neu-read-bar:hover .neu-read-bar__arrow {
+  transform: translateX(2px);
+}
+
+/* -------------------------------------------------------------
+   Delete Button: Destructive Feedback
+   (Ref: vinodjangid07/smart-emu-83)
+------------------------------------------------------------- */
+.neu-btn-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 0.85rem;
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset-sm);
+  border: 1px solid var(--neu-border);
+  color: var(--color-danger);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    background-color 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.neu-btn-delete .bin-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: inherit;
+}
+
+.neu-btn-delete .bin-lid {
+  transform-origin: 2px 5px;
+  transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.neu-btn-delete .bin-body {
+  transition: transform 200ms ease;
+}
+
+.neu-btn-delete:hover:not(:disabled) {
+  background-color: var(--color-danger);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: var(--color-danger-glow);
+  transform: translateY(-2px);
+}
+
+.neu-btn-delete:hover:not(:disabled) .bin-lid {
+  transform: translateY(-3px) rotate(-35deg);
+}
+
+.neu-btn-delete:hover:not(:disabled) .bin-body {
+  transform: scale(1.05);
+}
+
+.neu-btn-delete:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: var(--neu-shadow-inset-sm);
+}
+
+/* -------------------------------------------------------------
+   Read Story Button: Clean Interactive State
+   (Ref: cssbuttons-io/massive-mayfly-74)
+------------------------------------------------------------- */
+.neu-btn-read-story {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 9999px;
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset-sm);
+  border: 1px solid var(--neu-border);
+  color: #334155;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 240ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.dark .neu-btn-read-story {
+  color: #e2e8f0;
+}
+
+.neu-btn-read-story__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset-sm);
+  color: var(--primary-orange);
+  transition: all 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.neu-btn-read-story:hover {
+  transform: translateY(-2px);
+  color: var(--primary-orange);
+  box-shadow: var(--neu-shadow-outset);
+  border-color: rgba(255, 107, 0, 0.4);
+}
+
+.neu-btn-read-story:hover .neu-btn-read-story__icon {
+  background-color: var(--primary-orange);
+  color: #ffffff;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+}
+
+.neu-btn-read-story:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--neu-shadow-inset-sm);
+}
+
+/* -------------------------------------------------------------
+   Logout Button: Distinct Exit Styling
+   (Ref: vinodjangid07/thin-duck-22)
+------------------------------------------------------------- */
+.neu-btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border-radius: 0.85rem;
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset-sm);
+  border: 1px solid var(--neu-border);
+  color: #475569;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    color 200ms ease,
+    background-color 200ms ease,
+    box-shadow 220ms ease,
+    border-color 200ms ease;
+}
+
+.dark .neu-btn-logout {
+  color: #cbd5e1;
+}
+
+.neu-btn-logout .door-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.neu-btn-logout .door-arrow {
+  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.neu-btn-logout:hover:not(:disabled) {
+  color: var(--color-danger);
+  background-color: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.35);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.2);
+  transform: translateY(-2px);
+}
+
+.neu-btn-logout:hover:not(:disabled) .door-arrow {
+  transform: translateX(4px);
+}
+
+.neu-btn-logout:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--neu-shadow-inset-sm);
+}
+
+/* -------------------------------------------------------------
+   Publish / Update Button: Prominent Primary Action
+   (Ref: marcelodolza/fat-zebra-11)
+------------------------------------------------------------- */
+.neu-btn-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.65rem 1.45rem;
+  border-radius: 0.95rem;
+  background: linear-gradient(135deg, var(--primary-orange) 0%, #FF8533 100%);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: var(--primary-orange-glow);
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    box-shadow 220ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    filter 220ms ease;
+}
+
+.neu-btn-primary::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  transition: left 600ms ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.neu-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2.5px);
+  box-shadow: 0 10px 28px rgba(255, 107, 0, 0.52);
+  filter: brightness(1.05);
+}
+
+.neu-btn-primary:hover:not(:disabled)::after {
+  left: 140%;
+}
+
+.neu-btn-primary:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(255, 107, 0, 0.3);
+}
+
+.neu-btn-primary .action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.neu-btn-primary:hover:not(:disabled) .action-icon {
+  transform: translate(3px, -2px);
+}
+
+/* -------------------------------------------------------------
+   Theme Switcher: Sliding / Rotating Toggle
+   (Ref: Galahhad/strong-squid-82 & RiccardoRapelli/jolly-chicken-91)
+------------------------------------------------------------- */
+.neu-theme-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 3.5rem;
+  height: 1.85rem;
+  padding: 0.18rem;
+  border-radius: 9999px;
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-inset);
+  border: 1px solid var(--neu-border-subtle);
+  cursor: pointer;
+  outline: none;
+  transition: background-color 300ms ease, border-color 300ms ease;
+}
+
+.neu-theme-toggle:focus-visible {
+  outline: 2px solid var(--primary-orange);
+  outline-offset: 2px;
+}
+
+.neu-theme-toggle__thumb {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 9999px;
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset-sm);
+  color: var(--primary-orange);
+  transform: translateX(0);
+  transition:
+    transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 300ms ease,
+    color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.neu-theme-toggle.is-dark .neu-theme-toggle__thumb {
+  transform: translateX(1.65rem);
+  color: var(--primary-orange);
+}
+
+.neu-theme-toggle__icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease;
+}
+
+.neu-theme-toggle.is-dark .neu-theme-toggle__icon--moon {
+  transform: rotate(360deg);
+}
+
+.neu-theme-toggle:hover .neu-theme-toggle__thumb {
+  box-shadow: 0 0 10px rgba(255, 107, 0, 0.35);
+}
+
+/* -------------------------------------------------------------
+   Loaders: Lightweight Neumorphic / Pulsing Loader
+   (Ref: kennyotsu/fresh-lizard-20 & Vosoone/smooth-penguin-53)
+------------------------------------------------------------- */
+.neu-loader {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset);
+  border: 1px solid var(--neu-border);
+  animation: neu-pulse 2s ease-in-out infinite;
+}
+
+.neu-loader__ring {
+  position: absolute;
+  inset: 0.45rem;
+  border-radius: 9999px;
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-inset);
+  border: 1px solid var(--neu-border-subtle);
+}
+
+.neu-loader__dot {
+  position: relative;
+  z-index: 1;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 9999px;
+  background-color: var(--primary-orange);
+  box-shadow: 0 0 14px var(--primary-orange);
+  animation: neu-dot-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes neu-pulse {
+  0%, 100% {
+    transform: scale(0.96);
+    box-shadow: var(--neu-shadow-outset-sm);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: var(--neu-shadow-outset-lg);
+  }
+}
+
+@keyframes neu-dot-pulse {
+  0%, 100% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+    box-shadow: 0 0 18px var(--primary-orange);
+  }
+}
+
+/* -------------------------------------------------------------
+   Like / Dislike Reaction: Micro-Toggle Animation
+   (Ref: barisdogansutcu/tender-dingo-64)
+------------------------------------------------------------- */
+.post-reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3.25rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 9999px;
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-inset);
+  border: 1px solid var(--neu-border-subtle);
+  color: #64748b;
+  transition: all 240ms ease;
+}
+
+.dark .post-reaction {
+  color: #94a3b8;
+}
+
+.post-reaction__button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 2.75rem;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.75rem;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    background-color 200ms ease,
+    transform 200ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    box-shadow 200ms ease;
+}
+
+.post-reaction__button:hover {
+  background-color: rgba(255, 107, 0, 0.08);
+  color: var(--primary-orange);
+  transform: scale(1.05);
+}
+
+.post-reaction__button:active {
+  transform: scale(0.93);
+}
+
+.post-reaction__button:focus-visible {
+  outline: 2px solid var(--primary-orange);
+  outline-offset: 2px;
+}
+
+.post-reaction__like.is-active {
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset-sm);
+  color: var(--primary-orange);
+}
+
+.post-reaction__dislike.is-active {
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-outset-sm);
+  color: #ef4444;
+}
+
+.post-reaction__icon {
+  position: relative;
+  display: inline-flex;
+  width: 1.45rem;
+  height: 1.45rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-reaction__icon svg {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.post-reaction__icon--liked {
+  animation: post-like-pop 560ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.post-reaction__icon--liked::before {
+  position: absolute;
+  inset: -0.45rem;
+  border: 2px solid var(--primary-orange);
+  border-radius: 50%;
+  content: "";
+  animation: post-like-ring 560ms ease-out both;
+}
+
+.post-reaction__icon--disliked {
+  animation: post-dislike-pop 560ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.post-reaction__icon--disliked::before {
+  position: absolute;
+  inset: -0.45rem;
+  border: 2px solid #ef4444;
+  border-radius: 50%;
+  content: "";
+  animation: post-like-ring 560ms ease-out both;
+}
+
+.post-reaction__spark {
+  position: absolute;
+  z-index: 0;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--primary-orange);
+  animation: post-like-spark 520ms ease-out both;
+}
+
+.post-reaction__spark--one {
+  top: -0.25rem;
+  left: 0.05rem;
+  --spark-x: -0.5rem;
+  --spark-y: -0.45rem;
+}
+
+.post-reaction__spark--two {
+  top: 0;
+  right: -0.3rem;
+  --spark-x: 0.55rem;
+  --spark-y: -0.35rem;
+}
+
+.post-reaction__spark--three {
+  right: -0.15rem;
+  bottom: 0;
+  --spark-x: 0.55rem;
+  --spark-y: 0.45rem;
+}
+
+.post-reaction__spark--four {
+  bottom: -0.2rem;
+  left: 0;
+  --spark-x: -0.45rem;
+  --spark-y: 0.4rem;
+}
+
+.post-reaction__count {
+  min-width: 1ch;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  animation: post-count-pop 280ms cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.post-reaction__divider {
+  width: 1px;
+  height: 1.4rem;
+  background-color: var(--neu-border-subtle);
+}
+
+@keyframes post-like-pop {
+  0% { transform: scale(1) rotate(0); }
+  35% { transform: scale(1.45) rotate(-12deg); }
+  65% { transform: scale(0.88) rotate(7deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+@keyframes post-dislike-pop {
+  0% { transform: scale(1) rotate(0); }
+  35% { transform: scale(1.35) rotate(10deg); }
+  65% { transform: scale(0.9) rotate(-5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+@keyframes post-like-ring {
+  0% { opacity: 0.8; transform: scale(0.5); }
+  100% { opacity: 0; transform: scale(1.75); }
+}
+
+@keyframes post-like-spark {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--spark-x), var(--spark-y)) scale(0); }
+}
+
+@keyframes post-count-pop {
+  0% { opacity: 0.5; transform: translateY(0.35rem) scale(0.75); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* -------------------------------------------------------------
+   Neumorphic Form Inputs
+------------------------------------------------------------- */
+.neu-input {
+  background-color: var(--neu-surface);
+  box-shadow: var(--neu-shadow-inset-sm);
+  border: 1px solid var(--neu-border-subtle);
+  color: #1e293b;
+  border-radius: 0.85rem;
+  transition: all 220ms ease;
+}
+
+.dark .neu-input {
+  color: #f8fafc;
+}
+
+.neu-input:focus {
+  border-color: var(--primary-orange);
+  box-shadow: var(--neu-shadow-inset-sm), 0 0 0 3px rgba(255, 107, 0, 0.22);
+  outline: none;
+}
+
+/* -------------------------------------------------------------
+   General Button & Interactive Styles
+------------------------------------------------------------- */
+main button:not(:disabled),
+header button:not(:disabled),
+.auth-card button:not(:disabled) {
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 220ms ease,
+    transform 220ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+main button:focus-visible,
+header button:focus-visible,
+.auth-card button:focus-visible,
+main a:focus-visible {
+  outline: 3px solid var(--primary-orange);
+  outline-offset: 3px;
+}
+
+/* Auth Card Enter */
+@keyframes auth-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.auth-card {
+  animation: auth-card-enter 550ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+main > div {
+  animation: page-enter 450ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+/* Welcome Splash */
+.welcome-splash {
+  position: relative;
+  display: grid;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  place-items: center;
+  isolation: isolate;
+  background-color: var(--neu-bg);
+  color: #1e293b;
+}
+
+.dark .welcome-splash {
+  background-color: var(--neu-bg);
+  color: #f8fafc;
+}
+
+.welcome-splash::before,
+.welcome-splash::after {
+  position: absolute;
+  z-index: -1;
+  width: min(70vw, 44rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 107, 0, 0.15);
+  border-radius: 50%;
+  content: '';
+  animation: welcome-aura 8s ease-in-out infinite;
+}
+
+.welcome-splash::after {
+  width: min(54vw, 34rem);
+  border-color: rgba(255, 107, 0, 0.1);
+  animation-delay: -3.5s;
+}
+
+@keyframes welcome-aura {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.05);
+  }
+}
+
+.welcome-splash__content {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  flex-direction: column;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.welcome-splash__hello {
+  display: flex;
+  max-width: 100%;
+  justify-content: center;
+  margin: 0 0 0.2em;
+  overflow: visible;
+  font-family: 'Dancing Script', 'Segoe Script', cursive;
+  font-size: clamp(4.5rem, 18vw, 8.5rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  color: var(--primary-orange);
+  text-shadow: 0 4px 16px rgba(255, 107, 0, 0.35);
+}
+
+.welcome-splash__hello span {
+  display: inline-block;
+  opacity: 0;
+  animation: welcome-letter-in 650ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.welcome-splash__hello span:nth-child(1) { animation-delay: 80ms; }
+.welcome-splash__hello span:nth-child(2) { animation-delay: 160ms; }
+.welcome-splash__hello span:nth-child(3) { animation-delay: 240ms; }
+.welcome-splash__hello span:nth-child(4) { animation-delay: 320ms; }
+.welcome-splash__hello span:nth-child(5) { animation-delay: 400ms; }
+
+@keyframes welcome-letter-in {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(16px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+.welcome-splash__title {
+  margin: 1rem 0 0;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.welcome-splash__tagline {
+  margin: 0.5rem 0 0;
+  color: var(--primary-orange);
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  font-weight: 500;
+}
+
+.welcome-splash__loading {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--primary-orange);
+}
+
+.welcome-splash__dots {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.welcome-splash__dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary-orange);
+  animation: welcome-dot 1s ease-in-out infinite;
+}
+
+.welcome-splash__dots i:nth-child(2) { animation-delay: 150ms; }
+.welcome-splash__dots i:nth-child(3) { animation-delay: 300ms; }
+
+@keyframes welcome-dot {
+  0%, 60%, 100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+.welcome-splash__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Breezy Ape 20 Loader (uiverse.io/Nawsome/breezy-ape-20)
+   ========================================================================== */
+
+.neu-loader-wrapper {
+  perspective: 800px;
+}
+
+.pl {
+  --bg: var(--neu-surface, #eef2f6);
+  --primary1: #FF6B00;
+  --primary2: #ff8533;
+  --trans-dur: 0.3s;
+  --fg-t: rgba(255, 107, 0, 0.4);
+  box-shadow: 2em 0 2em rgba(0, 0, 0, 0.1) inset, -2em 0 2em rgba(255, 255, 255, 0.7) inset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transform: rotateX(30deg) rotateZ(45deg);
+  width: 14em;
+  height: 14em;
+  color: #1e293b;
+  font-size: 11px;
+}
+
+.dark .pl {
+  --bg: var(--neu-surface, #1e232a);
+  --primary1: #FF7A18;
+  --primary2: #ffa05c;
+  --fg-t: rgba(255, 122, 24, 0.5);
+  box-shadow: 2em 0 2em rgba(0, 0, 0, 0.4) inset, -2em 0 2em rgba(255, 255, 255, 0.08) inset;
+  color: #f1f5f9;
+}
+
+.pl--sm {
+  font-size: 7.5px;
+}
+
+.pl--md {
+  font-size: 10.5px;
+}
+
+.pl--lg {
+  font-size: 13.5px;
+}
+
+.pl,
+.pl__dot {
+  border-radius: 50%;
+}
+
+.pl__dot {
+  animation-name: shadow724;
+  box-shadow: 0.1em 0.1em 0 0.1em rgba(0, 0, 0, 0.25), 0.3em 0 0.3em rgba(0, 0, 0, 0.2);
+  top: calc(50% - 0.75em);
+  left: calc(50% - 0.75em);
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.dark .pl__dot {
+  box-shadow: 0.1em 0.1em 0 0.1em rgba(0, 0, 0, 0.8), 0.3em 0 0.3em rgba(0, 0, 0, 0.5);
+}
+
+.pl__dot,
+.pl__dot:before,
+.pl__dot:after {
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  position: absolute;
+}
+
+.pl__dot:before,
+.pl__dot:after {
+  content: "";
+  display: block;
+  left: 0;
+  width: inherit;
+  transition: background-color var(--trans-dur);
+}
+
+.pl__dot:before {
+  animation-name: pushInOut1724;
+  background-color: var(--bg);
+  border-radius: inherit;
+  box-shadow: 0.05em 0 0.1em rgba(255, 255, 255, 0.3) inset;
+  height: inherit;
+  z-index: 1;
+}
+
+.dark .pl__dot:before {
+  box-shadow: 0.05em 0 0.1em rgba(255, 255, 255, 0.15) inset;
+}
+
+.pl__dot:after {
+  animation-name: pushInOut2724;
+  background-color: var(--primary1);
+  border-radius: 0.75em;
+  box-shadow: 0.1em 0.3em 0.2em rgba(255, 255, 255, 0.4) inset, 0 -0.4em 0.2em #2e3138 inset, 0 -1em 0.25em rgba(0, 0, 0, 0.3) inset;
+  bottom: 0;
+  clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%);
+  height: 3em;
+  transform: rotate(-45deg);
+  transform-origin: 50% 2.25em;
+}
+
+.pl__dot:nth-child(1) {
+  transform: rotate(0deg) translateX(5em) rotate(0deg);
+  z-index: 5;
+}
+.pl__dot:nth-child(1),
+.pl__dot:nth-child(1):before,
+.pl__dot:nth-child(1):after {
+  animation-delay: 0s;
+}
+
+.pl__dot:nth-child(2) {
+  transform: rotate(-30deg) translateX(5em) rotate(30deg);
+  z-index: 4;
+}
+.pl__dot:nth-child(2),
+.pl__dot:nth-child(2):before,
+.pl__dot:nth-child(2):after {
+  animation-delay: -0.1666666667s;
+}
+
+.pl__dot:nth-child(3) {
+  transform: rotate(-60deg) translateX(5em) rotate(60deg);
+  z-index: 3;
+}
+.pl__dot:nth-child(3),
+.pl__dot:nth-child(3):before,
+.pl__dot:nth-child(3):after {
+  animation-delay: -0.3333333333s;
+}
+
+.pl__dot:nth-child(4) {
+  transform: rotate(-90deg) translateX(5em) rotate(90deg);
+  z-index: 2;
+}
+.pl__dot:nth-child(4),
+.pl__dot:nth-child(4):before,
+.pl__dot:nth-child(4):after {
+  animation-delay: -0.5s;
+}
+
+.pl__dot:nth-child(5) {
+  transform: rotate(-120deg) translateX(5em) rotate(120deg);
+  z-index: 1;
+}
+.pl__dot:nth-child(5),
+.pl__dot:nth-child(5):before,
+.pl__dot:nth-child(5):after {
+  animation-delay: -0.6666666667s;
+}
+
+.pl__dot:nth-child(6) {
+  transform: rotate(-150deg) translateX(5em) rotate(150deg);
+  z-index: 1;
+}
+.pl__dot:nth-child(6),
+.pl__dot:nth-child(6):before,
+.pl__dot:nth-child(6):after {
+  animation-delay: -0.8333333333s;
+}
+
+.pl__dot:nth-child(7) {
+  transform: rotate(-180deg) translateX(5em) rotate(180deg);
+  z-index: 2;
+}
+.pl__dot:nth-child(7),
+.pl__dot:nth-child(7):before,
+.pl__dot:nth-child(7):after {
+  animation-delay: -1s;
+}
+
+.pl__dot:nth-child(8) {
+  transform: rotate(-210deg) translateX(5em) rotate(210deg);
+  z-index: 3;
+}
+.pl__dot:nth-child(8),
+.pl__dot:nth-child(8):before,
+.pl__dot:nth-child(8):after {
+  animation-delay: -1.1666666667s;
+}
+
+.pl__dot:nth-child(9) {
+  transform: rotate(-240deg) translateX(5em) rotate(240deg);
+  z-index: 4;
+}
+.pl__dot:nth-child(9),
+.pl__dot:nth-child(9):before,
+.pl__dot:nth-child(9):after {
+  animation-delay: -1.3333333333s;
+}
+
+.pl__dot:nth-child(10) {
+  transform: rotate(-270deg) translateX(5em) rotate(270deg);
+  z-index: 5;
+}
+.pl__dot:nth-child(10),
+.pl__dot:nth-child(10):before,
+.pl__dot:nth-child(10):after {
+  animation-delay: -1.5s;
+}
+
+.pl__dot:nth-child(11) {
+  transform: rotate(-300deg) translateX(5em) rotate(300deg);
+  z-index: 6;
+}
+.pl__dot:nth-child(11),
+.pl__dot:nth-child(11):before,
+.pl__dot:nth-child(11):after {
+  animation-delay: -1.6666666667s;
+}
+
+.pl__dot:nth-child(12) {
+  transform: rotate(-330deg) translateX(5em) rotate(330deg);
+  z-index: 6;
+}
+.pl__dot:nth-child(12),
+.pl__dot:nth-child(12):before,
+.pl__dot:nth-child(12):after {
+  animation-delay: -1.8333333333s;
+}
+
+.pl__text {
+  font-size: 0.75em;
+  font-weight: 700;
+  max-width: 5.5rem;
+  text-align: center;
+  position: relative;
+  text-shadow: 0 0 0.15em var(--fg-t);
+  transform: rotateZ(-45deg);
+  user-select: none;
+}
+
+/* Keyframes for Breezy Ape 20 Loader */
+@keyframes shadow724 {
+  from {
+    animation-timing-function: ease-in;
+    box-shadow: 0.1em 0.1em 0 0.1em rgba(0, 0, 0, 0.35), 0.3em 0 0.3em rgba(0, 0, 0, 0.2);
+  }
+
+  25% {
+    animation-timing-function: ease-out;
+    box-shadow: 0.1em 0.1em 0 0.1em rgba(0, 0, 0, 0.35), 0.8em 0 0.8em rgba(0, 0, 0, 0.4);
+  }
+
+  50%, to {
+    box-shadow: 0.1em 0.1em 0 0.1em rgba(0, 0, 0, 0.35), 0.3em 0 0.3em rgba(0, 0, 0, 0.2);
+  }
+}
+
+@keyframes pushInOut1724 {
+  from {
+    animation-timing-function: ease-in;
+    background-color: var(--bg);
+    transform: translate(0, 0);
+  }
+
+  25% {
+    animation-timing-function: ease-out;
+    background-color: var(--primary2);
+    transform: translate(-71%, -71%);
+  }
+
+  50%, to {
+    background-color: var(--bg);
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes pushInOut2724 {
+  from {
+    animation-timing-function: ease-in;
+    background-color: var(--bg);
+    clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%);
+  }
+
+  25% {
+    animation-timing-function: ease-out;
+    background-color: var(--primary1);
+    clip-path: polygon(0 25%, 100% 25%, 100% 100%, 0 100%);
+  }
+
+  50%, to {
+    background-color: var(--bg);
+    clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .neu-card,
+  .neu-btn-primary,
+  .neu-btn-delete,
+  .neu-btn-logout,
+  .neu-read-bar,
+  .neu-loader,
+  .pl__dot,
+  .pl__dot:before,
+  .pl__dot:after,
+  .welcome-splash__hello span,
+  .welcome-splash::before,
+  .welcome-splash::after,
+  .welcome-splash__dots i,
+  .post-reaction__icon--liked,
+  .post-reaction__icon--disliked {
+    animation: none;
+    transition: none;
+  }
+}

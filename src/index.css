@@ -1,0 +1,272 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-primary: #FF6B00;
+  --color-brand-dark: #1E232B;
+  --color-brand-light: #FF8F33;
+  --color-brand-soft: #FFE8D6;
+
+  --color-orange-50: #fff7ed;
+  --color-orange-100: #ffedd5;
+  --color-orange-200: #fed7aa;
+  --color-orange-300: #fdba74;
+  --color-orange-400: #fb923c;
+  --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  --color-orange-700: #c2410c;
+}
+
+:root {
+  /* Neumorphic Design System - Light Mode */
+  --neu-bg: #EAEFF5;
+  --neu-surface: #EAEFF5;
+  --neu-surface-hover: #F0F4FA;
+  --neu-surface-active: #E4E9EF;
+  --neu-shadow-dark: #C2CDDD;
+  --neu-shadow-light: #FFFFFF;
+
+  --neu-shadow-outset: 7px 7px 16px var(--neu-shadow-dark), -7px -7px 16px var(--neu-shadow-light);
+  --neu-shadow-outset-sm: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light);
+  --neu-shadow-outset-lg: 11px 11px 24px var(--neu-shadow-dark), -11px -11px 24px var(--neu-shadow-light);
+  --neu-shadow-inset: inset 3px 3px 6px var(--neu-shadow-dark), inset -3px -3px 6px var(--neu-shadow-light);
+  --neu-shadow-inset-sm: inset 2px 2px 4px var(--neu-shadow-dark), inset -2px -2px 4px var(--neu-shadow-light);
+  --neu-shadow-inset-lg: inset 5px 5px 10px var(--neu-shadow-dark), inset -5px -5px 10px var(--neu-shadow-light);
+
+  --neu-border: rgba(255, 255, 255, 0.7);
+  --neu-border-subtle: rgba(194, 205, 221, 0.45);
+
+  /* Primary Accent: Bright Orange */
+  --primary-orange: #FF6B00;
+  --primary-orange-hover: #FF7F1F;
+  --primary-orange-active: #E65A00;
+  --primary-orange-light: #FFE8D6;
+  --primary-orange-glow: 0 6px 20px rgba(255, 107, 0, 0.35);
+
+  /* Destructive */
+  --color-danger: #EF4444;
+  --color-danger-hover: #DC2626;
+  --color-danger-glow: 0 6px 18px rgba(239, 68, 68, 0.3);
+}
+
+.dark {
+  /* Neumorphic Design System - Deep Dark Charcoal/Slate Mode */
+  --neu-bg: #1B1F26;
+  --neu-surface: #1E232B;
+  --neu-surface-hover: #232933;
+  --neu-surface-active: #171B21;
+  --neu-shadow-dark: #12151B;
+  --neu-shadow-light: #282F3B;
+
+  --neu-shadow-outset: 7px 7px 18px var(--neu-shadow-dark), -7px -7px 18px var(--neu-shadow-light);
+  --neu-shadow-outset-sm: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light);
+  --neu-shadow-outset-lg: 11px 11px 26px var(--neu-shadow-dark), -11px -11px 26px var(--neu-shadow-light);
+  --neu-shadow-inset: inset 3px 3px 6px var(--neu-shadow-dark), inset -3px -3px 6px var(--neu-shadow-light);
+  --neu-shadow-inset-sm: inset 2px 2px 4px var(--neu-shadow-dark), inset -2px -2px 4px var(--neu-shadow-light);
+  --neu-shadow-inset-lg: inset 5px 5px 10px var(--neu-shadow-dark), inset -5px -5px 10px var(--neu-shadow-light);
+
+  --neu-border: rgba(255, 255, 255, 0.06);
+  --neu-border-subtle: rgba(40, 47, 59, 0.6);
+
+  /* Primary Accent adapts cleanly to dark mode */
+  --primary-orange: #FF7A18;
+  --primary-orange-hover: #FF8F33;
+  --primary-orange-active: #E66507;
+  --primary-orange-light: rgba(255, 122, 24, 0.15);
+  --primary-orange-glow: 0 6px 22px rgba(255, 122, 24, 0.4);
+
+  /* Destructive */
+  --color-danger: #F87171;
+  --color-danger-hover: #EF4444;
+  --color-danger-glow: 0 6px 18px rgba(248, 113, 113, 0.3);
+}
+
+@layer base {
+  :root {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--neu-bg);
+  }
+
+  body {
+    overflow-x: hidden;
+    color: #1e293b;
+    background-color: var(--neu-bg);
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  .dark body {
+    color: #f8fafc;
+    background-color: var(--neu-bg);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--neu-bg);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: var(--neu-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #2f3744;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-orange);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-orange);
+}
+
+/* Article Prose Typography */
+.prose {
+  color: #334155;
+  line-height: 1.8;
+  font-size: 1.0625rem;
+}
+
+.dark .prose {
+  color: #cbd5e1;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: #0f172a;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4 {
+  color: #f8fafc;
+}
+
+.prose h1 { font-size: 2.25rem; }
+.prose h2 { font-size: 1.75rem; border-bottom: 1px solid var(--neu-border-subtle); padding-bottom: 0.5rem; }
+.dark .prose h2 { border-bottom-color: var(--neu-border-subtle); }
+.prose h3 { font-size: 1.35rem; }
+
+.prose p {
+  margin-bottom: 1.25rem;
+}
+
+.prose ul, .prose ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.prose ul { list-style-type: disc; }
+.prose ol { list-style-type: decimal; }
+
+.prose li {
+  margin-bottom: 0.5rem;
+}
+
+.prose blockquote {
+  border-left: 4px solid var(--primary-orange);
+  padding-left: 1.25rem;
+  font-style: italic;
+  color: #475569;
+  background: rgba(255, 107, 0, 0.05);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-radius: 0 0.75rem 0.75rem 0;
+  margin: 1.5rem 0;
+}
+
+.dark .prose blockquote {
+  border-left-color: var(--primary-orange);
+  color: #e2e8f0;
+  background: rgba(255, 122, 24, 0.08);
+}
+
+.prose a {
+  color: var(--primary-orange);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+}
+
+.dark .prose a {
+  color: var(--primary-orange);
+}
+
+.prose a:hover {
+  color: var(--primary-orange-hover);
+}
+
+.dark .prose a:hover {
+  color: var(--primary-orange-hover);
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  margin: 1.75rem 0;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.prose code {
+  background-color: #eff6ff;
+  color: #1e3a8a;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.375rem;
+  font-size: 0.9em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.dark .prose code {
+  background-color: #240632;
+  color: #EBD3F8;
+  border: 1px solid #7A1CAC;
+}
+
+.prose pre {
+  background-color: #0f172a;
+  color: #f8fafc;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.dark .prose pre {
+  background-color: #12021a;
+  color: #f8fafc;
+  border: 1px solid #3b0d52;
+}
+
+.prose pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  border: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
