@@ -1,12 +1,29 @@
 import { useState } from 'react';
 import appwriteService from '../appwrite/conf';
 import { Link } from 'react-router-dom';
+import { useSavedPosts } from '../hooks/useSavedPosts';
 
-const PostCard = ({ $id, title, featuredImage, featuredimage, status }) => {
+const PostCard = ({ $id, title, featuredImage, featuredimage, status, author, authorName }) => {
   const imageId = featuredimage || featuredImage;
   const initialUrl = imageId ? appwriteService.getFilePreview(imageId) : null;
   const [imgSrc, setImgSrc] = useState(initialUrl);
   const [imageError, setImageError] = useState(false);
+  const { isSaved, toggleSave } = useSavedPosts();
+  const saved = isSaved($id);
+
+  const handleSaveClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleSave({
+      $id,
+      title,
+      featuredImage: imageId,
+      featuredimage: imageId,
+      status,
+      author,
+      authorName,
+    });
+  };
 
   const handleImageError = () => {
     // If preview failed, try raw getFileView as fallback
@@ -25,6 +42,28 @@ const PostCard = ({ $id, title, featuredImage, featuredimage, status }) => {
       <div className="neu-card h-full flex flex-col overflow-hidden">
         {/* Thumbnail Inset Bevel Container */}
         <div className="neu-card__thumb relative w-full aspect-[16/10] overflow-hidden flex items-center justify-center">
+          {/* Quick Save / Bookmark Button */}
+          <button
+            type="button"
+            onClick={handleSaveClick}
+            aria-label={saved ? "Remove from saved stories" : "Save story"}
+            title={saved ? "Saved to reading list" : "Save to reading list"}
+            className={`absolute top-3 left-3 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
+              saved
+                ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-text)] shadow-md scale-105'
+                : 'bg-black/40 backdrop-blur-md text-white/90 hover:bg-black/65 hover:text-white hover:scale-110 border border-white/20'
+            }`}
+          >
+            <svg 
+              className="w-4 h-4 transition-transform active:scale-75" 
+              fill={saved ? "currentColor" : "none"} 
+              stroke="currentColor" 
+              strokeWidth={saved ? "0" : "2"}
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+          </button>
           {imgSrc && !imageError ? (
             <img 
               src={imgSrc} 

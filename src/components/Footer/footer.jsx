@@ -26,17 +26,17 @@ const Footer = () => {
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to="/" className="hover:text-[#FF6B00] dark:hover:text-[#FF7A18] transition-colors">
+                <Link to="/" className="hover:text-[var(--accent-primary)] transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/all-posts" className="hover:text-[#FF6B00] dark:hover:text-[#FF7A18] transition-colors">
+                <Link to="/all-posts" className="hover:text-[var(--accent-primary)] transition-colors">
                   All Stories
                 </Link>
               </li>
               <li>
-                <Link to="/add-post" className="hover:text-[#FF6B00] dark:hover:text-[#FF7A18] transition-colors">
+                <Link to="/add-post" className="hover:text-[var(--accent-primary)] transition-colors">
                   Write a Story
                 </Link>
               </li>
@@ -50,12 +50,12 @@ const Footer = () => {
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to="/login" className="hover:text-[#FF6B00] dark:hover:text-[#FF7A18] transition-colors">
+                <Link to="/login" className="hover:text-[var(--accent-primary)] transition-colors">
                   Sign In
                 </Link>
               </li>
               <li>
-                <Link to="/signup" className="hover:text-[#FF6B00] dark:hover:text-[#FF7A18] transition-colors">
+                <Link to="/signup" className="hover:text-[var(--accent-primary)] transition-colors">
                   Create Account
                 </Link>
               </li>
@@ -64,7 +64,7 @@ const Footer = () => {
                   href="https://github.com/Aryan-Patel-CSE"
                   target="_blank" 
                   rel="noreferrer"
-                  className="hover:text-[#FF6B00] dark:hover:text-[#FF7A18] transition-colors inline-flex items-center gap-1"
+                  className="hover:text-[var(--accent-primary)] transition-colors inline-flex items-center gap-1"
                 >
                   GitHub: Aryan-Patel-CSE
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

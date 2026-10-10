@@ -9,9 +9,16 @@
     <script>
       (function() {
         try {
-          var saved = localStorage.getItem('inkspace_theme');
+          var savedTheme = localStorage.getItem('inkspace_theme');
           var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (saved === 'dark' || (!saved && prefersDark)) {
+          var theme = (savedTheme === 'dark' || savedTheme === 'light') ? savedTheme : (prefersDark ? 'dark' : 'light');
+          var validStyles = ['default', 'neo-brutalism', 'claymorphism', 'skeuomorphism', 'interactive-3d'];
+          var savedStyle = localStorage.getItem('inkspace_style');
+          var style = validStyles.indexOf(savedStyle) !== -1 ? savedStyle : 'default';
+          
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.setAttribute('data-style', style);
+          if (theme === 'dark') {
             document.documentElement.classList.add('dark');
             document.documentElement.style.colorScheme = 'dark';
           } else {
@@ -25,7 +32,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
     
     <title>InkSpace — Stories, Perspectives & Ideas</title>
   </head>

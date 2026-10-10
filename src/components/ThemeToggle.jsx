@@ -32,7 +32,7 @@ const ThemeToggle = ({ className = '' }) => {
       <span className="neu-theme-toggle__thumb">
         {isDark ? (
           <svg
-            className="neu-theme-toggle__icon neu-theme-toggle__icon--moon text-[#FF7A18]"
+            className="neu-theme-toggle__icon neu-theme-toggle__icon--moon text-[var(--accent-primary)]"
             fill="currentColor"
             viewBox="0 0 24 24"
           >
@@ -40,7 +40,7 @@ const ThemeToggle = ({ className = '' }) => {
           </svg>
         ) : (
           <svg
-            className="neu-theme-toggle__icon neu-theme-toggle__icon--sun text-[#FF6B00]"
+            className="neu-theme-toggle__icon neu-theme-toggle__icon--sun text-[var(--accent-primary)]"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

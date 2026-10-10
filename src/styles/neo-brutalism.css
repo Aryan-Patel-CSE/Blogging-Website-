@@ -1,0 +1,724 @@
+/* ==========================================================================
+   Aesthetic 2: Neo-Brutalism (Master Editorial & Cyber-Brutalism System)
+   --------------------------------------------------------------------------
+   DESIGN PHILOSOPHY & WHY THIS WORKS:
+   Neo-Brutalism is an intentional rebellion against polite, homogenized corporate
+   minimalism and soft blur effects. It draws inspiration from early 90s zine layouts,
+   pop-art printmaking, blueprint drafting tables, and physical sticker art.
+
+   Key Optical & Physical Principles:
+   1. Unapologetic Ink Lines (Hard Geometry):
+      - We use deliberate 3px and 3.5px solid high-contrast borders.
+      - Border radii are completely zeroed out (`0px`) across cards, badges, and
+        buttons to assert raw structural honesty.
+   2. Zero-Blur Hard Cast Shadows (Isometric Cutouts):
+      - Standard CSS shadows use gaussian blur (`blur-radius > 0`). In Neo-Brutalism,
+        we strictly enforce `blur-radius = 0px` (e.g., `5px 5px 0px #000000`).
+      - This creates an optical illusion of physical cardboard or die-cut acrylic
+        slabs hovering rigidly above a drafting desk.
+   3. Tactile Mechanical Displacement:
+      - When hovered, elements translate diagonally backward (`translate(-3px, -3px)`)
+        while extending their drop shadow (`6px 6px`), simulating physical elevation.
+      - When pressed (`:active`), elements translate forward (`translate(2px, 2px)`)
+        down into the page while their drop shadow collapses to `1px`, delivering
+        an ultra-satisfying mechanical click response.
+   4. High-Saturation Chromatic Accents:
+      - Canary Gold (`#FFE600`), Toxic Mint (`#00FFA3`), and Hot Coral (`#FF4D6D`)
+        cut through the mono borders like highlighter ink on architectural blueprints.
+   ========================================================================== */
+
+/* -------------------------------------------------------------
+   Light Mode Tokens: Architectural Blueprint & Newsprint
+   Why: `#FFFDF0` provides a warm cream newsprint background, paired
+   with pitch black `#000000` ink borders and Canary Gold highlights.
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"][data-theme="light"],
+[data-style="neo-brutalism"]:not([data-theme="dark"]) {
+  /* Warm cream paper stock base */
+  --app-bg: #FFFDF0;
+  --surface-bg: #FFFFFF;
+  --surface-hover: #FFF9D2;
+  --surface-active: #FFE853;
+  --surface-card: #FFFFFF;
+  --surface-card-thumb: #FFF9D2;
+
+  /* Pure black high-contrast typography */
+  --text-primary: #000000;
+  --text-secondary: #1F2937;
+  --text-muted: #4B5563;
+  --text-inverse: #FFFFFF;
+
+  /* Hard ink linework */
+  --border-color: #000000;
+  --border-color-subtle: #000000;
+  --border-width: 3px;
+  --border-style: solid;
+
+  /* Strict zero-radius geometry */
+  --radius-card: 0px;
+  --radius-btn: 0px;
+  --radius-badge: 0px;
+  --radius-input: 0px;
+
+  /* 0-blur hard offset shadows (isometric cast) */
+  --shadow-card: 5px 5px 0px #000000;
+  --shadow-card-hover: 9px 9px 0px #000000;
+  --shadow-btn: 3px 3px 0px #000000;
+  --shadow-btn-hover: 5px 5px 0px #000000;
+  --shadow-inset: 2px 2px 0px #000000;
+  --shadow-inset-sm: 2px 2px 0px #000000;
+
+  /* Vibrant Canary Gold accent */
+  --accent-primary: #FFE600;
+  --accent-primary-hover: #FFD400;
+  --accent-primary-active: #F5B800;
+  --accent-primary-text: #000000;
+  --accent-glow: none;
+
+  --font-family-base: 'Space Grotesk', system-ui, sans-serif;
+  --font-family-display: 'Space Grotesk', system-ui, sans-serif;
+}
+
+/* -------------------------------------------------------------
+   Dark Mode Tokens (Cyber-Brutalism Edition)
+   Why: In dark mode, pure black shadows become invisible against
+   a dark canvas. We invert the shadow equation: deep graphite `#0C0D11`
+   surfaces with electric Canary Gold `#FFE600` and crisp chalk `#FFFFFF`
+   hard cast shadows.
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"][data-theme="dark"] {
+  --app-bg: #0C0D11;
+  --surface-bg: #16171E;
+  --surface-hover: #22242F;
+  --surface-active: #2F3240;
+  --surface-card: #14151B;
+  --surface-card-thumb: #1D1F27;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #E2E8F0;
+  --text-muted: #94A3B8;
+  --text-inverse: #000000;
+
+  --border-color: #FFFFFF;
+  --border-color-subtle: #CBD5E1;
+  --border-width: 3px;
+  --border-style: solid;
+
+  --radius-card: 0px;
+  --radius-btn: 0px;
+  --radius-badge: 0px;
+  --radius-input: 0px;
+
+  --shadow-card: 5px 5px 0px #FFE600;
+  --shadow-card-hover: 9px 9px 0px #FFE600;
+  --shadow-btn: 3px 3px 0px #FFFFFF;
+  --shadow-btn-hover: 5px 5px 0px #FFE600;
+  --shadow-inset: 2px 2px 0px #FFE600;
+  --shadow-inset-sm: 2px 2px 0px #FFFFFF;
+
+  --accent-primary: #FFE600;
+  --accent-primary-hover: #FFF066;
+  --accent-primary-active: #E6CE00;
+  --accent-primary-text: #000000;
+  --accent-glow: none;
+
+  --font-family-base: 'Space Grotesk', system-ui, sans-serif;
+  --font-family-display: 'Space Grotesk', system-ui, sans-serif;
+}
+
+/* -------------------------------------------------------------
+   Refined Architectural Drafting Canvas Background
+   Why: Instead of a flat plain background, we construct a 3-layer
+   procedural drafting grid:
+   - 1.5px vertical ink line grid (28px repeat)
+   - 1.5px horizontal ink line grid (28px repeat)
+   - 1.5px offset dot matrix in the cell center (14px offset)
+   This transforms the viewport into an authentic architect's cutting mat
+   or drafting paper sheet.
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] body {
+  background-color: var(--app-bg) !important;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.07) 1.5px, transparent 1.5px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.07) 1.5px, transparent 1.5px),
+    radial-gradient(rgba(0, 0, 0, 0.12) 1.5px, transparent 1.5px) !important;
+  background-size: 28px 28px, 28px 28px, 28px 28px !important;
+  background-position: 0 0, 0 0, 14px 14px !important;
+  background-attachment: fixed !important;
+}
+
+[data-style="neo-brutalism"][data-theme="dark"] body {
+  background-color: var(--app-bg) !important;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.06) 1.5px, transparent 1.5px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1.5px, transparent 1.5px),
+    radial-gradient(rgba(255, 230, 0, 0.12) 1.5px, transparent 1.5px) !important;
+  background-size: 28px 28px, 28px 28px, 28px 28px !important;
+  background-position: 0 0, 0 0, 14px 14px !important;
+  background-attachment: fixed !important;
+}
+
+/* -------------------------------------------------------------
+   Typography: Space Grotesk & Editorial Display Rules
+   Why: Neo-Brutalism requires stark, assertive grotesk letterforms.
+   We use font-weight 900 paired with tight negative letter-spacing
+   (-0.03em to -0.04em) to deliver immediate poster impact.
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] {
+  font-family: var(--font-family-base);
+}
+
+[data-style="neo-brutalism"] h1,
+[data-style="neo-brutalism"] h2,
+[data-style="neo-brutalism"] h3,
+[data-style="neo-brutalism"] h4 {
+  font-family: var(--font-family-display);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+/* -------------------------------------------------------------
+   Header, Navigation & Logo (Die-Cut Sticker Style)
+   Why: We eliminate soft blurs (`backdrop-filter: none`) and anchor
+   the masthead with a heavy 3.5px ink border and 4px hard drop shadow.
+   The logo icon is treated like a real vinyl sticker slapped on at
+   a -1.5deg tilt, snapping straight (0deg) on hover.
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] header {
+  border-bottom: 3.5px solid var(--border-color) !important;
+  box-shadow: 0 4px 0px var(--border-color) !important;
+  background-color: var(--surface-bg) !important;
+  backdrop-filter: none !important;
+}
+
+/* Slanted vinyl sticker icon */
+[data-style="neo-brutalism"] .app-logo__icon {
+  border-radius: 0px !important;
+  border: 3px solid var(--border-color) !important;
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  box-shadow: 4px 4px 0px var(--border-color) !important;
+  transform: rotate(-1.5deg);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+/* Snap sticker on hover and elevate */
+[data-style="neo-brutalism"] header a:hover .app-logo__icon {
+  transform: rotate(0deg) translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--border-color) !important;
+}
+
+/* Accent logo stamp block */
+[data-style="neo-brutalism"] .app-logo__accent {
+  color: #000000 !important;
+  background: var(--accent-primary) !important;
+  padding: 2px 7px !important;
+  border: 2.5px solid var(--border-color) !important;
+  box-shadow: 2.5px 2.5px 0px var(--border-color) !important;
+  margin-left: 4px !important;
+  display: inline-block !important;
+  font-weight: 900 !important;
+  transform: rotate(1deg);
+}
+
+[data-style="neo-brutalism"] .app-logo__tagline {
+  color: var(--text-primary) !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Navigation Links: Boxy hover tags with isometric displacement */
+[data-style="neo-brutalism"] .nav-link {
+  border-radius: 0px !important;
+  border: 2px solid transparent !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.03em !important;
+  transition: all 120ms ease !important;
+}
+
+[data-style="neo-brutalism"] .nav-link:hover {
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: 3px 3px 0px var(--border-color) !important;
+  transform: translate(-2px, -2px) !important;
+}
+
+/* Active Nav Route: Solid inverted ink badge */
+[data-style="neo-brutalism"] .nav-link-active {
+  background: var(--border-color) !important;
+  color: var(--surface-bg) !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: 3px 3px 0px var(--accent-primary) !important;
+  font-weight: 900 !important;
+}
+
+/* -------------------------------------------------------------
+   Style Switcher in Neo-Brutalism
+   Why: The theme dropdown adopts hard 3px ink borders and 6px
+   isometric shadows with zero border radius to remain coherent.
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] .style-switcher-trigger {
+  border-radius: 0px !important;
+  border: 2.5px solid var(--border-color) !important;
+  box-shadow: 3px 3px 0px var(--border-color) !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+}
+
+[data-style="neo-brutalism"] .style-switcher-trigger:hover {
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .style-switcher-popover {
+  border-radius: 0px !important;
+  border: 3px solid var(--border-color) !important;
+  box-shadow: 6px 6px 0px var(--border-color) !important;
+  background: var(--surface-bg) !important;
+}
+
+[data-style="neo-brutalism"] .style-switcher-item {
+  border-radius: 0px !important;
+  font-weight: 700 !important;
+  border: 1.5px solid transparent !important;
+}
+
+[data-style="neo-brutalism"] .style-switcher-item:hover {
+  background: var(--surface-hover) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-style="neo-brutalism"] .style-switcher-item.is-active {
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  border-color: var(--border-color) !important;
+  box-shadow: 2px 2px 0px var(--border-color) !important;
+}
+
+/* -------------------------------------------------------------
+   Hero Banner & Guest Section (Asymmetric Poster Style)
+   Why: Modern brutalism avoids generic subtle cards. The hero banner
+   is designed like a silkscreen gig poster:
+   - 3.5px heavyweight ink border
+   - 8px hard drop shadow anchoring the container
+   - "★ FEATURED ARCHIVE" physical stamp pinned directly across
+     the top edge with a 1deg rotation, breaking strict digital grids
+   - Subtitles converted into die-cut stickers with rotated accents
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] .home-hero-banner {
+  border: 3.5px solid var(--border-color) !important;
+  border-radius: 0px !important;
+  box-shadow: 8px 8px 0px var(--border-color) !important;
+  background-color: var(--surface-bg) !important;
+  position: relative !important;
+}
+
+/* Physical pinned stamp badge at the top right border */
+[data-style="neo-brutalism"] .home-hero-banner::after {
+  content: "★ FEATURED ARCHIVE" !important;
+  position: absolute !important;
+  top: -14px !important;
+  right: 24px !important;
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: 2px 2px 0px var(--border-color) !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  padding: 2px 8px !important;
+  transform: rotate(1deg) !important;
+}
+
+/* Hide soft gradient blur blobs to preserve hard graphic clarity */
+[data-style="neo-brutalism"] .hero-shape-1,
+[data-style="neo-brutalism"] .hero-shape-2 {
+  display: none !important;
+}
+
+/* Canary Gold badge tag with slight counter-rotation */
+[data-style="neo-brutalism"] .hero-badge {
+  border-radius: 0px !important;
+  border: 2.5px solid var(--border-color) !important;
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  box-shadow: 3.5px 3.5px 0px var(--border-color) !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  transform: rotate(-1.5deg);
+  display: inline-flex !important;
+}
+
+[data-style="neo-brutalism"] .hero-heading {
+  font-size: 2.8rem !important;
+  line-height: 1.12 !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.04em !important;
+}
+
+/* Highlighter text box: Replaces CSS text gradients with solid ink highlight */
+[data-style="neo-brutalism"] .hero-gradient-text {
+  background: var(--accent-primary) !important;
+  -webkit-text-fill-color: #000000 !important;
+  color: #000000 !important;
+  padding: 2px 10px !important;
+  border: 3px solid var(--border-color) !important;
+  box-shadow: 4px 4px 0px var(--border-color) !important;
+  display: inline-block !important;
+  transform: rotate(-1.5deg) !important;
+  margin: 4px 0 !important;
+  font-weight: 900 !important;
+}
+
+[data-style="neo-brutalism"] .hero-secondary-btn {
+  border-radius: 0px !important;
+  border: 3px solid var(--border-color) !important;
+  box-shadow: 4px 4px 0px var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  color: var(--text-primary) !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  transition: transform 120ms ease, box-shadow 120ms ease !important;
+}
+
+[data-style="neo-brutalism"] .hero-secondary-btn:hover {
+  background: var(--surface-hover) !important;
+  transform: translate(-3px, -3px) !important;
+  box-shadow: 7px 7px 0px var(--border-color) !important;
+}
+
+/* -------------------------------------------------------------
+   Post Cards & Feed Grid (Tactile Brutalist Slabs)
+   Why: Every card is an extruded cardboard block:
+   - 3px solid ink border
+   - 5px hard offset shadow
+   - Hover displacement: shifts -4px, -4px and deepens shadow to 9px,
+     creating instant physical separation from the background grid
+   - Active click: shifts +2px, +2px with shadow dropping to 2px,
+     simulating pressing down into the desk
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] .neu-card {
+  border: 3px solid var(--border-color) !important;
+  border-radius: 0px !important;
+  box-shadow: var(--shadow-card) !important;
+  background-color: var(--surface-card) !important;
+  transition: transform 140ms ease, box-shadow 140ms ease !important;
+  position: relative !important;
+}
+
+[data-style="neo-brutalism"] .neu-card:hover,
+[data-style="neo-brutalism"] .group:hover .neu-card {
+  transform: translate(-4px, -4px) !important;
+  box-shadow: var(--shadow-card-hover) !important;
+}
+
+[data-style="neo-brutalism"] .neu-card:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .neu-card__thumb {
+  border-radius: 0px !important;
+  border-bottom: 3px solid var(--border-color) !important;
+  background-color: var(--surface-card-thumb) !important;
+  box-shadow: none !important;
+}
+
+/* Sticker Status Tag: Electric Toxic Mint chip */
+[data-style="neo-brutalism"] .neu-card__thumb span.uppercase {
+  border-radius: 0px !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: 2px 2px 0px var(--border-color) !important;
+  background: #00FFA3 !important;
+  color: #000000 !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Bookmark Button as a Brutalist Die-Cut Sticker
+   Why: Allows users to save/bookmark articles with a tactile sticker button
+   that physically pops up and turns Canary Yellow on hover. */
+[data-style="neo-brutalism"] .neu-card__thumb button {
+  border-radius: 0px !important;
+  border: 2.5px solid var(--border-color) !important;
+  box-shadow: 2.5px 2.5px 0px var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  color: var(--text-primary) !important;
+  transition: transform 100ms ease, background-color 100ms ease !important;
+}
+
+[data-style="neo-brutalism"] .neu-card__thumb button:hover {
+  transform: translate(-2px, -2px) scale(1.05) !important;
+  box-shadow: 4px 4px 0px var(--border-color) !important;
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+}
+
+[data-style="neo-brutalism"] .neu-card__thumb button:active {
+  transform: translate(1px, 1px) scale(0.95) !important;
+  box-shadow: 1px 1px 0px var(--border-color) !important;
+}
+
+/* Read Story Bar: Punchy Interactive Action Banner
+   Why: Provides an unmistakable target callout. On card hover, the entire
+   bar shifts to Canary Yellow, and its badge inverts to pure black. */
+[data-style="neo-brutalism"] .neu-read-bar {
+  border: 2.5px solid var(--border-color) !important;
+  border-radius: 0px !important;
+  box-shadow: 3px 3px 0px var(--border-color) !important;
+  background-color: var(--surface-bg) !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  transition: all 140ms ease !important;
+}
+
+[data-style="neo-brutalism"] .neu-read-bar__badge {
+  border: 2px solid var(--border-color) !important;
+  border-radius: 0px !important;
+  background-color: var(--accent-primary) !important;
+  color: #000000 !important;
+  box-shadow: none !important;
+  transition: transform 140ms ease !important;
+}
+
+[data-style="neo-brutalism"] .neu-read-bar:hover,
+[data-style="neo-brutalism"] .group:hover .neu-read-bar {
+  background-color: var(--accent-primary) !important;
+  color: #000000 !important;
+  box-shadow: 5px 5px 0px var(--border-color) !important;
+  transform: translate(-2px, -2px) !important;
+}
+
+[data-style="neo-brutalism"] .group:hover .neu-read-bar__badge {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+  transform: translateX(3px) !important;
+}
+
+[data-style="neo-brutalism"] .neu-card h2 {
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+  transition: color 120ms ease !important;
+}
+
+/* Underline decoration on article titles on hover for zine feel */
+[data-style="neo-brutalism"] .group:hover .neu-card h2 {
+  color: #000000 !important;
+  text-decoration: underline !important;
+  text-decoration-thickness: 3px !important;
+  text-underline-offset: 4px !important;
+}
+
+[data-style="neo-brutalism"][data-theme="dark"] .group:hover .neu-card h2 {
+  color: var(--accent-primary) !important;
+}
+
+/* -------------------------------------------------------------
+   Buttons, Inputs & Interactive Controls
+   Why: Push-buttons behave like physical arcade cabinet triggers:
+   - High-contrast 3px borders
+   - Instant 120ms snappy response curve
+   - Active click compresses the element downward by +2px
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] .neu-btn-primary {
+  border-radius: 0px !important;
+  border: 3px solid var(--border-color) !important;
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  box-shadow: var(--shadow-btn) !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  transition: transform 120ms ease, box-shadow 120ms ease !important;
+}
+
+[data-style="neo-brutalism"] .neu-btn-primary::after {
+  display: none !important;
+}
+
+[data-style="neo-brutalism"] .neu-btn-primary:hover:not(:disabled) {
+  transform: translate(-3px, -3px) !important;
+  box-shadow: 6px 6px 0px var(--border-color) !important;
+  filter: none !important;
+}
+
+[data-style="neo-brutalism"] .neu-btn-primary:active:not(:disabled),
+[data-style="neo-brutalism"] button:active:not(:disabled) {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .neu-btn-read-story {
+  border-radius: 0px !important;
+  border: 2.5px solid var(--border-color) !important;
+  box-shadow: 3px 3px 0px var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  color: var(--text-primary) !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  transition: all 120ms ease !important;
+}
+
+[data-style="neo-brutalism"] .neu-btn-read-story:hover {
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .neu-surface,
+[data-style="neo-brutalism"] .neu-surface-sm {
+  border-radius: 0px !important;
+  border: 2.5px solid var(--border-color) !important;
+  box-shadow: var(--shadow-btn) !important;
+  background-color: var(--surface-bg) !important;
+  font-weight: 800 !important;
+}
+
+/* High-contrast form text inputs */
+[data-style="neo-brutalism"] .neu-input {
+  border-radius: 0px !important;
+  border: 3px solid var(--border-color) !important;
+  box-shadow: 4px 4px 0px var(--border-color) !important;
+  background-color: var(--surface-bg) !important;
+  font-weight: 700 !important;
+  transition: all 120ms ease !important;
+}
+
+/* Typing focus elevates the field and deepens its shadow */
+[data-style="neo-brutalism"] .neu-input:focus {
+  outline: none !important;
+  background-color: var(--surface-hover) !important;
+  box-shadow: 6px 6px 0px var(--border-color) !important;
+  transform: translate(-2px, -2px) !important;
+}
+
+/* -------------------------------------------------------------
+   Single Post Detail Page & Reaction Bar (Arcade Style)
+   Why: The emoji reactions are styled like physical multi-state
+   switches on an arcade cabinet, with solid dividing rules and
+   satisfying Canary Yellow active state fills.
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] article.neu-card {
+  border: 3.5px solid var(--border-color) !important;
+  box-shadow: 8px 8px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .post-reaction {
+  border: 3px solid var(--border-color) !important;
+  border-radius: 0px !important;
+  box-shadow: 4px 4px 0px var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  padding: 4px !important;
+  gap: 4px !important;
+}
+
+[data-style="neo-brutalism"] .post-reaction__button {
+  border-radius: 0px !important;
+  border: 2px solid transparent !important;
+  font-weight: 800 !important;
+  transition: all 120ms ease !important;
+}
+
+[data-style="neo-brutalism"] .post-reaction__button:hover {
+  background: var(--surface-hover) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: 2px 2px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .post-reaction__button.is-active {
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  border-color: var(--border-color) !important;
+  box-shadow: 2px 2px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .post-reaction__divider {
+  width: 2.5px !important;
+  height: 24px !important;
+  background: var(--border-color) !important;
+}
+
+/* Hot Coral Destructive Button */
+[data-style="neo-brutalism"] .neu-btn-delete {
+  border-radius: 0px !important;
+  border: 2.5px solid var(--border-color) !important;
+  background: #FF4D6D !important;
+  color: #FFFFFF !important;
+  box-shadow: 3px 3px 0px var(--border-color) !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+}
+
+[data-style="neo-brutalism"] .neu-btn-delete:hover:not(:disabled) {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0px var(--border-color) !important;
+}
+
+/* -------------------------------------------------------------
+   Article Prose Typography Overrides
+   Why: In long-form reading, blockquotes and code snippets carry
+   the zine graphic style with heavy 6px ink sidebars.
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] .prose blockquote {
+  border-left: 6px solid var(--border-color) !important;
+  background: var(--surface-hover) !important;
+  border-radius: 0px !important;
+  box-shadow: 3px 3px 0px var(--border-color) !important;
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+}
+
+[data-style="neo-brutalism"] .prose code {
+  border-radius: 0px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--surface-hover) !important;
+  color: var(--text-primary) !important;
+  font-weight: 800 !important;
+}
+
+[data-style="neo-brutalism"] .prose pre {
+  border-radius: 0px !important;
+  border: 3px solid var(--border-color) !important;
+  box-shadow: 5px 5px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .prose img {
+  border-radius: 0px !important;
+  border: 3px solid var(--border-color) !important;
+  box-shadow: 5px 5px 0px var(--border-color) !important;
+}
+
+/* -------------------------------------------------------------
+   Footer
+   Why: Anchors the bottom with an architectural dividing border
+   and interactive sticker-link tags.
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] footer {
+  border-top: 3.5px solid var(--border-color) !important;
+  background-color: var(--surface-bg) !important;
+  box-shadow: none !important;
+}
+
+[data-style="neo-brutalism"] footer h4 {
+  font-weight: 900 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+}
+
+[data-style="neo-brutalism"] footer a:hover {
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  padding: 2px 6px !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: 2px 2px 0px var(--border-color) !important;
+  transform: translate(-1px, -1px);
+}

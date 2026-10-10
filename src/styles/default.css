@@ -1,0 +1,101 @@
+/* ==========================================================================
+   Aesthetic 1: Default / Neumorphism (Soft UI Porcelain Edition)
+   --------------------------------------------------------------------------
+   DESIGN PHILOSOPHY & WHY THIS WORKS:
+   Neumorphism (Soft UI) treats the user interface as a single continuous sheet
+   of semi-flexible material (like soft porcelain, extruded plastic, or silicone).
+   Elements don't sit on top of the background; they appear extruded *from* it:
+
+   1. The Same Background & Surface Color:
+      `--surface-bg` and `--app-bg` share identical values (`#EEF2F6` in light mode,
+      `#161920` in dark mode). The form of cards is defined purely by shadow.
+   2. Opposing Dual Outset Shadows:
+      We simulate an upper-left 45-degree light source:
+      - Negative offsets (`-8px -8px 18px #FFFFFF`) cast a soft specular highlight.
+      - Positive offsets (`8px 8px 18px #C2CDDD`) cast a soft ambient drop shadow.
+   3. Inset Cavities:
+      Input wells and active button states invert this formula into dual insets
+      (`inset 3px 3px ...` + `inset -3px -3px ...`), creating tactile indentations.
+   ========================================================================== */
+
+[data-style="default"] {
+  --font-family-base: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Light Mode Tokens: Clean Porcelain Soft UI
+   -------------------------------------------------------------------------- */
+[data-style="default"][data-theme="light"],
+[data-style="default"]:not([data-theme="dark"]) {
+  /* Identical background & surface base creates seamless extruded illusion */
+  --app-bg: #EEF2F6;
+  --surface-bg: #EEF2F6;
+  --surface-hover: #F6F9FC;
+  --surface-active: #E4E9F1;
+  --surface-card: #EEF2F6;
+  --surface-card-thumb: #EEF2F6;
+
+  --border-color: rgba(255, 255, 255, 0.8);
+  --border-color-subtle: rgba(194, 205, 221, 0.45);
+  --border-width: 1px;
+  --radius-card: 1.25rem;
+  --radius-btn: 0.95rem;
+
+  /* Dual-shadow extrusion formulas: dark corner shadow + light corner reflection */
+  --shadow-card: 8px 8px 18px rgba(180, 195, 215, 0.6), -8px -8px 18px rgba(255, 255, 255, 0.95);
+  --shadow-card-hover: 12px 12px 26px rgba(180, 195, 215, 0.75), -12px -12px 26px rgba(255, 255, 255, 1);
+  --shadow-btn: 5px 5px 12px rgba(180, 195, 215, 0.55), -5px -5px 12px rgba(255, 255, 255, 0.9);
+  --shadow-inset: inset 3px 3px 6px rgba(180, 195, 215, 0.5), inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+  --shadow-inset-sm: inset 2px 2px 4px rgba(180, 195, 215, 0.45), inset -2px -2px 4px rgba(255, 255, 255, 0.9);
+
+  /* Signature Radiant Brand Orange */
+  --accent-primary: #FF6B00;
+  --accent-primary-hover: #FF7F1F;
+}
+
+/* --------------------------------------------------------------------------
+   Dark Mode Tokens: Deep Obsidian Slate
+   -------------------------------------------------------------------------- */
+[data-style="default"][data-theme="dark"] {
+  --app-bg: #161920;
+  --surface-bg: #1B1E26;
+  --surface-hover: #222631;
+  --surface-active: #15181F;
+  --surface-card: #1B1E26;
+  --surface-card-thumb: #171A22;
+
+  --border-color: rgba(255, 255, 255, 0.07);
+  --border-color-subtle: rgba(37, 43, 54, 0.7);
+  --border-width: 1px;
+  --radius-card: 1.25rem;
+  --radius-btn: 0.95rem;
+
+  /* Dark mode neumorphic duality: pitch shadow (#0F1116) vs elevated slate rim (#252A36) */
+  --shadow-card: 8px 8px 20px #0F1116, -8px -8px 20px #252A36;
+  --shadow-card-hover: 12px 12px 28px #0C0E12, -12px -12px 28px #2A303D;
+  --shadow-btn: 5px 5px 12px #0F1116, -5px -5px 12px #252A36;
+  --shadow-inset: inset 3px 3px 6px #0F1116, inset -3px -3px 6px #252A36;
+  --shadow-inset-sm: inset 2px 2px 4px #0F1116, inset -2px -2px 4px #252A36;
+
+  --accent-primary: #FF7A18;
+  --accent-primary-hover: #FF8F33;
+}
+
+/* --------------------------------------------------------------------------
+   Porcelain Ambient Lighting Gradients
+   Why: Soft radial illumination adds realism without disrupting the flat plane.
+   -------------------------------------------------------------------------- */
+[data-style="default"] body {
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.75) 0%, transparent 45%),
+    radial-gradient(circle at 90% 90%, rgba(194, 205, 221, 0.25) 0%, transparent 45%) !important;
+  background-attachment: fixed !important;
+}
+
+[data-style="default"][data-theme="dark"] body {
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(37, 42, 54, 0.55) 0%, transparent 45%),
+    radial-gradient(circle at 90% 90%, rgba(14, 16, 21, 0.85) 0%, transparent 45%) !important;
+  background-attachment: fixed !important;
+}

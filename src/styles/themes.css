@@ -1,0 +1,135 @@
+/* ==========================================================================
+   Master Theme & Multi-Aesthetic Aggregator
+   --------------------------------------------------------------------------
+   DESIGN ARCHITECTURE & WHY THIS WORKS:
+   This file acts as the single central hub for InkSpace's visual styling.
+   Instead of scattering `@import` statements across individual components,
+   `themes.css` chains together the base token contract and all 5 additive
+   design system layers:
+
+   1. `tokens.css`: The shared CSS custom property contract & fallbacks.
+   2. `default.css`: Porcelain Neumorphism (Soft UI dual outset shadows).
+   3. `neo-brutalism.css`: Editorial Cyber-Brutalism (3px ink lines, 0-blur).
+   4. `claymorphism.css`: Volumetric Putty (dual inner glows, 2rem pill radii).
+   5. `skeuomorphism.css`: Machined Aluminum (physical bevels, specular rims).
+   6. `interactive-3d.css`: Dynamic Gyroscopic Tilt & Specular Light tracking.
+
+   Because each design system is scoped using CSS attribute selectors
+   (e.g., `[data-style="..."]`), they coexist without naming collisions.
+   ========================================================================== */
+
+@import "./tokens.css";
+@import "./default.css";
+@import "./neo-brutalism.css";
+@import "./claymorphism.css";
+@import "./skeuomorphism.css";
+@import "./interactive-3d.css";
+
+/* --------------------------------------------------------------------------
+   Universal Design System Transitions
+   Why: When the user toggles between styles (e.g. from Skeuomorphism to Claymorphism)
+   or flips between Light and Dark mode, a 300ms ease transition prevents harsh
+   visual flashes and creates a smooth liquid morphing effect.
+   -------------------------------------------------------------------------- */
+html,
+body {
+  background-color: var(--app-bg) !important;
+  color: var(--text-primary) !important;
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+/* Ensure consistent selection highlighting matching active brand accent */
+::selection {
+  background-color: var(--accent-primary);
+  color: var(--accent-primary-text);
+}
+
+/* -------------------------------------------------------------
+   Style Switcher Dropdown UI Component Styles
+   Why: The theme switcher itself is a living preview of the design
+   system tokens—it automatically uses `var(--radius-btn)`, `var(--shadow-btn)`,
+   and `var(--surface-card)` so it seamlessly adapts whether Neo-Brutalism,
+   Claymorphism, or Skeuomorphism is currently active.
+   ------------------------------------------------------------- */
+.style-switcher-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-btn);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--surface-bg);
+  box-shadow: var(--shadow-btn);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: all 180ms ease;
+}
+
+.style-switcher-trigger:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.style-switcher-trigger:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.style-switcher-popover {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 17.5rem;
+  max-width: 90vw;
+  padding: 0.5rem;
+  border-radius: var(--radius-card);
+  border: var(--border-width) solid var(--border-color);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card-hover), 0 20px 40px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  animation: styleMenuEnter 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes styleMenuEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.style-switcher-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: calc(var(--radius-btn) - 4px);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 140ms ease;
+}
+
+.style-switcher-item:hover {
+  background: var(--surface-hover);
+  color: var(--accent-primary);
+}
+
+.style-switcher-item.is-active {
+  background: var(--surface-active);
+  color: var(--accent-primary);
+  border-color: var(--border-color-subtle);
+  font-weight: 700;
+}

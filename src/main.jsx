@@ -13,6 +13,7 @@ import AllPosts from './pages/AllPost.jsx';
 import AddPost from './pages/AddPost.jsx';
 import EditPost from './pages/EditPost.jsx';
 import Post from './pages/Post.jsx';
+import SavedPosts from './pages/SavedPosts.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
 
 const router = createBrowserRouter([
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
       {
         path: '/post/:slug',
         element: <Post />,
+      },
+      {
+        path: '/saved-posts',
+        element: <SavedPosts />,
       },
     ],
   },

@@ -43,22 +43,22 @@ function Home() {
         return (
             <div className="w-full py-12 md:py-16">
                 <Container>
-                    <div className="neu-card relative overflow-hidden p-8 md:p-14 border border-slate-200/50 dark:border-white/5">
+                    <div className="neu-card home-hero-banner relative overflow-hidden p-8 md:p-14 border border-slate-200/50 dark:border-white/5">
                         {/* Decorative Background Shapes */}
-                        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-80 h-80 bg-[#FF6B00]/15 dark:bg-[#FF7A18]/15 rounded-full blur-3xl pointer-events-none"></div>
-                        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                        <div className="hero-shape-1 absolute top-0 right-0 -mt-10 -mr-10 w-80 h-80 bg-[#FF6B00]/15 dark:bg-[#FF7A18]/15 rounded-full blur-3xl pointer-events-none"></div>
+                        <div className="hero-shape-2 absolute bottom-0 left-0 -mb-10 -ml-10 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
                         <div className="relative z-10 max-w-2xl">
-                            <span className="inline-flex items-center gap-2 px-3.5 py-1 text-xs font-bold tracking-wider uppercase neu-surface-sm text-[#FF6B00] dark:text-[#FF7A18] rounded-full mb-6">
+                            <span className="hero-badge inline-flex items-center gap-2 px-3.5 py-1 text-xs font-bold tracking-wider uppercase neu-surface-sm text-[#FF6B00] dark:text-[#FF7A18] rounded-full mb-6">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Discover &amp; Share
                             </span>
 
-                            <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight text-slate-900 dark:text-white mb-4">
-                                Where great ideas meet <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#FF8533] to-amber-500">curious minds.</span>
+                            <h1 className="hero-heading text-3xl md:text-5xl font-black tracking-tight leading-tight text-slate-900 dark:text-white mb-4">
+                                Where great ideas meet <span className="hero-gradient-text text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#FF8533] to-amber-500">curious minds.</span>
                             </h1>
 
-                            <p className="text-slate-600 dark:text-slate-300 text-base md:text-lg mb-8 leading-relaxed">
+                            <p className="hero-description text-slate-600 dark:text-slate-300 text-base md:text-lg mb-8 leading-relaxed">
                                 Join our thriving community of writers and thinkers. Publish your insights, discover new perspectives, and engage with content that matters.
                             </p>
 
@@ -76,7 +76,7 @@ function Home() {
                                 </Link>
                                 <Link
                                     to="/login"
-                                    className="neu-surface px-6 py-3 rounded-xl font-bold text-sm text-slate-700 dark:text-slate-200 hover:text-[#FF6B00] dark:hover:text-[#FF7A18] transition-all"
+                                    className="hero-secondary-btn neu-surface px-6 py-3 rounded-xl font-bold text-sm text-slate-700 dark:text-slate-200 hover:text-[#FF6B00] dark:hover:text-[#FF7A18] transition-all"
                                 >
                                     Login to Explore
                                 </Link>
@@ -150,7 +150,7 @@ function Home() {
                     )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="posts-grid-container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {posts.map((post) => (
                         <div key={post.$id} className="h-full">
                             <PostCard {...post} />

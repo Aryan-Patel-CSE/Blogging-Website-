@@ -5,6 +5,7 @@ import { CommentSystem, Container, NeuLoader } from "../components";
 import parse from "html-react-parser";
 import { useSelector } from "react-redux";
 import { isAdminUser } from "../utils/authHelper";
+import { useSavedPosts } from "../hooks/useSavedPosts";
 
 function formatFileSize(bytes) {
     if (!bytes || typeof bytes !== "number") return "";
@@ -136,6 +137,21 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
     const [dislikeCount, setDislikeCount] = useState(0);
     const [reaction, setReaction] = useState(null);
     const [shareMessage, setShareMessage] = useState("");
+    const { isSaved, toggleSave } = useSavedPosts();
+    const isStorySaved = isSaved(post?.$id || postId);
+
+    const handleSaveStory = () => {
+        toggleSave({
+            $id: post?.$id || postId,
+            title: post?.title,
+            featuredImage: imageId,
+            featuredimage: imageId,
+            status: post?.status,
+            author: authorName,
+            authorName: authorName,
+        });
+        setShareMessage(isStorySaved ? "Removed from saved stories." : "Story saved to your reading list!");
+    };
 
     const handleLike = () => {
         if (reaction === "like") {
@@ -236,7 +252,7 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
             <Container>
                 <article className="max-w-4xl mx-auto space-y-8">
                     {/* Top Action Bar */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                         <Link
                             to="/all-posts"
                             className="neu-btn-read-story text-xs"
@@ -244,7 +260,32 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
                             <span>&larr; Back to all stories</span>
                         </Link>
 
-                        {canManagePost && (
+                        <div className="flex items-center gap-2.5">
+                            {/* Save / Bookmark Button */}
+                            <button
+                                type="button"
+                                onClick={handleSaveStory}
+                                aria-label={isStorySaved ? "Remove from saved stories" : "Save story"}
+                                className={`neu-surface-sm px-3.5 py-2 text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5 transition-all ${
+                                    isStorySaved
+                                        ? 'text-[var(--accent-primary)] border border-[var(--accent-primary)]/40 shadow-xs'
+                                        : 'text-slate-700 dark:text-slate-200 hover:text-[var(--accent-primary)]'
+                                }`}
+                                title={isStorySaved ? "Saved to reading list" : "Save this story"}
+                            >
+                                <svg
+                                    className="w-4 h-4"
+                                    fill={isStorySaved ? "currentColor" : "none"}
+                                    stroke="currentColor"
+                                    strokeWidth={isStorySaved ? "0" : "2"}
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                </svg>
+                                <span>{isStorySaved ? "Saved" : "Save Story"}</span>
+                            </button>
+
+                            {canManagePost && (
                             <div className="flex items-center gap-2.5">
                                 {isAdmin && (
                                     <span className="inline-flex items-center gap-1 rounded-xl border border-amber-500/40 bg-amber-500/10 px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-600 dark:text-amber-400">
@@ -291,10 +332,11 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
                                             </svg>
                                         </span>
                                     )}
-                                    <span>{deleting ? "Deleting..." : "Delete"}</span>
+                                     <span>{deleting ? "Deleting..." : "Delete"}</span>
                                 </button>
                             </div>
                         )}
+                        </div>
                     </div>
 
                     {/* Article Header */}
@@ -383,6 +425,23 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
                                 )}
                             </span>
                             <span key={dislikeCount} className="post-reaction__count" aria-live="polite">{dislikeCount}</span>
+                        </button>
+
+                        <span className="post-reaction__divider" aria-hidden="true" />
+
+                        <button
+                            type="button"
+                            onClick={handleSaveStory}
+                            aria-label={isStorySaved ? "Remove from saved stories" : "Save this story"}
+                            aria-pressed={isStorySaved}
+                            className={`post-reaction__button${isStorySaved ? " is-active text-[var(--accent-primary)]" : ""}`}
+                        >
+                            <span className={`post-reaction__icon${isStorySaved ? " text-[var(--accent-primary)]" : ""}`} aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill={isStorySaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z" />
+                                </svg>
+                            </span>
+                            <span className="text-sm font-semibold">{isStorySaved ? "Saved" : "Save"}</span>
                         </button>
 
                         <span className="post-reaction__divider" aria-hidden="true" />

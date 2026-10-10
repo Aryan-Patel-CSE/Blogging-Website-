@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { Container, Logo, LogoutBtn, ThemeToggle } from '../index';
+import { Container, Logo, LogoutBtn, ThemeToggle, StyleSwitcher } from '../index';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { isAdminUser } from '../../utils/authHelper';
+import { useSavedPosts } from '../../hooks/useSavedPosts';
 
 const Header = () => {
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
+  const { savedCount } = useSavedPosts();
   const isAdmin = isAdminUser(userData);
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,6 +24,17 @@ const Header = () => {
       name: "All Posts",
       slug: "/all-posts",
       active: authStatus,
+    },
+    {
+      name: "Saved",
+      slug: "/saved-posts",
+      active: true,
+      badge: savedCount > 0 ? savedCount : null,
+      icon: (
+        <svg className="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+        </svg>
+      ),
     },
     {
       name: "Write Post",
@@ -74,13 +87,19 @@ const Header = () => {
                     ) : (
                       <button
                         onClick={() => navigate(item.slug)}
-                        className={`inline-block px-3.5 py-2 text-sm font-semibold rounded-xl transition-all duration-200 cursor-pointer ${
+                        className={`nav-link inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold rounded-xl transition-all duration-200 cursor-pointer ${
                           location.pathname === item.slug
-                            ? 'neu-inset-sm text-[#FF6B00] dark:text-[#FF7A18]'
-                            : 'text-slate-600 dark:text-slate-300 hover:text-[#FF6B00] dark:hover:text-[#FF7A18] hover:bg-black/5 dark:hover:bg-white/5'
+                            ? 'nav-link-active neu-inset-sm text-[var(--accent-primary)] font-bold'
+                            : 'text-slate-600 dark:text-slate-300 hover:text-[var(--accent-primary)] hover:bg-black/5 dark:hover:bg-white/5'
                         }`}
                       >
-                        {item.name}
+                        {item.icon && <span>{item.icon}</span>}
+                        <span>{item.name}</span>
+                        {item.badge !== null && item.badge !== undefined && (
+                          <span className="ml-0.5 px-1.5 py-0.2 text-[10px] font-extrabold rounded-full bg-[var(--accent-primary)] text-white shadow-xs">
+                            {item.badge}
+                          </span>
+                        )}
                       </button>
                     )}
                   </li>
@@ -88,7 +107,8 @@ const Header = () => {
               )}
             </ul>
 
-            <div className="flex items-center gap-3 pl-3 ml-2 border-l border-slate-300/60 dark:border-white/10">
+            <div className="flex items-center gap-2.5 pl-3 ml-2 border-l border-slate-300/60 dark:border-white/10">
+              <StyleSwitcher />
               <ThemeToggle />
 
               {authStatus && (
@@ -112,6 +132,7 @@ const Header = () => {
 
           {/* Mobile Menu Button & Theme Toggle */}
           <div className="flex items-center gap-2 md:hidden">
+            <StyleSwitcher />
             <ThemeToggle />
             {authStatus && <LogoutBtn />}
             <button
@@ -151,13 +172,21 @@ const Header = () => {
                     navigate(item.slug);
                     setMobileMenuOpen(false);
                   }}
-                  className={`w-full text-left px-3.5 py-2.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
                     location.pathname === item.slug
                       ? 'neu-inset-sm text-[#FF6B00] dark:text-[#FF7A18]'
                       : 'text-slate-700 dark:text-slate-200 hover:text-[#FF6B00] dark:hover:text-[#FF7A18]'
                   }`}
                 >
-                  {item.name}
+                  <div className="flex items-center gap-2">
+                    {item.icon && <span>{item.icon}</span>}
+                    <span>{item.name}</span>
+                  </div>
+                  {item.badge !== null && item.badge !== undefined && (
+                    <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-[var(--accent-primary)] text-white">
+                      {item.badge}
+                    </span>
+                  )}
                 </button>
               ) : null
             )}

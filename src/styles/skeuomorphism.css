@@ -1,0 +1,320 @@
+/* ==========================================================================
+   Aesthetic 4: Skeuomorphism (Luxury Hardware & Machined Metal Edition)
+   --------------------------------------------------------------------------
+   DESIGN PHILOSOPHY & WHY THIS WORKS:
+   Skeuomorphism bridges digital software with physical hardware objects.
+   Unlike flat design, real-world physical surfaces react to a unified light
+   source (usually assumed to come from directly above). To achieve this:
+
+   1. Specular Highlights: We simulate light catching top bevel edges using
+      `inset 0 1px 0 rgba(255, 255, 255, ...)`.
+   2. Cast Base Shadows: We simulate bottom ambient occlusion using
+      `inset 0 -1px 0 rgba(0, 0, 0, ...)`.
+   3. Anisotropic Brush Lines: Fine micro-gradients on the body simulate
+      the textured grain of CNC-milled aluminum.
+   4. Tactile Mechanics: Buttons physically depress into the chassis on click
+      using positive `translateY` paired with deep inset deboss shadows.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Light Mode Tokens: Machined Platinum & Aluminum Chassis
+   We use high-stop linear gradients to emulate metallic luster across plates.
+   -------------------------------------------------------------------------- */
+[data-style="skeuomorphism"][data-theme="light"],
+[data-style="skeuomorphism"]:not([data-theme="dark"]) {
+  /* Matte metallic slate background base */
+  --app-bg: #DFE4EC;
+
+  /* Three-stop vertical gradient: bright specular crown down to milled silver */
+  --surface-bg: linear-gradient(180deg, #FFFFFF 0%, #F4F7FB 40%, #E4EAF2 100%);
+  --surface-hover: linear-gradient(180deg, #FFFFFF 0%, #FAFBFD 40%, #EBF0F7 100%);
+  --surface-active: #D9DFE8;
+
+  /* Card slab gradient with a softer mid-falloff to preserve readability */
+  --surface-card: linear-gradient(180deg, #FFFFFF 0%, #F6F8FB 35%, #E4EAF3 100%);
+  --surface-card-thumb: #D8DFE9;
+
+  /* High-contrast hardware engraved text colors */
+  --text-primary: #1E2530;
+  --text-secondary: #424D5D;
+  --text-muted: #64748B;
+  --text-inverse: #FFFFFF;
+
+  /* Crisp metallic seam borders */
+  --border-color: #B2BDCC;
+  --border-color-subtle: #CBD5E1;
+  --border-width: 1px;
+  --border-style: solid;
+
+  /* Subtly rounded corners typical of milled aluminum unibodies */
+  --radius-card: 1.15rem;
+  --radius-btn: 0.85rem;
+  --radius-badge: 0.5rem;
+  --radius-input: 0.75rem;
+
+  /* Multi-layer physical lighting: floor drop-shadow + top edge highlight + bottom lip shadow */
+  --shadow-card: 0 6px 16px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(0, 0, 0, 0.14);
+  --shadow-card-hover: 0 12px 28px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 1), inset 0 -1px 0 rgba(0, 0, 0, 0.16);
+  --shadow-btn: 0 3px 6px rgba(0, 0, 0, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.75), inset 0 -1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-inset: inset 0 3px 6px rgba(0, 0, 0, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.85);
+  --shadow-inset-sm: inset 0 2px 4px rgba(0, 0, 0, 0.14), inset 0 -1px 0 rgba(255, 255, 255, 0.8);
+
+  /* Warm copper/amber illuminated LED accent */
+  --accent-primary: #E65A00;
+  --accent-primary-hover: #F2670D;
+  --accent-primary-active: #CC4E00;
+  --accent-primary-text: #FFFFFF;
+  --accent-glow: 0 4px 14px rgba(230, 90, 0, 0.35);
+
+  --font-family-base: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Dark Mode Tokens: Anodized Dark Titanium & Gunmetal
+   Deep carbon tones with subtle specular rims to highlight device contours.
+   -------------------------------------------------------------------------- */
+[data-style="skeuomorphism"][data-theme="dark"] {
+  --app-bg: #12151B;
+
+  /* Three-stop gunmetal plate gradient with deep metallic absorption */
+  --surface-bg: linear-gradient(180deg, #292F39 0%, #1F242C 50%, #161920 100%);
+  --surface-hover: linear-gradient(180deg, #313844 0%, #252A34 50%, #1B1E26 100%);
+  --surface-active: #14171E;
+  --surface-card: linear-gradient(180deg, #272D36 0%, #1D222A 50%, #15181F 100%);
+  --surface-card-thumb: #101217;
+
+  --text-primary: #F1F5F9;
+  --text-secondary: #CBD5E1;
+  --text-muted: #8E9BAE;
+  --text-inverse: #12151B;
+
+  --border-color: #353E4C;
+  --border-color-subtle: #262D38;
+  --border-width: 1px;
+  --border-style: solid;
+
+  --radius-card: 1.15rem;
+  --radius-btn: 0.85rem;
+  --radius-badge: 0.5rem;
+  --radius-input: 0.75rem;
+
+  /* Dark mode bevel shadows: subtle top edge reflection + deeper dark ambient drop */
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.65), 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+  --shadow-card-hover: 0 14px 34px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+  --shadow-btn: 0 4px 10px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 -1px 2px rgba(0, 0, 0, 0.6);
+  --shadow-inset: inset 0 3px 8px rgba(0, 0, 0, 0.7), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-inset-sm: inset 0 2px 5px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+
+  --accent-primary: #FF7A18;
+  --accent-primary-hover: #FF8F33;
+  --accent-primary-active: #E66507;
+  --accent-primary-text: #FFFFFF;
+  --accent-glow: 0 4px 18px rgba(255, 122, 24, 0.4);
+
+  --font-family-base: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Anisotropic Brushed Metal Texture
+   Why: Overlapping opposing diagonal gradients simulate micro-grooves
+   produced during mechanical circular brush polishing of metal.
+   -------------------------------------------------------------------------- */
+[data-style="skeuomorphism"] body {
+  background-image: 
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.015) 0px, rgba(0, 0, 0, 0.015) 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 1px, transparent 1px, transparent 4px) !important;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] body {
+  background-image: 
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.2) 0px, rgba(0, 0, 0, 0.2) 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 4px) !important;
+}
+
+[data-style="skeuomorphism"] {
+  font-family: var(--font-family-base);
+}
+
+/* --------------------------------------------------------------------------
+   Header & Machined Faceplate
+   Why: The top bar represents the main console faceplate, complete with
+   a specular upper edge highlight and an undercut shadow below.
+   -------------------------------------------------------------------------- */
+[data-style="skeuomorphism"] header {
+  background: var(--surface-bg) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] header {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Hardware Logo Medallion: Beveled power emblem */
+[data-style="skeuomorphism"] .app-logo__icon {
+  border-radius: 0.75rem !important;
+  background: linear-gradient(180deg, #FF9142 0%, #FF6B00 50%, #E55C00 100%) !important;
+  border: 1px solid #C44C00 !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.7), inset 0 -1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Debossed active tab selector: Sinks into the faceplate like a milled recess */
+[data-style="skeuomorphism"] .nav-link {
+  border-radius: 0.65rem !important;
+  transition: all 140ms ease !important;
+}
+
+[data-style="skeuomorphism"] .nav-link-active {
+  background: var(--surface-card-thumb) !important;
+  box-shadow: var(--shadow-inset-sm) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--accent-primary) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Hero Banner & Instrument Panel
+   Why: Hero card functions as the master instrumentation display housing.
+   -------------------------------------------------------------------------- */
+[data-style="skeuomorphism"] .home-hero-banner {
+  border-radius: 1.25rem !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-card) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 0 rgba(0, 0, 0, 0.18) !important;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .home-hero-banner {
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Inset LED Status Badge */
+[data-style="skeuomorphism"] .hero-badge {
+  border-radius: 0.5rem !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-card-thumb) !important;
+  box-shadow: var(--shadow-inset-sm), 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  color: var(--accent-primary) !important;
+}
+
+/* Engraved Metallic Headline Text */
+[data-style="skeuomorphism"] .hero-gradient-text {
+  background: linear-gradient(180deg, #FF8833 0%, #FF6B00 50%, #CC4E00 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
+}
+
+[data-style="skeuomorphism"] .hero-secondary-btn {
+  border-radius: 0.75rem !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  box-shadow: var(--shadow-btn) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Post Cards (Machined Modules)
+   Why: Each card appears as an individual chassis module with tactile weight.
+   -------------------------------------------------------------------------- */
+[data-style="skeuomorphism"] .neu-card {
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-card) !important;
+  background: var(--surface-card) !important;
+  box-shadow: var(--shadow-card) !important;
+  transition: transform 200ms ease, box-shadow 200ms ease !important;
+}
+
+/* Subtle physical elevation on hover */
+[data-style="skeuomorphism"] .neu-card:hover,
+[data-style="skeuomorphism"] .group:hover .neu-card {
+  transform: translateY(-3px) !important;
+  box-shadow: var(--shadow-card-hover) !important;
+}
+
+/* Debossed Screen Recess: Holds the post cover image like an embedded monitor */
+[data-style="skeuomorphism"] .neu-card__thumb {
+  border-radius: calc(var(--radius-card) - 2px) calc(var(--radius-card) - 2px) 0 0 !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  background: var(--surface-card-thumb) !important;
+  box-shadow: var(--shadow-inset) !important;
+}
+
+/* Bookmark Button: Machined jewel push-button */
+[data-style="skeuomorphism"] .neu-card__thumb button {
+  border: 1px solid rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Inset Read Track with Convex Thumb */
+[data-style="skeuomorphism"] .neu-read-bar {
+  border-radius: 9999px !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12), 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Convex pill badge acting like a raised physical toggle slider */
+[data-style="skeuomorphism"] .neu-read-bar__badge {
+  border-radius: 9999px !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, #E6EBF2 100%) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  color: var(--accent-primary) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Physical Hardware Push Buttons & Inset Controls
+   Why: Buttons have a physical dome bevel with top specular reflection.
+   On click, they sink down (`translateY(2px)`) with a deep compression shadow.
+   -------------------------------------------------------------------------- */
+[data-style="skeuomorphism"] .neu-btn-primary {
+  border-radius: var(--radius-btn) !important;
+  background: linear-gradient(180deg, #FF9142 0%, #FF6B00 48%, #E55C00 100%) !important;
+  border: 1px solid #C44C00 !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.65), inset 0 -2px 3px rgba(0, 0, 0, 0.3) !important;
+  text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.4) !important;
+  transition: transform 100ms ease, box-shadow 100ms ease !important;
+}
+
+[data-style="skeuomorphism"] .neu-btn-primary::after {
+  display: none !important;
+}
+
+/* Mechanical Button Depression Feedback on active press */
+[data-style="skeuomorphism"] .neu-btn-primary:active:not(:disabled),
+[data-style="skeuomorphism"] button:active:not(:disabled) {
+  transform: translateY(2px) !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), inset 0 -1px 1px rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Debossed Input Wells: Recessed into the chassis plate */
+[data-style="skeuomorphism"] .neu-input {
+  border-radius: var(--radius-input) !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-card-thumb) !important;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.18), 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-style="skeuomorphism"] .neu-input:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(230, 90, 0, 0.25) !important;
+}
+
+/* Secondary Surface Controls */
+[data-style="skeuomorphism"] .neu-surface,
+[data-style="skeuomorphism"] .neu-surface-sm {
+  border-radius: var(--radius-btn) !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  box-shadow: var(--shadow-btn) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Footer Baseplate
+   Why: Ground anchor for the application with milled bevel parting line.
+   -------------------------------------------------------------------------- */
+[data-style="skeuomorphism"] footer {
+  border-top: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+}

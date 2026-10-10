@@ -1,0 +1,277 @@
+/* ==========================================================================
+   Aesthetic 3: Claymorphism (Velvety 3D Tactile Edition)
+   --------------------------------------------------------------------------
+   DESIGN PHILOSOPHY & WHY THIS WORKS:
+   Claymorphism moves beyond flat cards and harsh drop shadows to create
+   soft, touchable, toy-like objects that look sculpted from matte polymer clay.
+   The core visual illusion is created through three principles:
+
+   1. Dual-Direction Volumetric Inset Shadows:
+      - A bright upper-left highlight (`inset 7px 7px 15px rgba(255, 255, 255, ...)`)
+        creates an inner light-dome reflection.
+      - A darker bottom-right shading (`inset -7px -7px 15px rgba(150, 172, 205, ...)`)
+        creates an internal curvature, making the card look inflated and 3D.
+   2. Generous Marshmallow Radii:
+      - We use exaggerated border radii (`2.25rem` for cards, `1.5rem` for buttons)
+        to eliminate any harsh corners, echoing injection-molded soft materials.
+   3. Squash & Stretch Elastic Physics:
+      - On hover, clay objects float upward (`translateY(-8px) scale(1.015)`).
+      - On press/active, they compress inward (`scale(0.96)`) like squishable putty.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Light Mode Tokens: Pastel Porcelain Clay
+   Soft blue-tinted paper canvas with terracotta peach accents.
+   -------------------------------------------------------------------------- */
+[data-style="claymorphism"][data-theme="light"],
+[data-style="claymorphism"]:not([data-theme="dark"]) {
+  /* Warm atmospheric canvas */
+  --app-bg: #EDF2FB;
+  --surface-bg: #F4F7FD;
+  --surface-hover: #FAFCFE;
+  --surface-active: #E8EEF8;
+  --surface-card: #F4F7FD;
+  --surface-card-thumb: #EBF0F8;
+
+  --text-primary: #1E293B;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --text-inverse: #FFFFFF;
+
+  /* Thick white inner sealing lip */
+  --border-color: rgba(255, 255, 255, 0.9);
+  --border-color-subtle: rgba(255, 255, 255, 0.65);
+  --border-width: 2px;
+  --border-style: solid;
+
+  /* Pillowy curvature */
+  --radius-card: 2.25rem;
+  --radius-btn: 1.5rem;
+  --radius-badge: 9999px;
+  --radius-input: 1.25rem;
+
+  /* Volumetric inflation shadow formulas: floor projection + inner highlight + inner core shadow */
+  --shadow-card: 16px 22px 40px rgba(150, 172, 205, 0.38), inset -7px -7px 15px rgba(150, 172, 205, 0.3), inset 7px 7px 15px rgba(255, 255, 255, 0.95);
+  --shadow-card-hover: 20px 28px 50px rgba(150, 172, 205, 0.5), inset -7px -7px 15px rgba(150, 172, 205, 0.3), inset 7px 7px 15px rgba(255, 255, 255, 0.98);
+  --shadow-btn: 8px 12px 24px rgba(150, 172, 205, 0.35), inset -4px -4px 9px rgba(150, 172, 205, 0.25), inset 4px 4px 9px rgba(255, 255, 255, 0.9);
+  --shadow-inset: inset 6px 6px 12px rgba(150, 172, 205, 0.35), inset -6px -6px 12px rgba(255, 255, 255, 0.95);
+  --shadow-inset-sm: inset 4px 4px 8px rgba(150, 172, 205, 0.3), inset -4px -4px 8px rgba(255, 255, 255, 0.95);
+
+  /* Warm Terracotta / Coral Peach Accents */
+  --accent-primary: #FF7043;
+  --accent-primary-hover: #FF8A65;
+  --accent-primary-active: #F4511E;
+  --accent-primary-text: #FFFFFF;
+  --accent-glow: 0 10px 26px rgba(255, 112, 67, 0.35);
+
+  --font-family-base: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Dark Mode Tokens: Twilight Indigo Clay
+   Deep dusky velvet clay with bioluminescent terracotta highlights.
+   -------------------------------------------------------------------------- */
+[data-style="claymorphism"][data-theme="dark"] {
+  --app-bg: #141724;
+  --surface-bg: #1E2334;
+  --surface-hover: #262D42;
+  --surface-active: #181D2B;
+  --surface-card: #1F2536;
+  --surface-card-thumb: #171C2B;
+
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-inverse: #141724;
+
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-color-subtle: rgba(255, 255, 255, 0.06);
+  --border-width: 2px;
+  --border-style: solid;
+
+  --radius-card: 2.25rem;
+  --radius-btn: 1.5rem;
+  --radius-badge: 9999px;
+  --radius-input: 1.25rem;
+
+  /* Volumetric shadows adapted to night-sky indigo depth */
+  --shadow-card: 16px 24px 45px rgba(0, 0, 0, 0.65), inset -6px -6px 14px rgba(0, 0, 0, 0.45), inset 6px 6px 14px rgba(255, 255, 255, 0.1);
+  --shadow-card-hover: 22px 32px 55px rgba(0, 0, 0, 0.8), inset -6px -6px 14px rgba(0, 0, 0, 0.5), inset 6px 6px 14px rgba(255, 255, 255, 0.14);
+  --shadow-btn: 8px 14px 28px rgba(0, 0, 0, 0.5), inset -4px -4px 8px rgba(0, 0, 0, 0.4), inset 4px 4px 8px rgba(255, 255, 255, 0.12);
+  --shadow-inset: inset 6px 6px 14px rgba(0, 0, 0, 0.65), inset -6px -6px 14px rgba(255, 255, 255, 0.08);
+  --shadow-inset-sm: inset 4px 4px 8px rgba(0, 0, 0, 0.55), inset -4px -4px 8px rgba(255, 255, 255, 0.06);
+
+  --accent-primary: #FF7043;
+  --accent-primary-hover: #FF8A65;
+  --accent-primary-active: #F4511E;
+  --accent-primary-text: #FFFFFF;
+  --accent-glow: 0 10px 28px rgba(255, 112, 67, 0.45);
+
+  --font-family-base: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Ambient Cloud Mesh Lighting Pattern
+   Why: Two opposing radial light sources bathe the backdrop in soft atmospheric glow,
+   giving the illusion of being photographed inside a light tent.
+   -------------------------------------------------------------------------- */
+[data-style="claymorphism"] body {
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.8) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(255, 112, 67, 0.06) 0%, transparent 50%) !important;
+  background-attachment: fixed !important;
+}
+
+[data-style="claymorphism"][data-theme="dark"] body {
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.07) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 112, 67, 0.05) 0%, transparent 50%) !important;
+  background-attachment: fixed !important;
+}
+
+[data-style="claymorphism"] {
+  font-family: var(--font-family-base);
+}
+
+/* --------------------------------------------------------------------------
+   Header & Floating Clay Cloud
+   -------------------------------------------------------------------------- */
+[data-style="claymorphism"] header {
+  background-color: var(--surface-bg) !important;
+  border-bottom: var(--border-width) solid var(--border-color) !important;
+  box-shadow: 0 10px 28px rgba(150, 172, 205, 0.25) !important;
+}
+
+[data-style="claymorphism"][data-theme="dark"] header {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Round Pebble Logo Button */
+[data-style="claymorphism"] .app-logo__icon {
+  border-radius: 1.25rem !important;
+  background: linear-gradient(135deg, #FF7043 0%, #FF8A65 100%) !important;
+  box-shadow: 6px 8px 18px rgba(255, 112, 67, 0.35), inset -3px -3px 6px rgba(0, 0, 0, 0.18), inset 3px 3px 6px rgba(255, 255, 255, 0.6) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Soft Pill Nav Link */
+[data-style="claymorphism"] .nav-link {
+  border-radius: 9999px !important;
+  transition: all 180ms ease !important;
+}
+
+[data-style="claymorphism"] .nav-link-active {
+  background-color: var(--surface-active) !important;
+  box-shadow: var(--shadow-inset-sm) !important;
+  color: var(--accent-primary) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Hero Banner & Organic Floating Slab
+   -------------------------------------------------------------------------- */
+[data-style="claymorphism"] .home-hero-banner {
+  border-radius: 2.5rem !important;
+  border: var(--border-width) solid var(--border-color) !important;
+  box-shadow: var(--shadow-card) !important;
+  background-color: var(--surface-card) !important;
+}
+
+[data-style="claymorphism"] .hero-badge {
+  border-radius: 9999px !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.8) !important;
+  background-color: var(--surface-bg) !important;
+  box-shadow: 4px 6px 14px rgba(150, 172, 205, 0.3), inset -2px -2px 4px rgba(150, 172, 205, 0.25), inset 2px 2px 4px rgba(255, 255, 255, 0.9) !important;
+  color: var(--accent-primary) !important;
+}
+
+[data-style="claymorphism"] .hero-gradient-text {
+  background: linear-gradient(135deg, #FF7043 0%, #FF8A65 50%, #FFA726 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+[data-style="claymorphism"] .hero-secondary-btn {
+  border-radius: var(--radius-btn) !important;
+  border: var(--border-width) solid var(--border-color) !important;
+  background-color: var(--surface-bg) !important;
+  box-shadow: var(--shadow-btn) !important;
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 200ms ease !important;
+}
+
+[data-style="claymorphism"] .hero-secondary-btn:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 12px 18px 30px rgba(150, 172, 205, 0.45), inset -4px -4px 9px rgba(150, 172, 205, 0.25), inset 4px 4px 9px rgba(255, 255, 255, 0.9) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Post Cards & Spring Physics
+   -------------------------------------------------------------------------- */
+[data-style="claymorphism"] .neu-card {
+  border-radius: var(--radius-card) !important;
+  border: var(--border-width) solid var(--border-color) !important;
+  box-shadow: var(--shadow-card) !important;
+  background-color: var(--surface-card) !important;
+  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 240ms ease !important;
+}
+
+/* Overshooting spring lift on card hover */
+[data-style="claymorphism"] .neu-card:hover,
+[data-style="claymorphism"] .group:hover .neu-card {
+  transform: translateY(-8px) scale(1.015) !important;
+  box-shadow: var(--shadow-card-hover) !important;
+}
+
+[data-style="claymorphism"] .neu-card__thumb {
+  border-radius: calc(var(--radius-card) - 6px) calc(var(--radius-card) - 6px) 0 0 !important;
+  background-color: var(--surface-card-thumb) !important;
+  box-shadow: var(--shadow-inset-sm) !important;
+  border-bottom: 1px solid var(--border-color-subtle) !important;
+}
+
+/* Smooth Read Bar Pill */
+[data-style="claymorphism"] .neu-read-bar {
+  border-radius: 9999px !important;
+  border: var(--border-width) solid var(--border-color) !important;
+  box-shadow: var(--shadow-btn) !important;
+  background-color: var(--surface-bg) !important;
+}
+
+[data-style="claymorphism"] .neu-read-bar__badge {
+  border-radius: 9999px !important;
+  background: var(--accent-primary) !important;
+  color: #FFFFFF !important;
+  box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.2), inset 2px 2px 4px rgba(255, 255, 255, 0.5) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons & Squishy Clay Form Controls
+   -------------------------------------------------------------------------- */
+[data-style="claymorphism"] .neu-btn-primary {
+  border-radius: var(--radius-btn) !important;
+  border: 2px solid rgba(255, 255, 255, 0.7) !important;
+  background: linear-gradient(135deg, #FF7043 0%, #FF8A65 100%) !important;
+  box-shadow: 8px 12px 24px rgba(255, 112, 67, 0.4), inset -4px -4px 8px rgba(0, 0, 0, 0.2), inset 4px 4px 8px rgba(255, 255, 255, 0.6) !important;
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 220ms ease !important;
+}
+
+/* Tactile Dough Compression: Shrinks on click like soft modeling clay */
+[data-style="claymorphism"] .neu-btn-primary:active:not(:disabled),
+[data-style="claymorphism"] button:active:not(:disabled) {
+  transform: scale(0.96) !important;
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.25), inset -4px -4px 8px rgba(255, 255, 255, 0.4) !important;
+}
+
+[data-style="claymorphism"] .neu-surface,
+[data-style="claymorphism"] .neu-surface-sm {
+  border-radius: var(--radius-btn) !important;
+  border: var(--border-width) solid var(--border-color) !important;
+  background-color: var(--surface-bg) !important;
+  box-shadow: var(--shadow-btn) !important;
+}
+
+[data-style="claymorphism"] footer {
+  border-top: var(--border-width) solid var(--border-color) !important;
+  background-color: var(--surface-bg) !important;
+}

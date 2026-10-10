@@ -1,0 +1,358 @@
+/* ==========================================================================
+   Aesthetic 5: Interactive 3D / Spatial Computing Edition
+   --------------------------------------------------------------------------
+   DESIGN PHILOSOPHY & WHY THIS WORKS:
+   This design system is inspired by next-generation spatial computing interfaces
+   (e.g., Apple VisionOS, Three.js spatial canvases). It transforms static 2D
+   web cards into tactile 3D planes floating in physical space:
+
+   1. 3D Perspective & Preserved Depth:
+      Cards declare `perspective: 1000px` and `transform-style: preserve-3d`.
+      When the user hovers, cursor coordinates calculate dynamic `rotateX` and
+      `rotateY` angles, tilting the slab toward the cursor.
+   2. Specular Glare Tracking Layer (`::before`):
+      A radial glare layer tracks `--mouse-x` and `--mouse-y`, emulating an
+      overhead spotlight reflecting off high-gloss polished glass.
+   3. True Hierarchical Parallax (`translateZ`):
+      Children inside `.neu-card` are lifted along the Z-axis:
+      - Cover thumbnail: `translateZ(24px)`
+      - Story title: `translateZ(32px)`
+      - Action bar: `translateZ(28px)`
+      This creates realistic optical parallax when the card tilts.
+   4. Optical Frosted Glass Refraction:
+      Surfaces use high-grade glass refraction (`backdrop-filter: blur(24px) saturate(180%)`)
+      with semi-translucent backdrops and bright perimeter specular borders.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Light Mode Tokens: Crystalline Frost & Spatial Glass
+   Translucent white crystalline sheets over an ambient spatial coordinate grid.
+   -------------------------------------------------------------------------- */
+[data-style="interactive-3d"][data-theme="light"],
+[data-style="interactive-3d"]:not([data-theme="dark"]) {
+  --app-bg: #EDF3FA;
+  --surface-bg: rgba(255, 255, 255, 0.82);
+  --surface-hover: rgba(255, 255, 255, 0.94);
+  --surface-active: #E4ECF7;
+  --surface-card: rgba(255, 255, 255, 0.84);
+  --surface-card-thumb: rgba(240, 245, 253, 0.88);
+
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  --text-inverse: #FFFFFF;
+
+  /* Specular glass edge highlight */
+  --border-color: rgba(255, 255, 255, 0.95);
+  --border-color-subtle: rgba(148, 163, 184, 0.22);
+  --border-width: 1.5px;
+  --border-style: solid;
+
+  --radius-card: 1.5rem;
+  --radius-btn: 1rem;
+  --radius-badge: 9999px;
+  --radius-input: 1rem;
+
+  /* Layered spatial shadow: soft deep ambient drop + contact shadow + top specular rim */
+  --shadow-card: 0 16px 36px -4px rgba(50, 75, 120, 0.12), 0 4px 12px rgba(50, 75, 120, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --shadow-card-hover: 0 28px 60px -8px rgba(50, 75, 120, 0.22), 0 8px 20px rgba(50, 75, 120, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
+  --shadow-btn: 0 8px 20px rgba(50, 75, 120, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-inset: inset 0 2px 6px rgba(50, 75, 120, 0.08);
+  --shadow-inset-sm: inset 0 1px 3px rgba(50, 75, 120, 0.06);
+
+  /* Unified Vibrant Brand Orange Accent */
+  --accent-primary: #FF6B00;
+  --accent-primary-hover: #FF7F1F;
+  --accent-primary-active: #E65A00;
+  --accent-primary-text: #FFFFFF;
+  --accent-glow: 0 8px 28px rgba(255, 107, 0, 0.4);
+
+  --font-family-base: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Dark Mode Tokens: Cosmic Obsidian Void & Dark Glass
+   Ultra-deep space background with luminous neon orange edge lighting.
+   -------------------------------------------------------------------------- */
+[data-style="interactive-3d"][data-theme="dark"] {
+  --app-bg: #07090E;
+  --surface-bg: rgba(16, 21, 35, 0.82);
+  --surface-hover: rgba(25, 33, 54, 0.88);
+  --surface-active: #101422;
+  --surface-card: rgba(15, 20, 33, 0.78);
+  --surface-card-thumb: rgba(10, 14, 23, 0.85);
+
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-inverse: #07090E;
+
+  --border-color: rgba(255, 255, 255, 0.16);
+  --border-color-subtle: rgba(255, 255, 255, 0.07);
+  --border-width: 1.5px;
+  --border-style: solid;
+
+  --radius-card: 1.5rem;
+  --radius-btn: 1rem;
+  --radius-badge: 9999px;
+  --radius-input: 1rem;
+
+  /* Deep dark ambient floor shadow with inner rim glow */
+  --shadow-card: 0 20px 45px -6px rgba(0, 0, 0, 0.65), 0 6px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  --shadow-card-hover: 0 32px 70px -8px rgba(0, 0, 0, 0.85), 0 10px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  --shadow-btn: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --shadow-inset: inset 0 2px 8px rgba(0, 0, 0, 0.55);
+  --shadow-inset-sm: inset 0 1px 4px rgba(0, 0, 0, 0.4);
+
+  --accent-primary: #FF7A18;
+  --accent-primary-hover: #FF8F33;
+  --accent-primary-active: #E66507;
+  --accent-primary-text: #FFFFFF;
+  --accent-glow: 0 8px 34px rgba(255, 122, 24, 0.55);
+
+  --font-family-base: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Spatial Coordinate Mesh Background
+   Why: An isometric coordinate grid provides visible spatial grounding,
+   making hovering 3D slabs feel anchored over an infinite plane.
+   -------------------------------------------------------------------------- */
+[data-style="interactive-3d"] body {
+  background-image: 
+    radial-gradient(circle at 18% 18%, rgba(255, 107, 0, 0.08) 0%, transparent 42%),
+    radial-gradient(circle at 82% 82%, rgba(255, 143, 51, 0.06) 0%, transparent 42%),
+    linear-gradient(to right, rgba(255, 107, 0, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 107, 0, 0.035) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px !important;
+  background-attachment: fixed !important;
+}
+
+[data-style="interactive-3d"][data-theme="dark"] body {
+  background-image: 
+    radial-gradient(circle at 18% 18%, rgba(255, 122, 24, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 82% 82%, rgba(255, 154, 61, 0.09) 0%, transparent 45%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px !important;
+  background-attachment: fixed !important;
+}
+
+[data-style="interactive-3d"] {
+  font-family: var(--font-family-base);
+}
+
+/* --------------------------------------------------------------------------
+   Header & Floating Glass Visor
+   Why: High-saturation backdrop-filter gives realistic glass refraction.
+   -------------------------------------------------------------------------- */
+[data-style="interactive-3d"] header {
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  border-bottom: 1.5px solid var(--border-color) !important;
+  background-color: var(--surface-bg) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Radiant Prismatic Logo Medallion */
+[data-style="interactive-3d"] .app-logo__icon {
+  border-radius: 1rem !important;
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8F33 100%) !important;
+  box-shadow: 0 8px 20px rgba(255, 107, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+[data-style="interactive-3d"] .nav-link {
+  border-radius: 0.85rem !important;
+  transition: all 180ms ease !important;
+}
+
+[data-style="interactive-3d"] .nav-link-active {
+  background: var(--surface-bg) !important;
+  box-shadow: var(--shadow-btn) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--accent-primary) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Hero Banner: Floating Glass Monolith
+   -------------------------------------------------------------------------- */
+[data-style="interactive-3d"] .home-hero-banner {
+  border-radius: 1.75rem !important;
+  border: var(--border-width) solid var(--border-color) !important;
+  background: var(--surface-card) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  box-shadow: 0 25px 60px rgba(50, 75, 120, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  transform-style: preserve-3d !important;
+}
+
+[data-style="interactive-3d"][data-theme="dark"] .home-hero-banner {
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-style="interactive-3d"] .hero-badge {
+  border-radius: 9999px !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 6px 16px rgba(255, 107, 0, 0.25) !important;
+  color: var(--accent-primary) !important;
+}
+
+[data-style="interactive-3d"] .hero-gradient-text {
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8533 50%, #FFA24A 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+[data-style="interactive-3d"] .hero-secondary-btn {
+  border-radius: 1rem !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  box-shadow: var(--shadow-btn) !important;
+}
+
+/* --------------------------------------------------------------------------
+   3D Tilt Card Plane & Specular Glare Physics
+   -------------------------------------------------------------------------- */
+[data-style="interactive-3d"] .neu-card {
+  position: relative !important;
+  border: var(--border-width) solid var(--border-color) !important;
+  border-radius: var(--radius-card) !important;
+  background: var(--surface-card) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  box-shadow: var(--shadow-card) !important;
+  transform-style: preserve-3d !important;
+  perspective: 1000px !important;
+  will-change: transform, box-shadow !important;
+  transition: transform 120ms ease-out, box-shadow 120ms ease-out, border-color 200ms ease !important;
+  overflow: visible !important;
+}
+
+/* Specular Glare Layer: Tracks mouse coordinates (--mouse-x, --mouse-y) across the glass */
+[data-style="interactive-3d"] .neu-card::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  z-index: 20 !important;
+  background: radial-gradient(
+    circle 240px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 80%
+  ) !important;
+  opacity: 0 !important;
+  transition: opacity 300ms ease !important;
+}
+
+[data-style="interactive-3d"][data-theme="dark"] .neu-card::before {
+  background: radial-gradient(
+    circle 260px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 122, 24, 0.1) 50%,
+    transparent 80%
+  ) !important;
+}
+
+[data-style="interactive-3d"] .neu-card:hover::before {
+  opacity: 1 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Z-Axis Parallax Layering
+   Why: Moving children forward in 3D space (`translateZ`) creates real physical
+   parallax when the parent card rotates around X and Y axes.
+   -------------------------------------------------------------------------- */
+[data-style="interactive-3d"] .neu-card__thumb {
+  border-radius: calc(var(--radius-card) - 4px) calc(var(--radius-card) - 4px) 0 0 !important;
+  border-bottom: 1px solid var(--border-color-subtle) !important;
+  background-color: var(--surface-card-thumb) !important;
+  transform: translateZ(24px) !important;
+  transform-style: preserve-3d !important;
+  transition: transform 200ms ease-out !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-style="interactive-3d"] .neu-card h2 {
+  transform: translateZ(32px) !important;
+  transform-style: preserve-3d !important;
+  transition: transform 200ms ease-out !important;
+}
+
+[data-style="interactive-3d"] .neu-read-bar {
+  transform: translateZ(28px) !important;
+  transform-style: preserve-3d !important;
+  transition: transform 200ms ease-out !important;
+  border-radius: 9999px !important;
+  border: 1px solid var(--border-color) !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+[data-style="interactive-3d"][data-theme="dark"] .neu-read-bar {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-style="interactive-3d"] .neu-read-bar__badge {
+  border-radius: 9999px !important;
+  background: var(--accent-primary) !important;
+  color: #FFFFFF !important;
+  transform: translateZ(10px) !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.35) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons & Spatial Form Controls
+   -------------------------------------------------------------------------- */
+[data-style="interactive-3d"] .neu-btn-primary {
+  border-radius: var(--radius-btn) !important;
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: var(--accent-glow) !important;
+  transition: transform 180ms ease, box-shadow 180ms ease !important;
+}
+
+[data-style="interactive-3d"] .neu-btn-primary:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 12px 30px rgba(255, 107, 0, 0.45) !important;
+}
+
+[data-style="interactive-3d"] .neu-btn-primary:active:not(:disabled),
+[data-style="interactive-3d"] button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98) !important;
+}
+
+[data-style="interactive-3d"] .neu-surface,
+[data-style="interactive-3d"] .neu-surface-sm {
+  border-radius: var(--radius-btn) !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  box-shadow: var(--shadow-btn) !important;
+}
+
+[data-style="interactive-3d"] .neu-input {
+  border-radius: var(--radius-input) !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: var(--shadow-inset-sm) !important;
+  transition: all 180ms ease !important;
+}
+
+[data-style="interactive-3d"] .neu-input:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.25), var(--shadow-inset-sm) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+[data-style="interactive-3d"] footer {
+  border-top: 1.5px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  backdrop-filter: blur(20px) !important;
+}
