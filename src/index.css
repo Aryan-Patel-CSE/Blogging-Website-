@@ -112,9 +112,12 @@
   html {
     scroll-behavior: smooth;
     background-color: var(--neu-bg);
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   body {
+    max-width: 100%;
     overflow-x: hidden;
     color: #1e293b;
     background-color: var(--neu-bg);
@@ -124,6 +127,18 @@
   .dark body {
     color: #f8fafc;
     background-color: var(--neu-bg);
+  }
+
+  @media (max-width: 768px) {
+    html,
+    body,
+    #root {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: clip;
+      overflow-x: hidden;
+      position: relative;
+    }
   }
 }
 

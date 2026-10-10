@@ -223,11 +223,13 @@ textarea,
   position: fixed !important;
   top: auto !important;
   bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
-  left: 0.75rem !important;
-  right: 0.75rem !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - 1.5rem) !important;
   max-width: 28rem !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   z-index: 9999 !important;
   pointer-events: auto !important;
   will-change: transform;
@@ -331,6 +333,30 @@ textarea,
     padding: 0.85rem;
     font-size: 0.8125rem;
     border-radius: 0.75rem;
+  }
+}
+
+/* 5. Mobile Horizontal Boundary Guard (Strictly Mobile Only) */
+@media (max-width: 768px) {
+  html,
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: clip !important;
+    overflow-x: hidden !important;
+    position: relative;
+  }
+
+  #root {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: clip !important;
+    overflow-x: hidden !important;
+    position: relative;
+  }
+
+  .home-hero-banner {
+    overflow: hidden !important;
   }
 }
 

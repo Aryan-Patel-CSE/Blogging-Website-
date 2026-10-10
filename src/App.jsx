@@ -68,9 +68,9 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--neu-bg)] text-slate-900 dark:text-slate-100 selection:bg-[#FF6B00] selection:text-white transition-colors duration-200">
+    <div className="min-h-screen flex flex-col bg-[var(--neu-bg)] text-slate-900 dark:text-slate-100 selection:bg-[#FF6B00] selection:text-white transition-colors duration-200 w-full max-w-full overflow-x-hidden">
       <Header />
-      <main className="flex-1 w-full pb-24 md:pb-0">
+      <main className="flex-1 w-full max-w-full overflow-x-hidden pb-24 md:pb-0">
         <Outlet />
       </main>
       <Footer />
