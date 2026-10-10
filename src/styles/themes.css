@@ -220,8 +220,23 @@ textarea,
 
 /* 2. Universal Mobile Bottom Dock */
 .mobile-bottom-dock {
-  padding-bottom: calc(0.25rem + env(safe-area-inset-bottom, 0px));
+  position: fixed !important;
+  top: auto !important;
+  bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  left: 0.75rem !important;
+  right: 0.75rem !important;
+  max-width: 28rem !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  z-index: 9999 !important;
+  pointer-events: auto !important;
   will-change: transform;
+}
+
+@media (min-width: 768px) {
+  .mobile-bottom-dock {
+    display: none !important;
+  }
 }
 
 .mobile-bottom-dock__inner {

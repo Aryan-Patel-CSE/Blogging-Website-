@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTheme } from '../context/ThemeContext';
@@ -36,10 +37,11 @@ const MobileMenuDrawer = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
-  return (
+  return createPortal(
     <div
-      className="md:hidden fixed inset-0 z-50 flex flex-col justify-end pointer-events-auto"
+      className="md:hidden fixed inset-0 z-[10000] flex flex-col justify-end pointer-events-auto"
       role="dialog"
       aria-modal="true"
       aria-label="Navigation & Aesthetics Menu"
@@ -268,7 +270,8 @@ const MobileMenuDrawer = ({ isOpen, onClose }) => {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

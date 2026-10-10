@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useSavedPosts } from '../hooks/useSavedPosts';
@@ -65,9 +66,9 @@ const MobileBottomDock = ({ onOpenMenu }) => {
     },
   ];
 
-  return (
+  const dockContent = (
     <nav
-      className="mobile-bottom-dock md:hidden fixed bottom-3 inset-x-3 sm:inset-x-6 z-40 max-w-md mx-auto"
+      className="mobile-bottom-dock md:hidden"
       aria-label="Mobile Navigation Dock"
     >
       <div className="mobile-bottom-dock__inner flex items-center justify-around px-2 py-1.5 rounded-full">
@@ -126,6 +127,9 @@ const MobileBottomDock = ({ onOpenMenu }) => {
       </div>
     </nav>
   );
+
+  if (typeof document === 'undefined') return dockContent;
+  return createPortal(dockContent, document.body);
 };
 
 export default MobileBottomDock;
