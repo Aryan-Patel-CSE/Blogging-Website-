@@ -34,8 +34,8 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center w-full py-12 px-4">
-      <div className="auth-card w-full max-w-md neu-card p-8 sm:p-10 border border-slate-200/50 dark:border-white/5">
+    <div className="flex items-center justify-center w-full py-8 sm:py-12 px-4">
+      <div className="auth-card w-full max-w-md neu-card p-6 sm:p-10 border border-slate-200/50 dark:border-white/5">
         <div className="mb-6 flex justify-center">
           <Logo width="160px" />
         </div>

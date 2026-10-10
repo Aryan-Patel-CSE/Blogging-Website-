@@ -197,3 +197,125 @@ body {
 .article-masthead__title {
   color: var(--text-primary);
 }
+
+/* ==========================================================================
+   InkSpace Universal Mobile Ergonomics & Component System
+   ========================================================================== */
+
+/* 1. Global Touch Tap Hygiene */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+input,
+select,
+textarea,
+.neu-card,
+.mobile-dock-btn,
+.mobile-style-card {
+  touch-action: manipulation;
+}
+
+/* 2. Universal Mobile Bottom Dock */
+.mobile-bottom-dock {
+  padding-bottom: calc(0.25rem + env(safe-area-inset-bottom, 0px));
+  will-change: transform;
+}
+
+.mobile-bottom-dock__inner {
+  background: var(--surface-card);
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-dock);
+  border-radius: var(--radius-dock);
+  backdrop-filter: blur(20px);
+  transition: all 250ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.mobile-dock-btn {
+  transition: all 180ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.mobile-dock-btn:active {
+  transform: scale(0.92);
+}
+
+.mobile-dock-btn--active {
+  color: var(--accent-primary) !important;
+}
+
+.mobile-dock-fab {
+  border-radius: 9999px !important;
+  box-shadow: 0 8px 24px rgba(255, 107, 0, 0.45), var(--shadow-btn) !important;
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.mobile-dock-fab:active {
+  transform: translateY(2px) scale(0.92) !important;
+}
+
+/* 3. Universal Mobile Drawer Sheet */
+.mobile-drawer-sheet {
+  background: var(--surface-card);
+  border-top: var(--border-width) solid var(--border-color);
+  border-left: var(--border-width) solid var(--border-color);
+  border-right: var(--border-width) solid var(--border-color);
+  box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(24px);
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@keyframes drawerEnter {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-drawerEnter {
+  animation: drawerEnter 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.mobile-style-card {
+  transition: all 180ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.mobile-style-card:active {
+  transform: scale(0.97);
+}
+
+/* 4. Responsive Viewport Media Adjustments */
+@media (max-width: 640px) {
+  .neu-card {
+    border-radius: calc(var(--radius-card) * 0.85);
+  }
+
+  .prose {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .prose h1 {
+    font-size: 1.75rem;
+  }
+
+  .prose h2 {
+    font-size: 1.4rem;
+  }
+
+  .prose h3 {
+    font-size: 1.2rem;
+  }
+
+  .prose pre {
+    padding: 0.85rem;
+    font-size: 0.8125rem;
+    border-radius: 0.75rem;
+  }
+}
+

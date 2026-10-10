@@ -767,3 +767,77 @@
   font-weight: 900 !important;
   letter-spacing: -0.04em !important;
 }
+
+/* -------------------------------------------------------------
+   Aesthetic 2: Neo-Brutalist Mobile Immersion (Cyber-Brutalism)
+   Why: Strict zero-radius geometry, 3px solid high-contrast borders,
+   0-blur isometric hard cast shadows, and tactile stamp-down displacement.
+   ------------------------------------------------------------- */
+[data-style="neo-brutalism"] .mobile-bottom-dock__inner {
+  border-radius: 0px !important;
+  border: 3px solid var(--border-color) !important;
+  background: var(--surface-card) !important;
+  box-shadow: 5px 5px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .mobile-dock-btn {
+  border-radius: 0px !important;
+}
+
+[data-style="neo-brutalism"] .mobile-dock-btn--active {
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: 2px 2px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .mobile-dock-indicator {
+  background: #000000 !important;
+  border-radius: 0px !important;
+  box-shadow: none !important;
+}
+
+[data-style="neo-brutalism"] .mobile-dock-btn:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 0px 0px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .mobile-dock-fab {
+  border-radius: 0px !important;
+  border: 3px solid var(--border-color) !important;
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  box-shadow: 4px 4px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .mobile-dock-fab:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .mobile-drawer-sheet {
+  border-radius: 0px !important;
+  border-top: 4px solid var(--border-color) !important;
+  border-left: 3px solid var(--border-color) !important;
+  border-right: 3px solid var(--border-color) !important;
+  box-shadow: 0 -8px 0px var(--border-color) !important;
+  background: var(--app-bg) !important;
+}
+
+[data-style="neo-brutalism"] .mobile-style-card {
+  border-radius: 0px !important;
+  border: 2.5px solid var(--border-color) !important;
+  box-shadow: 3px 3px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .mobile-style-card.is-active {
+  background: var(--accent-primary) !important;
+  color: #000000 !important;
+  box-shadow: 4px 4px 0px var(--border-color) !important;
+}
+
+[data-style="neo-brutalism"] .mobile-style-card:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0px var(--border-color) !important;
+}
+

@@ -168,7 +168,7 @@ function CommentSystem({ postId, postAuthorId }) {
         return (
             <div
                 key={comment.id}
-                className={`neu-surface-sm rounded-2xl p-4 transition-all ${depth > 0 ? 'ml-4 border-l-2 border-l-[#FF6B00] dark:border-l-[#FF7A18]' : ''}`}
+                className={`neu-surface-sm rounded-2xl p-3.5 sm:p-4 transition-all ${depth > 0 ? 'ml-2 sm:ml-4 border-l-2 border-l-[#FF6B00] dark:border-l-[#FF7A18]' : ''}`}
             >
                 <div className="flex items-start gap-3">
                     <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-black text-white shadow-sm ${getAvatarClasses(comment.userName || currentUserName)}`}>

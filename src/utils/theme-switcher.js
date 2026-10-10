@@ -177,11 +177,13 @@ class ThemeEngine {
   }
 
   /* --------------------------------------------------------------------------
-     Interactive 3D Card Tilt Physics Handler
+     Interactive 3D Card Tilt Physics Handler (Mouse + Mobile Touch & Gyroscope)
      -------------------------------------------------------------------------- */
   initTiltPhysics() {
     if (typeof window === 'undefined') return;
     this.destroyTiltPhysics(); // ensure no duplicates
+
+    let activeTouchCard = null;
 
     const handleMouseMove = (e) => {
       const card = e.target.closest('.neu-card');
@@ -194,7 +196,7 @@ class ThemeEngine {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
 
-      // Calculate tilt angles (max +/- 14 degrees)
+      // Calculate tilt angles (max +/- 12 degrees)
       const rotateX = -((y - centerY) / centerY) * 12;
       const rotateY = ((x - centerX) / centerX) * 12;
 
@@ -215,13 +217,94 @@ class ThemeEngine {
       card.style.setProperty('--mouse-y', '50%');
     };
 
-    // Delegate listeners on document for dynamically rendered posts
+    // Mobile Touch Physics Compensation: Tilt card dynamically to finger contact point
+    const handleTouchStart = (e) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      const card = element ? element.closest('.neu-card') : null;
+      if (!card) return;
+
+      activeTouchCard = card;
+      const rect = card.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      const rotateX = -((y - centerY) / centerY) * 10;
+      const rotateY = ((x - centerX) / centerX) * 10;
+
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+      card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-2px) scale3d(1.015, 1.015, 1.015)`;
+    };
+
+    const handleTouchMove = (e) => {
+      if (!activeTouchCard) return;
+      const touch = e.touches[0];
+      if (!touch) return;
+
+      const rect = activeTouchCard.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      const rotateX = -((y - centerY) / centerY) * 10;
+      const rotateY = ((x - centerX) / centerX) * 10;
+
+      activeTouchCard.style.setProperty('--mouse-x', `${x}px`);
+      activeTouchCard.style.setProperty('--mouse-y', `${y}px`);
+      activeTouchCard.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-2px) scale3d(1.015, 1.015, 1.015)`;
+    };
+
+    const handleTouchEnd = () => {
+      if (!activeTouchCard) return;
+      activeTouchCard.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) scale3d(1, 1, 1)';
+      activeTouchCard.style.setProperty('--mouse-x', '50%');
+      activeTouchCard.style.setProperty('--mouse-y', '50%');
+      activeTouchCard = null;
+    };
+
+    // Mobile Gyroscope / Device Orientation Tilt Compensation
+    let hasOrientation = false;
+    const handleDeviceOrientation = (e) => {
+      if (e.gamma === null || e.beta === null) return;
+      hasOrientation = true;
+      // Clamp gamma (-45 to 45) and beta (-45 to 45) to subtle tilt ranges
+      const tiltY = Math.max(-8, Math.min(8, (e.gamma / 45) * 8));
+      const tiltX = Math.max(-8, Math.min(8, ((e.beta - 45) / 45) * 8));
+
+      document.documentElement.style.setProperty('--mobile-gyro-x', `${tiltY.toFixed(2)}deg`);
+      document.documentElement.style.setProperty('--mobile-gyro-y', `${tiltX.toFixed(2)}deg`);
+    };
+
+    // Delegate listeners on document
     document.addEventListener('mousemove', handleMouseMove, { passive: true });
     document.addEventListener('mouseout', handleMouseLeave, { passive: true });
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    document.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+
+    if (window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission !== 'function') {
+      window.addEventListener('deviceorientation', handleDeviceOrientation, { passive: true });
+    }
 
     this.tiltCleanup = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseout', handleMouseLeave);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchcancel', handleTouchEnd);
+      if (window.DeviceOrientationEvent) {
+        window.removeEventListener('deviceorientation', handleDeviceOrientation);
+      }
+
+      document.documentElement.style.removeProperty('--mobile-gyro-x');
+      document.documentElement.style.removeProperty('--mobile-gyro-y');
 
       // Reset all cards
       document.querySelectorAll('.neu-card').forEach((card) => {

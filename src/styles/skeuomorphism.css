@@ -486,3 +486,101 @@
   background: var(--surface-bg) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
 }
+
+/* -------------------------------------------------------------
+   Aesthetic 4: Skeuomorphism Mobile Immersion (Machined Hardware)
+   Why: On mobile, skeuomorphic buttons function like real physical switches.
+   Specular top rims catch the overhead light, while debossed wells provide
+   an unmistakable sensation of mechanical tactility on finger tap.
+   ------------------------------------------------------------- */
+[data-style="skeuomorphism"] .mobile-bottom-dock__inner {
+  border-radius: 9999px !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  box-shadow: 
+    0 12px 28px rgba(0, 0, 0, 0.2),
+    inset 0 1.5px 0 #FFFFFF,
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .mobile-bottom-dock__inner {
+  box-shadow: 
+    0 16px 36px rgba(0, 0, 0, 0.75),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.8) !important;
+}
+
+[data-style="skeuomorphism"] .mobile-dock-btn {
+  border-radius: 0.75rem !important;
+  transition: transform 140ms ease, box-shadow 140ms ease !important;
+}
+
+[data-style="skeuomorphism"] .mobile-dock-btn--active {
+  background: var(--surface-card-thumb) !important;
+  box-shadow: var(--shadow-inset-sm), 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  color: var(--accent-primary) !important;
+}
+
+[data-style="skeuomorphism"] .mobile-dock-indicator {
+  background: radial-gradient(circle at 35% 35%, #FFB077 0%, #FF6B00 60%, #B84700 100%) !important;
+  box-shadow: 0 0 8px rgba(255, 107, 0, 0.95), 0 0 2px #FF8533, inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .mobile-dock-btn--active {
+  box-shadow: var(--shadow-inset-sm), 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-style="skeuomorphism"] .mobile-dock-btn:active {
+  transform: translateY(2px) !important;
+  box-shadow: var(--shadow-inset) !important;
+}
+
+[data-style="skeuomorphism"] .mobile-dock-fab {
+  border-radius: 9999px !important;
+  border: 1px solid #C44C00 !important;
+  background: linear-gradient(180deg, #FF9142 0%, #FF6B00 50%, #E55C00 100%) !important;
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.8),
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-style="skeuomorphism"] .mobile-dock-fab:active {
+  transform: translateY(2px) scale(0.94) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-style="skeuomorphism"] .mobile-drawer-sheet {
+  border-top-left-radius: 1.5rem !important;
+  border-top-right-radius: 1.5rem !important;
+  border-top: 1.5px solid var(--border-color) !important;
+  background: var(--surface-card) !important;
+  box-shadow: 
+    0 -12px 36px rgba(0, 0, 0, 0.25),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-style="skeuomorphism"][data-theme="dark"] .mobile-drawer-sheet {
+  box-shadow: 
+    0 -16px 45px rgba(0, 0, 0, 0.85),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+[data-style="skeuomorphism"] .mobile-style-card {
+  border-radius: 0.85rem !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-btn) !important;
+}
+
+[data-style="skeuomorphism"] .mobile-style-card.is-active {
+  background: var(--surface-card-thumb) !important;
+  box-shadow: var(--shadow-inset-sm) !important;
+  color: var(--accent-primary) !important;
+}
+
+[data-style="skeuomorphism"] .mobile-style-card:active {
+  transform: translateY(2px) !important;
+  box-shadow: var(--shadow-inset) !important;
+}
+

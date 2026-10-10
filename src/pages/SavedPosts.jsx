@@ -47,7 +47,7 @@ function SavedPosts() {
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                         {savedCount > 0 && (
                             <>
                                 <div className="relative w-full sm:w-64">
@@ -68,7 +68,7 @@ function SavedPosts() {
                                 <button
                                     type="button"
                                     onClick={handleClearAll}
-                                    className="neu-surface px-3.5 py-2 text-xs font-bold text-red-600 dark:text-red-400 rounded-xl hover:bg-red-500/10 transition-colors cursor-pointer whitespace-nowrap"
+                                    className="neu-surface px-3.5 py-2 text-xs font-bold text-red-600 dark:text-red-400 rounded-xl hover:bg-red-500/10 transition-colors cursor-pointer whitespace-nowrap text-center"
                                     title="Clear all saved stories"
                                 >
                                     Clear All
@@ -78,7 +78,7 @@ function SavedPosts() {
 
                         <Link
                             to="/all-posts"
-                            className="neu-btn-primary px-4 py-2 text-sm whitespace-nowrap"
+                            className="neu-btn-primary px-4 py-2 text-sm whitespace-nowrap text-center flex items-center justify-center"
                         >
                             <span>Browse Stories</span>
                         </Link>

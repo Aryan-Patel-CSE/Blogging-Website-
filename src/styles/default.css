@@ -142,3 +142,55 @@
   background: #10B981 !important;
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
 }
+
+/* --------------------------------------------------------------------------
+   Aesthetic 1: Neumorphic Mobile Immersion
+   Why: On mobile, neumorphic elements softly extrude from the viewport with
+   soft dual-corner highlights and deep tactile cavity depressions on tap.
+   -------------------------------------------------------------------------- */
+[data-style="default"] .mobile-bottom-dock__inner {
+  background-color: var(--surface-bg) !important;
+  box-shadow: 
+    6px 6px 16px rgba(180, 195, 215, 0.55),
+    -6px -6px 16px rgba(255, 255, 255, 0.95),
+    0 12px 30px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+[data-style="default"][data-theme="dark"] .mobile-bottom-dock__inner {
+  background-color: var(--surface-bg) !important;
+  box-shadow: 
+    6px 6px 18px #0F1116,
+    -6px -6px 18px #252A36,
+    0 14px 34px rgba(0, 0, 0, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-style="default"] .mobile-dock-btn--active {
+  box-shadow: var(--shadow-inset-sm) !important;
+  border-radius: 1rem !important;
+  color: var(--accent-primary) !important;
+}
+
+[data-style="default"] .mobile-dock-indicator {
+  background: var(--accent-primary) !important;
+  box-shadow: 0 0 6px var(--accent-primary) !important;
+}
+
+[data-style="default"] .mobile-dock-btn:active {
+  box-shadow: var(--shadow-inset) !important;
+}
+
+[data-style="default"] .mobile-drawer-sheet {
+  background-color: var(--surface-bg) !important;
+  box-shadow: 
+    0 -10px 30px rgba(180, 195, 215, 0.4),
+    0 -2px 10px rgba(255, 255, 255, 0.8) !important;
+  border-top: 1px solid var(--border-color) !important;
+}
+
+[data-style="default"][data-theme="dark"] .mobile-drawer-sheet {
+  box-shadow: 0 -12px 36px rgba(0, 0, 0, 0.7) !important;
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+

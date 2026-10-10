@@ -109,6 +109,14 @@
   --color-danger: #EF4444;
   --color-danger-hover: #DC2626;
   --color-danger-glow: 0 6px 18px rgba(239, 68, 68, 0.3);
+
+  /* ------------------------------------------------------------------------
+     8. Mobile Ergonomics & Safe-Area Inset Tokens
+     ------------------------------------------------------------------------ */
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --radius-dock: 9999px;
+  --shadow-dock: 0 10px 32px rgba(0, 0, 0, 0.14), var(--shadow-card);
 }
 
 /* --------------------------------------------------------------------------

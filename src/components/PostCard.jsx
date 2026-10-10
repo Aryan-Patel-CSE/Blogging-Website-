@@ -48,7 +48,7 @@ const PostCard = ({ $id, title, featuredImage, featuredimage, status, author, au
             onClick={handleSaveClick}
             aria-label={saved ? "Remove from saved stories" : "Save story"}
             title={saved ? "Saved to reading list" : "Save to reading list"}
-            className={`absolute top-3 left-3 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
+            className={`absolute top-3 left-3 z-20 w-9 h-9 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-90 ${
               saved
                 ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-text)] shadow-md scale-105'
                 : 'bg-black/40 backdrop-blur-md text-white/90 hover:bg-black/65 hover:text-white hover:scale-110 border border-white/20'

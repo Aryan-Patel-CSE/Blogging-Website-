@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Container, Logo, LogoutBtn, ThemeToggle, StyleSwitcher } from '../index';
+import { Container, Logo, LogoutBtn, ThemeToggle, StyleSwitcher, MobileMenuDrawer, MobileBottomDock } from '../index';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { isAdminUser } from '../../utils/authHelper';
@@ -130,69 +130,32 @@ const Header = () => {
             </div>
           </div>
 
-          {/* Mobile Menu Button & Theme Toggle */}
+          {/* Mobile Top Controls */}
           <div className="flex items-center gap-2 md:hidden">
-            <StyleSwitcher />
             <ThemeToggle />
-            {authStatus && <LogoutBtn />}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="neu-surface-sm p-2 rounded-xl text-slate-600 dark:text-slate-200 hover:text-[#FF6B00] dark:hover:text-[#FF7A18] cursor-pointer"
-              aria-label="Toggle menu"
+              onClick={() => setMobileMenuOpen(true)}
+              className="neu-surface-sm p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:text-[var(--accent-primary)] cursor-pointer flex items-center justify-center transition-transform active:scale-95"
+              aria-label="Open mobile menu"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {mobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                )}
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
           </div>
         </nav>
-
-        {/* Mobile Dropdown Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden py-3 border-t border-slate-200/50 dark:border-white/5 space-y-1.5 animate-fadeIn bg-[var(--neu-bg)]/95">
-            {userData?.name && (
-              <div className="px-3 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                Signed in as <strong className="text-slate-800 dark:text-white">{userData.name}</strong>
-                {isAdmin && (
-                  <span className="ml-2 inline-flex rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-amber-600 dark:text-amber-400">
-                    Admin
-                  </span>
-                )}
-              </div>
-            )}
-            {navItems.map((item) =>
-              item.active ? (
-                <button
-                  key={item.name}
-                  onClick={() => {
-                    navigate(item.slug);
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
-                    location.pathname === item.slug
-                      ? 'neu-inset-sm text-[#FF6B00] dark:text-[#FF7A18]'
-                      : 'text-slate-700 dark:text-slate-200 hover:text-[#FF6B00] dark:hover:text-[#FF7A18]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    {item.icon && <span>{item.icon}</span>}
-                    <span>{item.name}</span>
-                  </div>
-                  {item.badge !== null && item.badge !== undefined && (
-                    <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-[var(--accent-primary)] text-white">
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              ) : null
-            )}
-          </div>
-        )}
       </Container>
+
+      {/* Full-Featured Tactile Mobile Navigation & Aesthetics Drawer */}
+      <MobileMenuDrawer
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+      />
+
+      {/* Native-feeling Floating Mobile Bottom Navigation Dock */}
+      <MobileBottomDock
+        onOpenMenu={() => setMobileMenuOpen(true)}
+      />
     </header>
   );
 };

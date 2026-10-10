@@ -16,6 +16,8 @@ import ThemeToggle from './ThemeToggle'
 import StyleSwitcher from './StyleSwitcher'
 import CommentSystem from './CommentSystem'
 import NeuLoader from './NeuLoader'
+import MobileBottomDock from './MobileBottomDock'
+import MobileMenuDrawer from './MobileMenuDrawer'
 
 export {
   Header,
@@ -35,6 +37,8 @@ export {
   ThemeToggle,
   StyleSwitcher,
   CommentSystem,
-  NeuLoader
+  NeuLoader,
+  MobileBottomDock,
+  MobileMenuDrawer,
 }
 

@@ -314,3 +314,91 @@
   background: #10B981 !important;
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.9), inset 0 1px 2px #FFFFFF !important;
 }
+
+/* -------------------------------------------------------------
+   Aesthetic 3: Claymorphic Mobile Immersion (Velvety Tactile 3D)
+   Why: On mobile, claymorphic objects feel sculpted like soft matte putty.
+   Pillowy rounded tubes, dual inner dome highlights, and squishy elastic squash.
+   ------------------------------------------------------------- */
+[data-style="claymorphism"] .mobile-bottom-dock__inner {
+  border-radius: 9999px !important;
+  border: 2px solid var(--border-color) !important;
+  background: var(--surface-card) !important;
+  box-shadow: 
+    12px 18px 36px rgba(150, 172, 205, 0.4),
+    inset -5px -5px 12px rgba(150, 172, 205, 0.28),
+    inset 5px 5px 12px rgba(255, 255, 255, 0.95) !important;
+}
+
+[data-style="claymorphism"][data-theme="dark"] .mobile-bottom-dock__inner {
+  box-shadow: 
+    14px 20px 42px rgba(0, 0, 0, 0.7),
+    inset -5px -5px 12px rgba(0, 0, 0, 0.45),
+    inset 5px 5px 12px rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-style="claymorphism"] .mobile-dock-btn {
+  border-radius: 1.5rem !important;
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 220ms ease !important;
+}
+
+[data-style="claymorphism"] .mobile-dock-btn--active {
+  background: rgba(255, 112, 67, 0.12) !important;
+  color: var(--accent-primary) !important;
+  box-shadow: inset 3px 3px 7px rgba(150, 172, 205, 0.3), inset -3px -3px 7px rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-style="claymorphism"] .mobile-dock-indicator {
+  background: var(--accent-primary) !important;
+  box-shadow: 0 0 8px rgba(255, 112, 67, 0.75), inset 0 1px 2px #FFFFFF !important;
+}
+
+[data-style="claymorphism"] .mobile-dock-btn:active {
+  transform: scale(0.92) !important;
+}
+
+[data-style="claymorphism"] .mobile-dock-fab {
+  border-radius: 9999px !important;
+  border: 2px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 
+    0 10px 24px rgba(255, 112, 67, 0.45),
+    inset 4px 4px 8px rgba(255, 255, 255, 0.6),
+    inset -4px -4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-style="claymorphism"] .mobile-dock-fab:active {
+  transform: scale(0.9) !important;
+}
+
+[data-style="claymorphism"] .mobile-drawer-sheet {
+  border-top-left-radius: 2.25rem !important;
+  border-top-right-radius: 2.25rem !important;
+  border-top: 2.5px solid var(--border-color) !important;
+  box-shadow: 
+    0 -16px 45px rgba(150, 172, 205, 0.4),
+    inset 0 6px 14px rgba(255, 255, 255, 0.9) !important;
+  background: var(--surface-bg) !important;
+}
+
+[data-style="claymorphism"][data-theme="dark"] .mobile-drawer-sheet {
+  box-shadow: 
+    0 -18px 50px rgba(0, 0, 0, 0.8),
+    inset 0 4px 10px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-style="claymorphism"] .mobile-style-card {
+  border-radius: 1.5rem !important;
+  box-shadow: var(--shadow-btn) !important;
+}
+
+[data-style="claymorphism"] .mobile-style-card.is-active {
+  box-shadow: 
+    0 8px 20px rgba(255, 112, 67, 0.3),
+    inset -4px -4px 8px rgba(255, 112, 67, 0.2),
+    inset 4px 4px 8px rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-style="claymorphism"] .mobile-style-card:active {
+  transform: scale(0.95) !important;
+}
+

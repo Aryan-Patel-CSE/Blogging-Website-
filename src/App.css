@@ -719,6 +719,16 @@
   outline: none;
 }
 
+/* Prevent unwanted iOS auto-zoom on input focus */
+@media (max-width: 768px) {
+  .neu-input,
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 /* -------------------------------------------------------------
    General Button & Interactive Styles
 ------------------------------------------------------------- */

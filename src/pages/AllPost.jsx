@@ -46,7 +46,7 @@ function AllPosts() {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                         <div className="relative w-full sm:w-64">
                             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 dark:text-slate-500">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@ function AllPosts() {
 
                         <Link
                             to="/add-post"
-                            className="neu-btn-primary px-4 py-2 text-sm whitespace-nowrap"
+                            className="neu-btn-primary px-4 py-2 text-sm whitespace-nowrap text-center flex items-center justify-center gap-1.5"
                         >
                             <span>+ New Story</span>
                         </Link>

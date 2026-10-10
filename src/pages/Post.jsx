@@ -399,7 +399,7 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
 
                     {/* Featured Image Cover */}
                     {imgSrc && !imageError && (
-                        <div className="neu-card w-full aspect-[21/9] overflow-hidden">
+                        <div className="neu-card w-full aspect-[16/10] sm:aspect-[21/9] overflow-hidden">
                             <img
                                 src={imgSrc}
                                 alt={post.title}
@@ -410,14 +410,14 @@ function PostContent({ post, imageId, initialUrl, canManagePost, isAdmin, author
                     )}
 
                     {/* Article Body Content */}
-                    <div className="neu-card p-6 sm:p-10 border border-slate-200/50 dark:border-white/5">
+                    <div className="neu-card p-5 sm:p-8 md:p-10 border border-slate-200/50 dark:border-white/5">
                         <div className="prose prose-slate dark:prose-invert prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-[#FF6B00] dark:prose-a:text-[#FF7A18] prose-img:rounded-2xl leading-relaxed text-slate-800 dark:text-slate-100">
                             {parse(post.content || '')}
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-start gap-2">
-                    <div className="post-reaction" role="group" aria-label="React to or share this post">
+                    <div className="flex flex-col items-stretch sm:items-start gap-2">
+                    <div className="post-reaction w-full sm:w-auto justify-between sm:justify-start" role="group" aria-label="React to or share this post">
                         <button
                             type="button"
                             onClick={handleLike}

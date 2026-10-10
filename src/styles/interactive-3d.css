@@ -388,3 +388,134 @@
   background: #10B981 !important;
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.9) !important;
 }
+
+/* -------------------------------------------------------------
+   Aesthetic 5: Interactive 3D Mobile Spatial Computing
+   Why: On mobile devices without cursor tracking, we compensate with:
+   1. Dynamic touch-tilt & specular glare layer tracking
+   2. Gyroscope phone tilt response
+   3. Prismatic ambient sheen sweep across frosted glass slabs
+   4. Spatial floating glass bottom visor with optical blur refraction
+   ------------------------------------------------------------- */
+[data-style="interactive-3d"] .mobile-bottom-dock__inner {
+  border-radius: 9999px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  box-shadow: 
+    0 16px 40px rgba(50, 75, 120, 0.2),
+    0 4px 12px rgba(50, 75, 120, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+  transform-style: preserve-3d !important;
+}
+
+[data-style="interactive-3d"][data-theme="dark"] .mobile-bottom-dock__inner {
+  box-shadow: 
+    0 20px 48px rgba(0, 0, 0, 0.75),
+    0 4px 16px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-style="interactive-3d"] .mobile-dock-btn {
+  border-radius: 1rem !important;
+  transition: transform 180ms ease, box-shadow 180ms ease !important;
+}
+
+[data-style="interactive-3d"] .mobile-dock-btn--active {
+  background: rgba(255, 107, 0, 0.12) !important;
+  border: 1px solid rgba(255, 107, 0, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(255, 107, 0, 0.25) !important;
+  color: var(--accent-primary) !important;
+  transform: translateZ(8px) !important;
+}
+
+[data-style="interactive-3d"] .mobile-dock-indicator {
+  background: var(--accent-primary) !important;
+  box-shadow: 0 0 10px rgba(255, 107, 0, 0.95), 0 0 2px #FFFFFF !important;
+  transform: translateZ(10px) !important;
+}
+
+[data-style="interactive-3d"] .mobile-dock-btn:active {
+  transform: scale(0.93) translateZ(4px) !important;
+}
+
+[data-style="interactive-3d"] .mobile-dock-fab {
+  border-radius: 9999px !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8533 100%) !important;
+  box-shadow: 
+    0 8px 24px rgba(255, 107, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+  transform: translateZ(16px) !important;
+}
+
+[data-style="interactive-3d"] .mobile-dock-fab:active {
+  transform: scale(0.92) translateZ(6px) !important;
+}
+
+[data-style="interactive-3d"] .mobile-drawer-sheet {
+  border-top-left-radius: 2rem !important;
+  border-top-right-radius: 2rem !important;
+  border-top: 1.5px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  box-shadow: 
+    0 -18px 50px rgba(50, 75, 120, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+}
+
+[data-style="interactive-3d"][data-theme="dark"] .mobile-drawer-sheet {
+  box-shadow: 
+    0 -20px 60px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+[data-style="interactive-3d"] .mobile-style-card {
+  border-radius: 1rem !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-card) !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: var(--shadow-btn) !important;
+}
+
+[data-style="interactive-3d"] .mobile-style-card.is-active {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.3) !important;
+}
+
+/* Ambient Sheen Sweep Compensation for Touch Devices */
+@media (hover: none) and (pointer: coarse) {
+  [data-style="interactive-3d"] .neu-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  [data-style="interactive-3d"] .neu-card::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.12) 50%,
+      transparent 60%
+    );
+    transform: rotate(30deg);
+    animation: spatialSheenSweep 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 15;
+  }
+
+  @keyframes spatialSheenSweep {
+    0% {
+      transform: translateX(-100%) rotate(30deg);
+    }
+    20%, 100% {
+      transform: translateX(100%) rotate(30deg);
+    }
+  }
+}
+
