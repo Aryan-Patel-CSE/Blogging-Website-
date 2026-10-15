@@ -2,16 +2,12 @@ import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useSavedPosts } from '../hooks/useSavedPosts';
-import { useTheme } from '../context/ThemeContext';
 
 const MobileBottomDock = ({ onOpenMenu }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const authStatus = useSelector((state) => state.auth.status);
   const { savedCount } = useSavedPosts();
-  const { style, styles } = useTheme();
-
-  const currentStyleObj = styles.find((s) => s.id === style) || styles[0];
 
   const dockItems = [
     {
@@ -58,10 +54,12 @@ const MobileBottomDock = ({ onOpenMenu }) => {
     },
     {
       id: 'menu',
-      name: 'Styles',
+      name: 'Menu',
       action: onOpenMenu,
       icon: (
-        <span className="text-lg leading-none">{currentStyleObj.icon}</span>
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
       ),
     },
   ];

@@ -1,0 +1,655 @@
+/* ==========================================================================
+   InkSpace Master Theme: Skeuomorphism Interactive 3D
+   --------------------------------------------------------------------------
+   THE ULTIMATE FUSION OF TACTILE HARDWARE REALISM & SPATIAL 3D PHYSICS:
+   1. Physical Skeuomorphic Foundations:
+      - Machined aircraft aluminum (Light) & anodized dark titanium (Dark)
+      - Dual-bevel perimeter: Top specular white edge highlight + bottom lip occlusion
+      - Anisotropic brushed metal micro-grain texture
+      - Physically depressing tactile buttons on active click
+      - Precision CNC-milled status badges with pulsing diode LEDs
+      - Recessed debossed input wells and milled monitor bezels
+   2. Spatial Interactive 3D Mechanics:
+      - Real-time cursor tilt physics with perspective(1000px) & preserve-3d
+      - Mobile touch-tilt compensation & device gyroscope responsiveness
+      - Dynamic specular glare spotlight layer tracking cursor (--mouse-x, --mouse-y)
+      - True hierarchical Z-axis parallax (translateZ on thumbnails, titles, read bars, badges)
+      - Floating spatial faceplate header with optical frosted glass refraction
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Light Mode Tokens: Machined Aircraft Aluminum with Spatial Glare
+   -------------------------------------------------------------------------- */
+:root,
+[data-theme="light"],
+[data-style="skeuomorphic-3d"][data-theme="light"],
+[data-style="skeuomorphic-3d"]:not([data-theme="dark"]) {
+  /* Matte metallic slate canvas background */
+  --app-bg: #DFE4EC;
+
+  /* Specular crown down to CNC milled brushed aluminum plate */
+  --surface-bg: linear-gradient(180deg, #FFFFFF 0%, #F1F5FA 20%, #DCE5F1 50%, #BAC8D8 85%, #CBD7E7 100%);
+  --surface-hover: linear-gradient(180deg, #FFFFFF 0%, #FAFBFD 20%, #E7EEF8 50%, #C9D5E5 85%, #DCE6F3 100%);
+  --surface-active: #C8D4E2;
+
+  /* Card slab gradient with optical depth */
+  --surface-card: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(246, 248, 252, 0.96) 25%, rgba(222, 230, 242, 0.94) 60%, rgba(198, 211, 228, 0.92) 88%, rgba(214, 225, 240, 0.96) 100%);
+  --surface-card-thumb: #CAD5E4;
+
+  /* High-contrast hardware stamped text hierarchy */
+  --text-primary: #141A24;
+  --text-secondary: #334155;
+  --text-muted: #5D6B7F;
+  --text-inverse: #FFFFFF;
+
+  /* Machined metallic seams */
+  --border-color: #9AA9BC;
+  --border-color-subtle: #BAC7D8;
+  --border-width: 1.5px;
+  --border-style: solid;
+
+  --radius-card: 1.35rem;
+  --radius-btn: 0.9rem;
+  --radius-badge: 9999px;
+  --radius-input: 0.85rem;
+
+  /* Multi-tier physical lighting + deep spatial contact shadows */
+  --shadow-card: 0 16px 36px -4px rgba(20, 30, 50, 0.16), 0 4px 12px rgba(20, 30, 50, 0.08), inset 0 1.5px 0 #FFFFFF, inset 0 -1.5px 0 rgba(0, 0, 0, 0.22);
+  --shadow-card-hover: 0 28px 60px -8px rgba(20, 30, 50, 0.26), 0 8px 20px rgba(20, 30, 50, 0.12), inset 0 1.5px 0 #FFFFFF, inset 0 -1.5px 0 rgba(0, 0, 0, 0.28);
+  --shadow-btn: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1.5px 1px #FFFFFF, inset 0 -1.5px 2px rgba(0, 0, 0, 0.28);
+  --shadow-inset: inset 0 3px 6px rgba(0, 0, 0, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-inset-sm: inset 0 2px 4px rgba(0, 0, 0, 0.16), inset 0 -1px 0 rgba(255, 255, 255, 0.85);
+
+  /* Unified Radiant Brand Orange Accent */
+  --accent-primary: #FF6B00;
+  --accent-primary-hover: #FF7F1F;
+  --accent-primary-active: #E65A00;
+  --accent-primary-text: #FFFFFF;
+  --accent-glow: 0 6px 24px rgba(255, 107, 0, 0.45);
+
+  --font-family-base: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Dark Mode Tokens: Anodized Gunmetal Dark Titanium with Spatial Glare
+   -------------------------------------------------------------------------- */
+[data-theme="dark"],
+.dark,
+[data-style="skeuomorphic-3d"][data-theme="dark"] {
+  /* Deep carbon titanium void base */
+  --app-bg: #0E1116;
+
+  /* Three-stop gunmetal plate gradient with specular rims */
+  --surface-bg: linear-gradient(180deg, #373F4D 0%, #252B35 25%, #181D24 55%, #2B3340 85%, #1C2129 100%);
+  --surface-hover: linear-gradient(180deg, #3E4756 0%, #2B323E 25%, #1C222A 55%, #323B4A 85%, #202630 100%);
+  --surface-active: #151920;
+  --surface-card: linear-gradient(180deg, rgba(51, 59, 71, 0.95) 0%, rgba(34, 40, 50, 0.92) 25%, rgba(22, 27, 34, 0.92) 55%, rgba(39, 46, 59, 0.92) 85%, rgba(26, 31, 38, 0.95) 100%);
+  --surface-card-thumb: #0B0E13;
+
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-inverse: #0E1116;
+
+  --border-color: #404B5D;
+  --border-color-subtle: #262F3C;
+  --border-width: 1.5px;
+  --border-style: solid;
+
+  --radius-card: 1.35rem;
+  --radius-btn: 0.9rem;
+  --radius-badge: 9999px;
+  --radius-input: 0.85rem;
+
+  /* Dark mode bevel shadows + deep obsidian floor drops */
+  --shadow-card: 0 20px 48px -6px rgba(0, 0, 0, 0.78), 0 6px 18px rgba(0, 0, 0, 0.55), inset 0 1.5px 0 rgba(255, 255, 255, 0.28), inset 0 -1.5px 0 rgba(0, 0, 0, 0.75);
+  --shadow-card-hover: 0 34px 74px -8px rgba(0, 0, 0, 0.92), 0 10px 26px rgba(0, 0, 0, 0.65), inset 0 1.5px 0 rgba(255, 255, 255, 0.38), inset 0 -1.5px 0 rgba(0, 0, 0, 0.85);
+  --shadow-btn: 0 4px 12px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.3), inset 0 -1px 2px rgba(0, 0, 0, 0.7);
+  --shadow-inset: inset 0 3px 8px rgba(0, 0, 0, 0.75), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-inset-sm: inset 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+
+  --accent-primary: #FF7A18;
+  --accent-primary-hover: #FF8F33;
+  --accent-primary-active: #E66507;
+  --accent-primary-text: #FFFFFF;
+  --accent-glow: 0 6px 28px rgba(255, 122, 24, 0.55);
+
+  --font-family-base: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Canvas Background: Anisotropic Brushed Aluminum + Spatial Coordinate Grid
+   -------------------------------------------------------------------------- */
+body {
+  background-color: var(--app-bg) !important;
+  background-image: 
+    radial-gradient(circle at 18% 18%, rgba(255, 107, 0, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 82% 82%, rgba(255, 143, 51, 0.05) 0%, transparent 40%),
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.015) 0px, rgba(0, 0, 0, 0.015) 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 1px, transparent 1px, transparent 4px),
+    linear-gradient(to right, rgba(154, 169, 188, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(154, 169, 188, 0.08) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 100%, auto, auto, 40px 40px, 40px 40px !important;
+  background-attachment: fixed !important;
+}
+
+[data-theme="dark"] body,
+.dark body {
+  background-image: 
+    radial-gradient(circle at 18% 18%, rgba(255, 122, 24, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 82% 82%, rgba(255, 154, 61, 0.08) 0%, transparent 45%),
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.22) 0px, rgba(0, 0, 0, 0.22) 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.025) 0px, rgba(255, 255, 255, 0.025) 1px, transparent 1px, transparent 4px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 100%, auto, auto, 40px 40px, 40px 40px !important;
+  background-attachment: fixed !important;
+}
+
+/* --------------------------------------------------------------------------
+   Machined Faceplate Header with 3D Visor Refraction
+   -------------------------------------------------------------------------- */
+header {
+  background: var(--surface-bg) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  border-bottom: var(--border-width) solid var(--border-color) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), inset 0 1.5px 0 rgba(255, 255, 255, 0.85) !important;
+}
+
+[data-theme="dark"] header,
+.dark header {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), inset 0 1.5px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+/* Hardware Logo Medallion: Beveled power jewel with radiant prism glow */
+.app-logo__icon {
+  border-radius: 0.85rem !important;
+  background: linear-gradient(135deg, #FF9142 0%, #FF6B00 50%, #E55C00 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.8), inset 0 -1.5px 2px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Nav links: Recessed milled recess when active */
+.nav-link {
+  border-radius: 0.75rem !important;
+  transition: all 160ms ease !important;
+}
+
+.nav-link-active {
+  background: var(--surface-card-thumb) !important;
+  box-shadow: var(--shadow-inset-sm) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--accent-primary) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Hero Banner: Floating 3D Machined Monolith
+   -------------------------------------------------------------------------- */
+.home-hero-banner {
+  border-radius: 1.5rem !important;
+  border: var(--border-width) solid var(--border-color) !important;
+  background: var(--surface-card) !important;
+  backdrop-filter: blur(20px) saturate(170%) !important;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18), inset 0 1.5px 0 rgba(255, 255, 255, 0.95), inset 0 -1.5px 0 rgba(0, 0, 0, 0.2) !important;
+  transform-style: preserve-3d !important;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .home-hero-banner,
+.dark .home-hero-banner {
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), inset 0 1.5px 0 rgba(255, 255, 255, 0.25), inset 0 -1.5px 0 rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Subtle metallic sweep sheen across hero banner */
+.home-hero-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, transparent 40%, rgba(255, 255, 255, 0.1) 60%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-theme="dark"] .home-hero-banner::before,
+.dark .home-hero-banner::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 40%, rgba(255, 122, 24, 0.08) 60%, transparent 100%);
+}
+
+.hero-badge {
+  border-radius: 9999px !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  box-shadow: var(--shadow-inset-sm), 0 2px 6px rgba(255, 107, 0, 0.25) !important;
+  color: var(--accent-primary) !important;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-gradient-text {
+  background: linear-gradient(180deg, #FF8833 0%, #FF6B00 50%, #CC4E00 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
+}
+
+.hero-secondary-btn {
+  border-radius: 0.85rem !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  box-shadow: var(--shadow-btn) !important;
+  position: relative;
+  z-index: 2;
+}
+
+/* --------------------------------------------------------------------------
+   Post Cards: Interactive 3D Machined Metallic Modules
+   -------------------------------------------------------------------------- */
+.neu-card {
+  position: relative !important;
+  border: var(--border-width) solid var(--border-color) !important;
+  border-radius: var(--radius-card) !important;
+  background: var(--surface-card) !important;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  box-shadow: var(--shadow-card) !important;
+  transform-style: preserve-3d !important;
+  perspective: 1000px !important;
+  will-change: transform, box-shadow !important;
+  transition: transform 120ms ease-out, box-shadow 140ms ease-out, border-color 200ms ease !important;
+  overflow: visible !important;
+}
+
+/* Specular Glare Tracking Layer: Reflects light directly off mouse/touch coordinates */
+.neu-card::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  z-index: 20 !important;
+  background: radial-gradient(
+    circle 260px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.32) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 80%
+  ) !important;
+  opacity: 0 !important;
+  transition: opacity 280ms ease !important;
+}
+
+[data-theme="dark"] .neu-card::before,
+.dark .neu-card::before {
+  background: radial-gradient(
+    circle 280px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 122, 24, 0.12) 50%,
+    transparent 80%
+  ) !important;
+}
+
+.neu-card:hover::before {
+  opacity: 1 !important;
+}
+
+/* Hairline specular chamfer highlight across the card crown */
+.neu-card::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 8% !important;
+  right: 8% !important;
+  height: 1.5px !important;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.9) 50%, transparent 100%) !important;
+  pointer-events: none !important;
+  z-index: 25 !important;
+}
+
+[data-theme="dark"] .neu-card::after,
+.dark .neu-card::after {
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%) !important;
+}
+
+/* --------------------------------------------------------------------------
+   True Hierarchical Z-Axis Parallax Layers
+   -------------------------------------------------------------------------- */
+/* 1. Milled monitor bezel holding post image */
+.neu-card__thumb {
+  border-radius: calc(var(--radius-card) - 3px) calc(var(--radius-card) - 3px) 0 0 !important;
+  border-bottom: 1.5px solid var(--border-color) !important;
+  background: var(--surface-card-thumb) !important;
+  box-shadow: var(--shadow-inset) !important;
+  transform: translateZ(24px) !important;
+  transform-style: preserve-3d !important;
+  transition: transform 200ms ease-out !important;
+}
+
+/* 2. Headline Title with Stamped Hardware Depth */
+.neu-card h2 {
+  color: var(--text-primary) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9), 0 -1px 0 rgba(0, 0, 0, 0.15) !important;
+  transform: translateZ(34px) !important;
+  transform-style: preserve-3d !important;
+  transition: transform 200ms ease-out !important;
+}
+
+[data-theme="dark"] .neu-card h2,
+.dark .neu-card h2 {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 -1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 3. Unified Read Story Track & Toggle Badge */
+.neu-read-bar {
+  border-radius: 9999px !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.14), 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  transform: translateZ(28px) !important;
+  transform-style: preserve-3d !important;
+  transition: transform 200ms ease-out !important;
+}
+
+[data-theme="dark"] .neu-read-bar,
+.dark .neu-read-bar {
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+.neu-read-bar__badge {
+  border-radius: 9999px !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, #DCE5F1 100%) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+  color: var(--accent-primary) !important;
+  transform: translateZ(10px) !important;
+}
+
+[data-theme="dark"] .neu-read-bar__badge,
+.dark .neu-read-bar__badge {
+  background: linear-gradient(180deg, #373F4D 0%, #1E242C 100%) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+/* 4. Precision CNC-Milled Status Badge & Pulsating Jewel LED */
+.post-status-badge {
+  background: linear-gradient(180deg, #FFFFFF 0%, #EFF4FA 30%, #CFD9E8 70%, #ABC1D6 100%) !important;
+  border: 1px solid #7E8C9E !important;
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.18),
+    inset 0 1.5px 1px #FFFFFF,
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.35) !important;
+  color: #0F172A !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.post-status-badge--card {
+  transform: translateZ(38px) !important;
+  transform-style: preserve-3d !important;
+}
+
+.post-status-badge__dot {
+  width: 8px !important;
+  height: 8px !important;
+  background: radial-gradient(circle at 35% 35%, #86EFAC 0%, #10B981 55%, #047857 100%) !important;
+  box-shadow: 
+    0 0 10px rgba(16, 185, 129, 0.95),
+    0 0 2px #34D399,
+    inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+  border: 1.5px solid #065F46 !important;
+  animation: skeuo3dLedPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes skeuo3dLedPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.8), 0 0 2px #34D399, inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(16, 185, 129, 1), 0 0 4px #6EE7B7, inset 0 1px 1px rgba(255, 255, 255, 1);
+  }
+}
+
+[data-theme="dark"] .post-status-badge,
+.dark .post-status-badge {
+  background: linear-gradient(180deg, #4A5668 0%, #293240 45%, #151A22 65%, #2B3442 100%) !important;
+  border: 1px solid #4B5565 !important;
+  box-shadow: 
+    0 5px 12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.8) !important;
+  color: #F8FAFC !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.9) !important;
+}
+
+[data-theme="dark"] .post-status-badge__dot,
+.dark .post-status-badge__dot {
+  box-shadow: 
+    0 0 12px rgba(52, 211, 153, 0.95),
+    0 0 3px #6EE7B7,
+    inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Physical Hardware Push Buttons & Inset Controls
+   -------------------------------------------------------------------------- */
+.neu-btn-primary {
+  border-radius: var(--radius-btn) !important;
+  background: linear-gradient(180deg, #FF9142 0%, #FF6B00 48%, #E55C00 100%) !important;
+  border: 1px solid #C44C00 !important;
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.22),
+    0 2px 4px rgba(255, 107, 0, 0.35),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.3) !important;
+  text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.4) !important;
+  transition: transform 120ms ease, box-shadow 120ms ease !important;
+}
+
+.neu-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 
+    0 8px 24px rgba(255, 107, 0, 0.5),
+    inset 0 1.5px 1px #FFFFFF,
+    inset 0 -2px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Mechanical depression feedback on click */
+.neu-btn-primary:active:not(:disabled),
+button:active:not(:disabled) {
+  transform: translateY(2px) scale(0.98) !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.55), inset 0 -1px 1px rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Debossed input wells recessed into chassis */
+.neu-input {
+  border-radius: var(--radius-input) !important;
+  border: var(--border-width) solid var(--border-color) !important;
+  background: var(--surface-card-thumb) !important;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.18), 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  transition: all 180ms ease !important;
+}
+
+[data-theme="dark"] .neu-input,
+.dark .neu-input {
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+.neu-input:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(255, 107, 0, 0.35) !important;
+}
+
+.neu-surface,
+.neu-surface-sm {
+  border-radius: var(--radius-btn) !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  box-shadow: var(--shadow-btn) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Machined Faceplate Article Masthead
+   -------------------------------------------------------------------------- */
+.article-masthead {
+  border-radius: 1.5rem !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5F8FC 20%, #E3EAF4 65%, #CBD6E5 90%, #DAE3F0 100%) !important;
+  border: var(--border-width) solid #9BAAC0 !important;
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.16),
+    0 3px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1.5px 0 rgba(255, 255, 255, 1),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.22) !important;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+.article-masthead::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, transparent 40%, rgba(255, 255, 255, 0.2) 60%, transparent 100%);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .article-masthead,
+.dark .article-masthead {
+  background: linear-gradient(180deg, #373F4D 0%, #242A34 30%, #161A21 65%, #29313D 90%, #1C2128 100%) !important;
+  border: var(--border-width) solid #3F4A5B !important;
+  box-shadow: 
+    0 22px 52px rgba(0, 0, 0, 0.82),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.75) !important;
+}
+
+[data-theme="dark"] .article-masthead::before,
+.dark .article-masthead::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, transparent 45%, rgba(255, 255, 255, 0.05) 70%, transparent 100%);
+}
+
+.article-masthead__meta-row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  padding-bottom: 1.25rem !important;
+}
+
+[data-theme="dark"] .article-masthead__meta-row,
+.dark .article-masthead__meta-row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+.article-masthead__category {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(180deg, #E6EDF5 0%, #D0DBE8 100%) !important;
+  border: 1px solid #A2B1C4 !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15), 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  color: var(--accent-primary) !important;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .article-masthead__category,
+.dark .article-masthead__category {
+  background: linear-gradient(180deg, #1A1F26 0%, #12161C 100%) !important;
+  border: 1px solid #303947 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.9);
+}
+
+.article-masthead__title {
+  color: var(--text-primary) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), 0 -1px 0 rgba(0, 0, 0, 0.22) !important;
+  letter-spacing: -0.025em;
+}
+
+[data-theme="dark"] .article-masthead__title,
+.dark .article-masthead__title {
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.95), 0 -1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.post-reaction {
+  background: var(--surface-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  border-radius: var(--radius-btn) !important;
+  padding: 4px 8px !important;
+}
+
+[data-theme="dark"] .post-reaction,
+.dark .post-reaction {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Footer Baseplate
+   -------------------------------------------------------------------------- */
+footer {
+  border-top: var(--border-width) solid var(--border-color) !important;
+  background: var(--surface-bg) !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+[data-theme="dark"] footer,
+.dark footer {
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Mobile Floating Bottom Dock & Drawer Sheet
+   -------------------------------------------------------------------------- */
+.mobile-bottom-dock__inner {
+  border-radius: 9999px !important;
+  border: var(--border-width) solid var(--border-color) !important;
+  background: var(--surface-card) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  box-shadow: 
+    0 14px 34px rgba(0, 0, 0, 0.22),
+    inset 0 1.5px 0 #FFFFFF,
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-theme="dark"] .mobile-bottom-dock__inner,
+.dark .mobile-bottom-dock__inner {
+  box-shadow: 
+    0 18px 42px rgba(0, 0, 0, 0.85),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.8) !important;
+}
+
+.mobile-dock-btn {
+  border-radius: 0.85rem !important;
+  transition: transform 140ms ease, box-shadow 140ms ease !important;
+}
+
+.mobile-dock-btn--active {
+  background: var(--surface-card-thumb) !important;
+  box-shadow: var(--shadow-inset-sm), 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  color: var(--accent-primary) !important;
+}
+
+[data-theme="dark"] .mobile-dock-btn--active,
+.dark .mobile-dock-btn--active {
+  box-shadow: var(--shadow-inset-sm), 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+.mobile-dock-fab {
+  border-radius: 9999px !important;
+  border: 1px solid #C44C00 !important;
+  background: linear-gradient(180deg, #FF9142 0%, #FF6B00 50%, #E55C00 100%) !important;
+  box-shadow: 
+    0 8px 24px rgba(255, 107, 0, 0.45),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.8),
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.4) !important;
+}
+
+.mobile-dock-fab:active {
+  transform: translateY(2px) scale(0.94) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+}

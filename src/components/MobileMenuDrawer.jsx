@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useTheme } from '../context/ThemeContext';
 import { ThemeToggle, LogoutBtn, Logo } from './index';
 import { isAdminUser } from '../utils/authHelper';
 
@@ -12,7 +11,6 @@ const MobileMenuDrawer = ({ isOpen, onClose }) => {
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
   const isAdmin = isAdminUser(userData);
-  const { style, setStyle, styles } = useTheme();
 
   // Handle escape key to close
   useEffect(() => {
@@ -140,55 +138,6 @@ const MobileMenuDrawer = ({ isOpen, onClose }) => {
           </div>
         ) : null}
 
-        {/* Design System Aesthetic Studio */}
-        <div className="mb-5">
-          <div className="flex items-center justify-between mb-2.5 px-0.5">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Design Systems (5 Aesthetics)
-            </span>
-            <span className="text-[11px] font-semibold text-[var(--accent-primary)]">
-              Interactive
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {styles.map((item) => {
-              const isSelected = item.id === style;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setStyle(item.id)}
-                  className={`mobile-style-card flex items-center justify-between p-3 rounded-2xl text-left cursor-pointer transition-all ${
-                    isSelected
-                      ? 'is-active neu-inset-sm border-2 border-[var(--accent-primary)]'
-                      : 'neu-surface-sm border border-[var(--border-color-subtle)]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-xl flex-shrink-0">{item.icon}</span>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">
-                          {item.label}
-                        </span>
-                        {isSelected && (
-                          <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-pulse" />
-                        )}
-                      </div>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">
-                        {item.description}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded border border-current opacity-70 ml-2 flex-shrink-0">
-                    {item.badge}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Navigation Quick Links */}
         <div className="space-y-1.5 pt-2 border-t border-[var(--border-color-subtle)]">

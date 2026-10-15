@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import themeEngine, { STYLES, THEME_STORAGE_KEY, STYLE_STORAGE_KEY } from '../utils/theme-switcher';
+import themeEngine, { STYLES, THEME_STORAGE_KEY, UNIFIED_STYLE_ID } from '../utils/theme-switcher';
 
 const ThemeContext = createContext({
   theme: 'light',
   toggleTheme: () => {},
   setTheme: () => {},
-  style: 'default',
+  style: UNIFIED_STYLE_ID,
   setStyle: () => {},
   styles: STYLES,
 });
@@ -23,20 +23,15 @@ export const ThemeProvider = ({ children }) => {
     }
   });
 
-  const [style, setStyleState] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STYLE_STORAGE_KEY);
-      const isValid = STYLES.some((s) => s.id === saved);
-      return isValid ? saved : 'default';
-    } catch {
-      return 'default';
-    }
-  });
+  // Always use the unified Skeuomorphism Interactive 3D master theme
+  const style = UNIFIED_STYLE_ID;
 
-  // Synchronize Theme & Data Attributes
+  // Synchronize Theme & Root Data Attributes
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
+    root.setAttribute('data-style', UNIFIED_STYLE_ID);
+
     if (theme === 'dark') {
       root.classList.add('dark');
       root.style.colorScheme = 'dark';
@@ -51,26 +46,13 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [theme]);
 
-  // Synchronize Style & Data Attributes & 3D Tilt Physics
+  // Permanently maintain Interactive 3D Tilt Physics
   useEffect(() => {
-    const root = document.documentElement;
-    root.setAttribute('data-style', style);
-    try {
-      localStorage.setItem(STYLE_STORAGE_KEY, style);
-    } catch (e) {
-      console.warn('Could not save style to localStorage', e);
-    }
-
-    if (style === 'interactive-3d') {
-      themeEngine.initTiltPhysics();
-    } else {
-      themeEngine.destroyTiltPhysics();
-    }
-
+    themeEngine.initTiltPhysics();
     return () => {
       themeEngine.destroyTiltPhysics();
     };
-  }, [style]);
+  }, []);
 
   const setTheme = (newTheme) => {
     setThemeState(newTheme);
@@ -81,9 +63,8 @@ export const ThemeProvider = ({ children }) => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const setStyle = (newStyle) => {
-    setStyleState(newStyle);
-    themeEngine.setStyle(newStyle);
+  const setStyle = () => {
+    // Style is locked to Skeuomorphism Interactive 3D
   };
 
   return (

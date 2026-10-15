@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Container, Logo, LogoutBtn, ThemeToggle, StyleSwitcher, MobileMenuDrawer, MobileBottomDock } from '../index';
+import { Container, Logo, LogoutBtn, ThemeToggle, MobileMenuDrawer, MobileBottomDock } from '../index';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { isAdminUser } from '../../utils/authHelper';
@@ -108,7 +108,6 @@ const Header = () => {
             </ul>
 
             <div className="flex items-center gap-2.5 pl-3 ml-2 border-l border-slate-300/60 dark:border-white/10">
-              <StyleSwitcher />
               <ThemeToggle />
 
               {authStatus && (

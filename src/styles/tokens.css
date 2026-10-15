@@ -1,82 +1,63 @@
 /* ==========================================================================
-   InkSpace Design Systems - Core Tokens & Base Contract
+   InkSpace Design System - Master Tokens & Base Contract
    --------------------------------------------------------------------------
-   THE ARCHITECTURAL CONTRACT:
-   This file establishes the foundational CSS Custom Properties (variables)
-   that all 5 design systems must fulfill. Instead of hardcoding values inside
-   components, components consume semantic tokens like `var(--surface-card)`
-   or `var(--shadow-card)`.
-
-   Two-Dimensional State Architecture:
-   - Theme Mode:  `data-theme="light" | "dark"` (controls luminance and contrast)
-   - Style Mode:  `data-style="default" | "neo-brutalism" | "claymorphism" |
-                              "skeuomorphism" | "interactive-3d"`
-                  (controls materials, shadow formulas, geometry, and physics)
-
-   By decoupling theme luminance from design aesthetic, the user can toggle
-   any style in either Light or Dark mode on the fly with zero visual breakage!
+   Unified Theme Contract: Skeuomorphism Interactive 3D
+   - Theme Mode: `data-theme="light" | "dark"` (controls luminance and plate finish)
+   - Style: Locked to unified Skeuomorphism Interactive 3D master aesthetic
    ========================================================================== */
 
 :root {
   /* ------------------------------------------------------------------------
-     1. Surface & Canvas Colors (Default Light Fallback)
-     In Neumorphism / Soft UI, the background and surfaces share similar tones
-     so that objects appear extruded directly out of the canvas.
+     1. Surface & Canvas Colors (Light Mode: Machined Aluminum)
      ------------------------------------------------------------------------ */
-  --app-bg: #EEF2F6;
-  --surface-bg: #EEF2F6;
-  --surface-hover: #F5F8FC;
-  --surface-active: #E6EBF2;
-  --surface-card: #EEF2F6;
-  --surface-card-thumb: #EEF2F6;
+  --app-bg: #DFE4EC;
+  --surface-bg: linear-gradient(180deg, #FFFFFF 0%, #F1F5FA 20%, #DCE5F1 50%, #BAC8D8 85%, #CBD7E7 100%);
+  --surface-hover: linear-gradient(180deg, #FFFFFF 0%, #FAFBFD 20%, #E7EEF8 50%, #C9D5E5 85%, #DCE6F3 100%);
+  --surface-active: #C8D4E2;
+  --surface-card: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(246, 248, 252, 0.96) 25%, rgba(222, 230, 242, 0.94) 60%, rgba(198, 211, 228, 0.92) 88%, rgba(214, 225, 240, 0.96) 100%);
+  --surface-card-thumb: #CAD5E4;
 
   /* ------------------------------------------------------------------------
      2. Semantic Text Hierarchy
-     Carefully calibrated for high legibility (WCAG AAA contrast ratios).
      ------------------------------------------------------------------------ */
-  --text-primary: #0F172A;
+  --text-primary: #141A24;
   --text-secondary: #334155;
-  --text-muted: #64748B;
+  --text-muted: #5D6B7F;
   --text-inverse: #FFFFFF;
 
   /* ------------------------------------------------------------------------
      3. Border Line & Geometric Radii Tokens
-     Styles override these (e.g. 0px for Neo-Brutalism, 2rem for Claymorphism).
      ------------------------------------------------------------------------ */
-  --border-color: rgba(255, 255, 255, 0.75);
-  --border-color-subtle: rgba(194, 205, 221, 0.45);
-  --border-width: 1px;
+  --border-color: #9AA9BC;
+  --border-color-subtle: #BAC7D8;
+  --border-width: 1.5px;
   --border-style: solid;
 
-  --radius-card: 1.25rem;
-  --radius-btn: 0.95rem;
+  --radius-card: 1.35rem;
+  --radius-btn: 0.9rem;
   --radius-badge: 9999px;
   --radius-input: 0.85rem;
 
   /* ------------------------------------------------------------------------
-     4. Elevation & Shadow Physics
-     Default Soft UI dual-shadows: positive offset dark shadow + negative
-     offset specular light highlight.
+     4. Elevation & Shadow Physics: Specular Bevels + Deep Spatial Drops
      ------------------------------------------------------------------------ */
-  --shadow-card: 7px 7px 16px #C2CDDD, -7px -7px 16px #FFFFFF;
-  --shadow-card-hover: 11px 11px 24px #C2CDDD, -11px -11px 24px #FFFFFF;
-  --shadow-btn: 4px 4px 10px #C2CDDD, -4px -4px 10px #FFFFFF;
-  --shadow-inset: inset 3px 3px 6px #C2CDDD, inset -3px -3px 6px #FFFFFF;
-  --shadow-inset-sm: inset 2px 2px 4px #C2CDDD, inset -2px -2px 4px #FFFFFF;
+  --shadow-card: 0 16px 36px -4px rgba(20, 30, 50, 0.16), 0 4px 12px rgba(20, 30, 50, 0.08), inset 0 1.5px 0 #FFFFFF, inset 0 -1.5px 0 rgba(0, 0, 0, 0.22);
+  --shadow-card-hover: 0 28px 60px -8px rgba(20, 30, 50, 0.26), 0 8px 20px rgba(20, 30, 50, 0.12), inset 0 1.5px 0 #FFFFFF, inset 0 -1.5px 0 rgba(0, 0, 0, 0.28);
+  --shadow-btn: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1.5px 1px #FFFFFF, inset 0 -1.5px 2px rgba(0, 0, 0, 0.28);
+  --shadow-inset: inset 0 3px 6px rgba(0, 0, 0, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-inset-sm: inset 0 2px 4px rgba(0, 0, 0, 0.16), inset 0 -1px 0 rgba(255, 255, 255, 0.85);
 
   /* ------------------------------------------------------------------------
      5. Radiant Brand Accent (Main InkSpace Orange)
-     Unified across all themes for brand identity recognition.
      ------------------------------------------------------------------------ */
   --accent-primary: #FF6B00;
   --accent-primary-hover: #FF7F1F;
   --accent-primary-active: #E65A00;
   --accent-primary-text: #FFFFFF;
-  --accent-glow: 0 6px 20px rgba(255, 107, 0, 0.35);
+  --accent-glow: 0 6px 24px rgba(255, 107, 0, 0.45);
 
   /* ------------------------------------------------------------------------
      6. Typography Stacks
-     Defaulting to modern geometric Plus Jakarta Sans.
      ------------------------------------------------------------------------ */
   --font-family-base: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-family-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -84,12 +65,6 @@
 
   /* ------------------------------------------------------------------------
      7. Backward Compatibility Mappings
-     CRITICAL ARCHITECTURAL BRIDGE:
-     Pre-existing codebase components reference legacy variables like `--neu-bg`,
-     `--neu-shadow-outset`, and `--primary-orange`.
-     By alias-mapping them to the new unified tokens (`var(--surface-bg)`,
-     `var(--shadow-card)`, etc.), all pre-written components automatically
-     morph to whichever aesthetic style is active WITHOUT modifying their JSX!
      ------------------------------------------------------------------------ */
   --neu-bg: var(--app-bg);
   --neu-surface: var(--surface-bg);
@@ -116,42 +91,41 @@
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-top: env(safe-area-inset-top, 0px);
   --radius-dock: 9999px;
-  --shadow-dock: 0 10px 32px rgba(0, 0, 0, 0.14), var(--shadow-card);
+  --shadow-dock: 0 14px 34px rgba(0, 0, 0, 0.22), var(--shadow-card);
 }
 
 /* --------------------------------------------------------------------------
-   Base Dark Mode Tokens
-   Why: When `data-theme="dark"` is active, these baseline dark values take
-   effect, serving as the canvas for any style that hasn't overridden them.
+   Base Dark Mode Tokens (Dark Titanium Plate & Spatial Glare)
    -------------------------------------------------------------------------- */
 [data-theme="dark"],
 .dark {
-  --app-bg: #161920;
-  --surface-bg: #1B1E26;
-  --surface-hover: #222631;
-  --surface-active: #15181F;
-  --surface-card: #1B1E26;
-  --surface-card-thumb: #1B1E26;
+  --app-bg: #0E1116;
+  --surface-bg: linear-gradient(180deg, #373F4D 0%, #252B35 25%, #181D24 55%, #2B3340 85%, #1C2129 100%);
+  --surface-hover: linear-gradient(180deg, #3E4756 0%, #2B323E 25%, #1C222A 55%, #323B4A 85%, #202630 100%);
+  --surface-active: #151920;
+  --surface-card: linear-gradient(180deg, rgba(51, 59, 71, 0.95) 0%, rgba(34, 40, 50, 0.92) 25%, rgba(22, 27, 34, 0.92) 55%, rgba(39, 46, 59, 0.92) 85%, rgba(26, 31, 38, 0.95) 100%);
+  --surface-card-thumb: #0B0E13;
 
   --text-primary: #F8FAFC;
   --text-secondary: #CBD5E1;
   --text-muted: #94A3B8;
-  --text-inverse: #0F172A;
+  --text-inverse: #0E1116;
 
-  --border-color: rgba(255, 255, 255, 0.07);
-  --border-color-subtle: rgba(40, 47, 59, 0.6);
+  --border-color: #404B5D;
+  --border-color-subtle: #262F3C;
+  --border-width: 1.5px;
 
-  --shadow-card: 7px 7px 18px #0F1116, -7px -7px 18px #252A36;
-  --shadow-card-hover: 11px 11px 26px #0F1116, -11px -11px 26px #252A36;
-  --shadow-btn: 4px 4px 10px #0F1116, -4px -4px 10px #252A36;
-  --shadow-inset: inset 3px 3px 6px #0F1116, inset -3px -3px 6px #252A36;
-  --shadow-inset-sm: inset 2px 2px 4px #0F1116, inset -2px -2px 4px #252A36;
+  --shadow-card: 0 20px 48px -6px rgba(0, 0, 0, 0.78), 0 6px 18px rgba(0, 0, 0, 0.55), inset 0 1.5px 0 rgba(255, 255, 255, 0.28), inset 0 -1.5px 0 rgba(0, 0, 0, 0.75);
+  --shadow-card-hover: 0 34px 74px -8px rgba(0, 0, 0, 0.92), 0 10px 26px rgba(0, 0, 0, 0.65), inset 0 1.5px 0 rgba(255, 255, 255, 0.38), inset 0 -1.5px 0 rgba(0, 0, 0, 0.85);
+  --shadow-btn: 0 4px 12px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.3), inset 0 -1px 2px rgba(0, 0, 0, 0.7);
+  --shadow-inset: inset 0 3px 8px rgba(0, 0, 0, 0.75), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-inset-sm: inset 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
 
   --accent-primary: #FF7A18;
   --accent-primary-hover: #FF8F33;
   --accent-primary-active: #E66507;
   --accent-primary-text: #FFFFFF;
-  --accent-glow: 0 6px 22px rgba(255, 122, 24, 0.4);
+  --accent-glow: 0 6px 28px rgba(255, 122, 24, 0.55);
 
   --color-danger: #F87171;
   --color-danger-hover: #EF4444;
