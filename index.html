@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/Ink space.png" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0" />
     <meta name="description" content="InkSpace is a modern blogging platform to share ideas, discover inspiring stories, and publish articles effortlessly." />
     <meta name="theme-color" content="#FF6B00" />
@@ -15,9 +17,7 @@
           var savedTheme = localStorage.getItem('inkspace_theme');
           var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           var theme = (savedTheme === 'dark' || savedTheme === 'light') ? savedTheme : (prefersDark ? 'dark' : 'light');
-          var validStyles = ['default', 'neo-brutalism', 'claymorphism', 'skeuomorphism', 'interactive-3d'];
-          var savedStyle = localStorage.getItem('inkspace_style');
-          var style = validStyles.indexOf(savedStyle) !== -1 ? savedStyle : 'default';
+          var style = 'skeuomorphic-3d';
           
           document.documentElement.setAttribute('data-theme', theme);
           document.documentElement.setAttribute('data-style', style);
